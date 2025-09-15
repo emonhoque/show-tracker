@@ -30,7 +30,7 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh] p-0 bg-transparent md:bg-transparent bg-black/80 border-0 shadow-none"
+        className="max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh] p-0 bg-transparent border-0 shadow-none"
         showCloseButton={false}
         onPointerDownOutside={(e) => {
           // Allow clicking outside to close
