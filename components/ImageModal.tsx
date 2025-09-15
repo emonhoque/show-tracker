@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Image from 'next/image'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { X } from 'lucide-react'
 
@@ -50,9 +51,11 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
           </button>
           
           {/* Image */}
-          <img
+          <Image
             src={src}
             alt={alt}
+            width={800}
+            height={600}
             className="w-full h-full object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Show, RSVPSummary } from '@/lib/types'
@@ -150,9 +151,11 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
         {/* Poster Image */}
         {show.poster_url && (
           <div className="w-full">
-            <img
+            <Image
               src={show.poster_url}
               alt={`${show.title} poster`}
+              width={400}
+              height={320}
               className="w-full max-h-80 object-contain rounded-lg bg-gray-50 dark:bg-gray-800 cursor-pointer hover:opacity-90 transition-opacity"
               onClick={() => setImageModalOpen(true)}
             />

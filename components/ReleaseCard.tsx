@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -79,9 +80,11 @@ export function ReleaseCard({ release }: ReleaseCardProps) {
           {/* Album Art */}
           {release.image_url && (
             <div className="w-full max-w-xs mx-auto">
-              <img
+              <Image
                 src={release.image_url}
                 alt={release.name}
+                width={300}
+                height={192}
                 className="w-full max-h-48 object-contain rounded-lg bg-gray-50 dark:bg-gray-800 cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => setImageModalOpen(true)}
               />
@@ -134,9 +137,11 @@ export function ReleaseCard({ release }: ReleaseCardProps) {
           {/* Album Art */}
           {release.image_url && (
             <div className="flex-shrink-0">
-              <img
+              <Image
                 src={release.image_url}
                 alt={release.name}
+                width={96}
+                height={96}
                 className="w-24 h-24 object-cover rounded-lg bg-gray-50 dark:bg-gray-800 cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => setImageModalOpen(true)}
               />
