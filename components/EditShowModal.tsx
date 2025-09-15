@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -382,9 +383,11 @@ export function EditShowModal({ open, onOpenChange, show, onShowUpdated, isPast 
                   <div className="space-y-2">
                     {previewUrl && (
                       <div className="relative">
-                        <img
+                        <Image
                           src={previewUrl}
                           alt="Poster preview"
+                          width={400}
+                          height={128}
                           className="w-full max-h-32 object-contain rounded-lg bg-gray-50 dark:bg-gray-800"
                         />
                         <button

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Music, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -116,9 +117,11 @@ export function ArtistsListModal({ onArtistRemoved }: ArtistsListModalProps) {
                       {/* Artist Header */}
                       <div className="flex items-center gap-3">
                         {artist.image_url && (
-                          <img
+                          <Image
                             src={artist.image_url}
                             alt={artist.artist_name}
+                            width={48}
+                            height={48}
                             className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                           />
                         )}

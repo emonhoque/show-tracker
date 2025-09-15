@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Search, Plus, Music } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -144,9 +145,11 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
                       <CardContent className="p-0">
                         <div className="flex items-center gap-3">
                           {artist.images?.[0] && (
-                            <img
+                            <Image
                               src={artist.images[0].url}
                               alt={artist.name}
+                              width={48}
+                              height={48}
                               className="w-12 h-12 rounded-full object-cover"
                             />
                           )}
