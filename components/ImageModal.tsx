@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Image from 'next/image'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { X } from 'lucide-react'
 
 interface ImageModalProps {
@@ -40,6 +40,9 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
         <DialogTitle className="sr-only">
           {alt} - Click outside or press escape to close
         </DialogTitle>
+        <DialogDescription className="sr-only">
+          Image viewer for {alt}. Use the close button or press escape to close this modal.
+        </DialogDescription>
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Close button */}
           <button
