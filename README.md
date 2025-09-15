@@ -86,7 +86,7 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 2. Add shows with the "Add" button
 3. RSVP to upcoming shows
 4. Past shows are automatically moved to the Past tab
-5. Check the "Releases" tab to see new music from tracked artists
+5. Check the "Music" tab to see new music from tracked artists
 
 ### PWA Installation
 - **Mobile**: Tap "Add to Home Screen" in your browser menu
@@ -121,13 +121,13 @@ The app includes a powerful filtering system to help you find specific shows:
 The app now includes a community-driven Release Radar tracking system:
 
 #### Adding Artists
-1. Go to the "Releases" tab
+1. Go to the "Music" tab
 2. Click "Add Artist" to search for artists via Spotify
 3. Once added, the artist's releases will be visible to all users
 4. Artists are shared across the entire community
 
 #### Viewing Releases
-- New releases from all tracked artists appear in the Releases tab
+- New releases from all tracked artists appear in the Music tab
 - Shows releases from the last 30 days by default
 - Each release shows artist name, release type (album/single/EP), release date, and Spotify link
 - Releases are automatically fetched and updated

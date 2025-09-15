@@ -506,7 +506,7 @@ export default function Home() {
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
             <TabsTrigger value="past">Past</TabsTrigger>
-            <TabsTrigger value="releases">Releases</TabsTrigger>
+            <TabsTrigger value="releases">Music</TabsTrigger>
           </TabsList>
           
           <TabsContent value="upcoming" className="space-y-6">
