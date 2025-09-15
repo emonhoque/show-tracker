@@ -246,13 +246,13 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Music className="h-6 w-6" />
-            Music Releases
+            Release Radar
             <span className="text-sm font-normal text-gray-600">
               {weeks > 0 ? `(Last ${weeks} week${weeks !== 1 ? 's' : ''})` : `(Last ${days} days)`}
             </span>
           </h2>
         </div>
-        <SpotifyDisclaimer feature="music releases" />
+        <SpotifyDisclaimer feature="Release Radar" />
       </div>
     )
   }
@@ -276,7 +276,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
       <div className="space-y-4">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Music className="h-6 w-6" />
-          Music Releases
+          Release Radar
           <span className="text-sm font-normal text-gray-600">
             {weeks > 0 ? `(Last ${weeks} week${weeks !== 1 ? 's' : ''})` : `(Last ${days} days)`}
           </span>

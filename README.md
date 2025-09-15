@@ -19,7 +19,7 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 - 🎵 **Music integration** - Spotify and Apple Music links for shows
 - 📸 **Photo sharing** - Google Photos links for past shows
 - 🖼️ **Poster uploads** - Upload and display show posters with Vercel Blob storage
-- 🎶 **Community Music Releases** - Track new releases from any artist the community adds
+- 🎶 **Community Release Radar** - Track new releases from any artist the community adds
 - 🔍 **Artist Search** - Search and add artists to the community pool via Spotify API
 - 📊 **Performance monitoring** - Vercel Speed Insights integration for performance tracking
 
@@ -28,7 +28,7 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 ### Prerequisites
 - Node.js 18+
 - A Supabase account
-- A Spotify Developer account (for music releases feature)
+- A Spotify Developer account (for Release Radar feature)
 
 ### Setup
 
@@ -64,7 +64,7 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
    # Vercel Storage Blob (optional)
    BLOB_READ_WRITE_TOKEN=blob
    
-   # Spotify API (for music releases feature)
+   # Spotify API (for Release Radar feature)
    SPOTIFY_CLIENT_ID=your_spotify_client_id
    SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
    
@@ -117,8 +117,8 @@ The app includes a powerful filtering system to help you find specific shows:
 - Select "Going" only = Shows where anyone is going
 - Select "Sarah" + "Maybe" = Shows where Sarah is maybe attending
 
-### Music Releases Feature
-The app now includes a community-driven music releases tracking system:
+### Release Radar Feature
+The app now includes a community-driven Release Radar tracking system:
 
 #### Adding Artists
 1. Go to the "Releases" tab

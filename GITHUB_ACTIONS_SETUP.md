@@ -1,6 +1,6 @@
-# GitHub Actions Setup for Music Releases
+# GitHub Actions Setup for Release Radar
 
-This guide will help you set up GitHub Actions to automatically check for new music releases daily.
+This guide will help you set up GitHub Actions to automatically check for new releases daily.
 
 ## 🚀 Quick Setup
 
@@ -62,7 +62,7 @@ curl -X GET "https://your-app.vercel.app/api/cron/check-releases" \
 
 1. Go to your GitHub repository
 2. Click "Actions" tab
-3. Select "Check Music Releases" workflow
+3. Select "Check Release Radar" workflow
 4. Click "Run workflow" button
 5. Click "Run workflow" to trigger manually
 
@@ -71,7 +71,7 @@ curl -X GET "https://your-app.vercel.app/api/cron/check-releases" \
 ### View Workflow Runs
 
 1. Go to GitHub repository → Actions tab
-2. Click on "Check Music Releases" workflow
+2. Click on "Check Release Radar" workflow
 3. View run history and logs
 
 ### Check Logs
@@ -125,7 +125,7 @@ GitHub Actions will create a summary for each run showing:
 
 3. **Check GitHub Actions Logs**:
    - Go to Actions tab → Click on failed run
-   - Expand the "Check for new music releases" step
+   - Expand the "Check for new releases" step
    - Look for error messages
 
 ## 🔒 Security Notes
@@ -150,4 +150,4 @@ GitHub Actions will create a summary for each run showing:
 4. Monitor the first few automatic runs
 5. Adjust the schedule if needed
 
-Your music releases will now be automatically checked daily! 🎵
+Your Release Radar will now be automatically checked daily! 🎵

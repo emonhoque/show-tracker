@@ -1,8 +1,7 @@
-name: Check Music Releases
+name: Check Release Radar
 
 on:
   schedule:
-    # Run every 6 hours starting at 12:01 AM EST (5:01, 11:01, 17:01, 23:01 UTC)
     - cron: '1 5,11,17,23 * * *'
   # Allow manual triggering from GitHub Actions tab
   workflow_dispatch:
@@ -12,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Check for new music releases
+      - name: Check for new releases
         run: |
-          echo "🎵 Checking for new music releases..."
+          echo "🎵 Checking for new releases..."
           
           # Make the API call to check releases
           response=$(curl -s -w "\n%{http_code}" -X GET "${{ secrets.VERCEL_URL }}/api/cron/check-releases" \
@@ -57,7 +56,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 🎵 Music Releases Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎵 Release Radar Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
