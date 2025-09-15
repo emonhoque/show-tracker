@@ -12,7 +12,7 @@ import { ReleaseErrorState } from '@/components/ReleaseErrorState'
 import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
 
 interface ReleaseWithArtist extends Release {
-  artists: Artist | Array<{ id: string; name: string }>
+  artists: Array<{ id: string; name: string }> | null
 }
 
 interface ReleasesFeedProps {

@@ -8,7 +8,7 @@ import { ImageModal } from '@/components/ImageModal'
 import { Release, Artist } from '@/lib/types'
 
 interface ReleaseWithArtist extends Release {
-  artists: Artist | Array<{ id: string; name: string }>
+  artists: Array<{ id: string; name: string }> | null
 }
 
 interface ReleaseCardProps {
@@ -41,7 +41,7 @@ export function ReleaseCard({ release }: ReleaseCardProps) {
     }
   }
 
-  const getArtistNames = () => {
+  const getArtistNames = (): string => {
     try {
       // Parse the artists JSON string if it exists
       const artists = typeof release.artists === 'string' 
@@ -54,7 +54,7 @@ export function ReleaseCard({ release }: ReleaseCardProps) {
       
       // Fallback to old structure if available
       if (release.artists && typeof release.artists === 'object' && 'artist_name' in release.artists) {
-        return release.artists.artist_name;
+        return (release.artists as any).artist_name;
       }
       
       return 'Unknown Artist';
