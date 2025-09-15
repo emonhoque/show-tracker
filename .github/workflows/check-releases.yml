@@ -1,0 +1,67 @@
+name: Check Release Radar
+
+on:
+  schedule:
+    - cron: '1 5,11,17,23 * * *'
+  # Allow manual triggering from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  check-releases:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check for new releases
+        run: |
+          echo "🎵 Checking for new releases..."
+          
+          # Make the API call to check releases
+          response=$(curl -s -w "\n%{http_code}" -X GET "${{ secrets.VERCEL_URL }}/api/cron/check-releases" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          # Extract HTTP status code and response body
+          http_code=$(echo "$response" | tail -n1)
+          response_body=$(echo "$response" | head -n -1)
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $response_body"
+          
+          # Check if the request was successful
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Successfully checked for new releases"
+            
+            # Parse the response to get useful information
+            new_releases=$(echo "$response_body" | jq -r '.totalNewReleases // 0')
+            artists_checked=$(echo "$response_body" | jq -r '.totalArtists // 0')
+            
+            echo "📊 Results:"
+            echo "  - Artists checked: $artists_checked"
+            echo "  - New releases found: $new_releases"
+            
+            # Set step outputs for potential use in other steps
+            echo "new_releases=$new_releases" >> $GITHUB_OUTPUT
+            echo "artists_checked=$artists_checked" >> $GITHUB_OUTPUT
+            
+          else
+            echo "❌ Failed to check releases (HTTP $http_code)"
+            echo "Response: $response_body"
+            exit 1
+          fi
+        env:
+          # These secrets need to be set in your GitHub repository
+          VERCEL_URL: ${{ secrets.VERCEL_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🎵 Release Radar Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Results:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Artists checked: ${{ steps.check-releases.outputs.artists_checked || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- New releases found: ${{ steps.check-releases.outputs.new_releases || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next run:** This workflow runs every 6 hours starting at 12:01 AM EST (5:01, 11:01, 17:01, 23:01 UTC)" >> $GITHUB_STEP_SUMMARY

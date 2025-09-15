@@ -12,6 +12,7 @@ import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 import { PWAFeatures } from '@/components/PWAFeatures'
 import { RSVPFilter } from '@/components/RSVPFilter'
 import { RSVPFilterSkeleton } from '@/components/RSVPFilterSkeleton'
+import { ReleasesFeed } from '@/components/ReleasesFeed'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
@@ -179,7 +180,7 @@ export default function Home() {
         setLoading(false)
       }
     }
-  }, [])
+  }, [cacheVersion])
 
   // Fetch shows when authenticated
   useEffect(() => {
@@ -501,9 +502,10 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4">
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
             <TabsTrigger value="past">Past</TabsTrigger>
+            <TabsTrigger value="releases">Music</TabsTrigger>
           </TabsList>
           
           <TabsContent value="upcoming" className="space-y-6">
@@ -590,6 +592,10 @@ export default function Home() {
                 <div ref={sentinelRef} className="h-4" />
               </>
             )}
+          </TabsContent>
+          
+          <TabsContent value="releases" className="space-y-6">
+            <ReleasesFeed userName={userName} weeks={12} />
           </TabsContent>
         </Tabs>
       </main>

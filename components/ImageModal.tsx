@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import Image from 'next/image'
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { X } from 'lucide-react'
 
 interface ImageModalProps {
@@ -31,15 +32,22 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
       <DialogContent 
         className="max-w-[95vw] max-h-[95vh] w-[95vw] h-[95vh] p-0 bg-transparent border-0 shadow-none"
         showCloseButton={false}
-        onPointerDownOutside={() => {
+        onPointerDownOutside={(e) => {
           // Allow clicking outside to close
+          e.preventDefault()
           onOpenChange(false)
         }}
       >
         <DialogTitle className="sr-only">
           {alt} - Click outside or press escape to close
         </DialogTitle>
-        <div className="relative w-full h-full flex items-center justify-center">
+        <DialogDescription className="sr-only">
+          Image viewer for {alt}. Use the close button or press escape to close this modal.
+        </DialogDescription>
+        <div 
+          className="relative w-full h-full flex items-center justify-center"
+          onClick={() => onOpenChange(false)}
+        >
           {/* Close button */}
           <button
             onClick={() => onOpenChange(false)}
@@ -50,10 +58,12 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
           </button>
           
           {/* Image */}
-          <img
+          <Image
             src={src}
             alt={alt}
-            className="w-full h-full object-contain rounded-lg"
+            width={800}
+            height={600}
+            className="max-w-full max-h-full object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
