@@ -52,7 +52,7 @@ export interface Release {
   spotify_url?: string | null
   image_url?: string | null
   total_tracks?: number | null
-  external_urls?: Record<string, any> | null
+  external_urls?: Record<string, string> | null
   artists?: Array<{
     id: string
     name: string

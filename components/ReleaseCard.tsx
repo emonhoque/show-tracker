@@ -54,7 +54,7 @@ export function ReleaseCard({ release }: ReleaseCardProps) {
       
       // Fallback to old structure if available
       if (release.artists && typeof release.artists === 'object' && 'artist_name' in release.artists) {
-        return (release.artists as any).artist_name;
+        return (release.artists as { artist_name: string }).artist_name;
       }
       
       return 'Unknown Artist';
