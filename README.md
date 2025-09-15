@@ -1,4 +1,4 @@
-# EDM Adoption Clinic Show Tracker
+# Show Tracker
 
 A modern, password-protected Progressive Web App (PWA) for groups to track shows and manage RSVPs. Built with Next.js 15.5.2 and Supabase, featuring offline capabilities and native app-like experience.
 
@@ -128,7 +128,7 @@ The app now includes a community-driven Release Radar tracking system:
 
 #### Viewing Releases
 - New releases from all tracked artists appear in the Music tab
-- Shows releases from the last 30 days by default
+- Shows releases from the last 12 weeks by default
 - Each release shows artist name, release type (album/single/EP), release date, and Spotify link
 - Releases are automatically fetched and updated
 
@@ -221,7 +221,7 @@ This app is a fully functional Progressive Web App with:
 
 ### Show Management
 - **Rich show data**: Support for ticket URLs, Spotify/Apple Music links, Google Photos, and notes
-- **Smart time handling**: Boston timezone support with proper UTC conversion
+- **Smart time handling**: America/New_York timezone support with proper UTC conversion
 - **Validation**: Comprehensive input validation and sanitization
 - **Edit/Delete**: Full CRUD operations with confirmation dialogs
 
