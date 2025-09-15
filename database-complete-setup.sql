@@ -35,6 +35,46 @@ CREATE TABLE IF NOT EXISTS rsvps (
     PRIMARY KEY (show_id, name)
 );
 
+-- Create artists table
+CREATE TABLE IF NOT EXISTS artists (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    artist_name TEXT NOT NULL,
+    spotify_id TEXT UNIQUE NOT NULL,
+    spotify_url TEXT,
+    image_url TEXT,
+    genres TEXT[],
+    popularity INTEGER,
+    followers_count INTEGER,
+    last_checked TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by TEXT, -- Track who added the artist (optional)
+    is_active BOOLEAN DEFAULT true
+);
+
+-- Create releases table
+CREATE TABLE IF NOT EXISTS releases (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    artist_id UUID REFERENCES artists(id) ON DELETE CASCADE,
+    spotify_id TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    release_type TEXT CHECK (release_type IN ('album', 'single', 'compilation', 'ep')),
+    release_date DATE NOT NULL,
+    spotify_url TEXT,
+    image_url TEXT,
+    total_tracks INTEGER,
+    external_urls JSONB,
+    artists JSONB, -- Store all artists as JSON array
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create user_artists table
+CREATE TABLE IF NOT EXISTS user_artists (
+    user_id TEXT NOT NULL,
+    artist_id UUID REFERENCES artists(id) ON DELETE CASCADE,
+    added_at TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (user_id, artist_id)
+);
+
 -- =====================================================
 -- 2. PERFORMANCE INDEXES
 -- =====================================================
@@ -47,6 +87,14 @@ CREATE INDEX IF NOT EXISTS idx_shows_upcoming ON shows(date_time ASC);
 CREATE INDEX IF NOT EXISTS idx_shows_past ON shows(date_time DESC);
 CREATE INDEX IF NOT EXISTS idx_rsvps_show_id ON rsvps(show_id);
 CREATE INDEX IF NOT EXISTS idx_rsvps_show_status ON rsvps(show_id, status);
+CREATE INDEX IF NOT EXISTS idx_artists_spotify_id ON artists(spotify_id);
+CREATE INDEX IF NOT EXISTS idx_artists_active ON artists(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_artists_last_checked ON artists(last_checked);
+CREATE INDEX IF NOT EXISTS idx_releases_artist_id ON releases(artist_id);
+CREATE INDEX IF NOT EXISTS idx_releases_release_date ON releases(release_date DESC);
+CREATE INDEX IF NOT EXISTS idx_releases_spotify_id ON releases(spotify_id);
+CREATE INDEX IF NOT EXISTS idx_user_artists_user_id ON user_artists(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_artists_artist_id ON user_artists(artist_id);
 
 -- Optional indexes for future features (uncomment if needed)
 -- CREATE INDEX IF NOT EXISTS idx_rsvps_name_lower ON rsvps(LOWER(name));
@@ -61,6 +109,9 @@ CREATE INDEX IF NOT EXISTS idx_rsvps_show_status ON rsvps(show_id, status);
 -- Enable RLS on all tables
 ALTER TABLE shows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rsvps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE releases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_artists ENABLE ROW LEVEL SECURITY;
 
 -- Drop any existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Allow public read access to shows" ON shows;
@@ -80,6 +131,19 @@ DROP POLICY IF EXISTS "Allow authenticated read access to rsvps" ON rsvps;
 DROP POLICY IF EXISTS "Allow authenticated insert access to rsvps" ON rsvps;
 DROP POLICY IF EXISTS "Allow authenticated update access to rsvps" ON rsvps;
 DROP POLICY IF EXISTS "Allow authenticated delete access to rsvps" ON rsvps;
+
+DROP POLICY IF EXISTS "artists_select_policy" ON artists;
+DROP POLICY IF EXISTS "artists_insert_policy" ON artists;
+DROP POLICY IF EXISTS "artists_update_policy" ON artists;
+DROP POLICY IF EXISTS "artists_delete_policy" ON artists;
+DROP POLICY IF EXISTS "releases_select_policy" ON releases;
+DROP POLICY IF EXISTS "releases_insert_policy" ON releases;
+DROP POLICY IF EXISTS "releases_update_policy" ON releases;
+DROP POLICY IF EXISTS "releases_delete_policy" ON releases;
+DROP POLICY IF EXISTS "user_artists_select_policy" ON user_artists;
+DROP POLICY IF EXISTS "user_artists_insert_policy" ON user_artists;
+DROP POLICY IF EXISTS "user_artists_update_policy" ON user_artists;
+DROP POLICY IF EXISTS "user_artists_delete_policy" ON user_artists;
 
 -- Create optimized RLS policies for shows table
 CREATE POLICY "shows_select_policy" ON shows
@@ -107,6 +171,44 @@ CREATE POLICY "rsvps_update_policy" ON rsvps
 CREATE POLICY "rsvps_delete_policy" ON rsvps
     FOR DELETE USING (true);
 
+CREATE POLICY "artists_select_policy" ON artists
+    FOR SELECT USING (true);
+
+CREATE POLICY "artists_insert_policy" ON artists
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "artists_update_policy" ON artists
+    FOR UPDATE USING (true);
+
+CREATE POLICY "artists_delete_policy" ON artists
+    FOR DELETE USING (true);
+
+-- Create RLS policies for releases table
+CREATE POLICY "releases_select_policy" ON releases
+    FOR SELECT USING (true);
+
+CREATE POLICY "releases_insert_policy" ON releases
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "releases_update_policy" ON releases
+    FOR UPDATE USING (true);
+
+CREATE POLICY "releases_delete_policy" ON releases
+    FOR DELETE USING (true);
+
+-- Create RLS policies for user_artists table
+CREATE POLICY "user_artists_select_policy" ON user_artists
+    FOR SELECT USING (true);
+
+CREATE POLICY "user_artists_insert_policy" ON user_artists
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "user_artists_update_policy" ON user_artists
+    FOR UPDATE USING (true);
+
+CREATE POLICY "user_artists_delete_policy" ON user_artists
+    FOR DELETE USING (true);
+
 -- =====================================================
 -- 4. DATABASE STATISTICS UPDATE
 -- =====================================================
@@ -114,6 +216,9 @@ CREATE POLICY "rsvps_delete_policy" ON rsvps
 -- Update table statistics for optimal query planning
 ANALYZE shows;
 ANALYZE rsvps;
+ANALYZE artists;
+ANALYZE releases;
+ANALYZE user_artists;
 
 -- =====================================================
 -- 5. VERIFICATION QUERIES (OPTIONAL)
@@ -129,7 +234,7 @@ ANALYZE rsvps;
 -- SETUP COMPLETE
 -- =====================================================
 -- Your show-tracker database is now fully configured with:
--- ✅ Tables: shows, rsvps
+-- ✅ Tables: shows, rsvps, artists, releases, user_artists
 -- ✅ Performance indexes for fast queries
 -- ✅ Optimized RLS policies for security
 -- ✅ Database statistics updated

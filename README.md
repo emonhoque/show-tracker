@@ -19,6 +19,8 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 - 🎵 **Music integration** - Spotify and Apple Music links for shows
 - 📸 **Photo sharing** - Google Photos links for past shows
 - 🖼️ **Poster uploads** - Upload and display show posters with Vercel Blob storage
+- 🎶 **Community Music Releases** - Track new releases from any artist the community adds
+- 🔍 **Artist Search** - Search and add artists to the community pool via Spotify API
 - 📊 **Performance monitoring** - Vercel Speed Insights integration for performance tracking
 
 ## Quick Start
@@ -26,6 +28,7 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 ### Prerequisites
 - Node.js 18+
 - A Supabase account
+- A Spotify Developer account (for music releases feature)
 
 ### Setup
 
@@ -60,6 +63,13 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
    
    # Vercel Storage Blob (optional)
    BLOB_READ_WRITE_TOKEN=blob
+   
+   # Spotify API (for music releases feature)
+   SPOTIFY_CLIENT_ID=your_spotify_client_id
+   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   
+   # Cron job security (optional)
+   CRON_SECRET=your_secure_random_string
    ```
 
 5. **Run the application**
@@ -76,6 +86,7 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 2. Add shows with the "Add" button
 3. RSVP to upcoming shows
 4. Past shows are automatically moved to the Past tab
+5. Check the "Releases" tab to see new music from tracked artists
 
 ### PWA Installation
 - **Mobile**: Tap "Add to Home Screen" in your browser menu
@@ -106,6 +117,26 @@ The app includes a powerful filtering system to help you find specific shows:
 - Select "Going" only = Shows where anyone is going
 - Select "Sarah" + "Maybe" = Shows where Sarah is maybe attending
 
+### Music Releases Feature
+The app now includes a community-driven music releases tracking system:
+
+#### Adding Artists
+1. Go to the "Releases" tab
+2. Click "Add Artist" to search for artists via Spotify
+3. Once added, the artist's releases will be visible to all users
+4. Artists are shared across the entire community
+
+#### Viewing Releases
+- New releases from all tracked artists appear in the Releases tab
+- Shows releases from the last 30 days by default
+- Each release shows artist name, release type (album/single/EP), release date, and Spotify link
+- Releases are automatically fetched and updated
+
+#### Automatic Updates
+- Set up a cron job to call `/api/cron/check-releases` periodically
+- This checks all tracked artists for new releases
+- New releases are automatically added to the database
+
 ## Deployment
 
 The easiest way to deploy is using [Vercel](https://vercel.com/new):
@@ -133,7 +164,7 @@ The easiest way to deploy is using [Vercel](https://vercel.com/new):
 
 The app uses a single, comprehensive database setup file (`database-complete-setup.sql`) that includes:
 
-- **Tables**: `shows` and `rsvps` with proper relationships
+- **Tables**: `shows`, `rsvps`, `artists`, `releases`, and `user_artists` with proper relationships
 - **Show Fields**: title, date_time, time_local, city, venue, ticket_url, spotify_url, apple_music_url, google_photos_url, poster_url, notes
 - **Indexes**: Optimized for upcoming/past shows and RSVP joins
 - **RLS Policies**: Streamlined for performance and security
