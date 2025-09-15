@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { getArtist, mapSpotifyArtistToArtist, isSpotifyConfigured } from '@/lib/spotify'
-import { Artist } from '@/lib/types'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { data: artists, error } = await supabase
       .from('artists')

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Filter, ChevronDown, ChevronUp } from 'lucide-react'
+import { Filter, ChevronDown } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 
 interface RSVPFilterProps {

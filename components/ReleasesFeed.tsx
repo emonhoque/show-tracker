@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Music, ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Release, Artist } from '@/lib/types'
+import { Release } from '@/lib/types'
 import { ReleaseCard } from '@/components/ReleaseCard'
 import { ReleaseCardSkeleton } from '@/components/ReleaseCardSkeleton'
 import { ReleaseFilters } from '@/components/ReleaseFilters'
@@ -30,7 +30,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
   const [spotifyError, setSpotifyError] = useState<string | null>(null)
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
 
-  const fetchReleases = async (isRefresh = false) => {
+  const fetchReleases = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
       setIsRefreshing(true)
     } else {
@@ -63,11 +63,11 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [limit, days, weeks])
 
   useEffect(() => {
     fetchReleases()
-  }, [limit, days, weeks])
+  }, [limit, days, weeks, fetchReleases])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -85,7 +85,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
       })
       
       if (response.ok) {
-        const data = await response.json()
+        await response.json()
       } else {
         const errorData = await response.json()
         if (response.status === 503) {
@@ -119,7 +119,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
       })
       
       if (response.ok) {
-        const data = await response.json()
+        await response.json()
         console.log('Successfully fetched new releases from Spotify')
       } else {
         const errorData = await response.json()

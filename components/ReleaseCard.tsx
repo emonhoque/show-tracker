@@ -5,7 +5,7 @@ import { Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ImageModal } from '@/components/ImageModal'
-import { Release, Artist } from '@/lib/types'
+import { Release } from '@/lib/types'
 
 interface ReleaseWithArtist extends Release {
   artists: Array<{ id: string; name: string }> | null
@@ -58,7 +58,7 @@ export function ReleaseCard({ release }: ReleaseCardProps) {
       }
       
       return 'Unknown Artist';
-    } catch (error) {
+    } catch {
       return 'Unknown Artist';
     }
   }

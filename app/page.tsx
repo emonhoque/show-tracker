@@ -12,9 +12,8 @@ import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 import { PWAFeatures } from '@/components/PWAFeatures'
 import { RSVPFilter } from '@/components/RSVPFilter'
 import { RSVPFilterSkeleton } from '@/components/RSVPFilterSkeleton'
-import { AddArtistModal } from '@/components/AddArtistModal'
 import { ReleasesFeed } from '@/components/ReleasesFeed'
-import { Show, RSVPSummary, Artist } from '@/lib/types'
+import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { Plus, LogOut, Menu } from 'lucide-react'
@@ -181,7 +180,7 @@ export default function Home() {
         setLoading(false)
       }
     }
-  }, [])
+  }, [cacheVersion])
 
   // Fetch shows when authenticated
   useEffect(() => {
