@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { bostonToUTC } from '@/lib/time'
+import { discordService, ShowData } from '@/lib/discord'
 import { 
   validateTitle, 
   validateVenue, 
@@ -157,6 +158,18 @@ export async function PUT(
         { status: 404 }
       )
     }
+
+    // Send Discord notification asynchronously (don't block the response)
+    const showData: ShowData = {
+      id: data.id,
+      title: data.title,
+      date_time: data.date_time,
+      venue: data.venue,
+      city: data.city
+    }
+    
+    // Send notification asynchronously - don't await to avoid blocking the response
+    discordService.sendNotificationAsync('updated-show', showData)
 
     return NextResponse.json(data)
   } catch (error) {
