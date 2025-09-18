@@ -1,4 +1,3 @@
-const CACHE_NAME = 'show-tracker-v3';
 const STATIC_CACHE = 'show-tracker-static-v3';
 const DYNAMIC_CACHE = 'show-tracker-dynamic-v3';
 

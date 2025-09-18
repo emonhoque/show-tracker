@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Music, ChevronDown, ChevronRight } from 'lucide-react'
+import { Music, ChevronDown, ChevronRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Release } from '@/lib/types'
 import { ReleaseCard } from '@/components/ReleaseCard'
@@ -10,9 +10,19 @@ import { ReleaseFilters } from '@/components/ReleaseFilters'
 import { ReleaseEmptyState } from '@/components/ReleaseEmptyState'
 import { ReleaseErrorState } from '@/components/ReleaseErrorState'
 import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
+import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 
 interface ReleaseWithArtist extends Release {
   artists: Array<{ id: string; name: string }> | null
+}
+
+interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 interface ReleasesFeedProps {
@@ -26,28 +36,48 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
   const [releases, setReleases] = useState<ReleaseWithArtist[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [spotifyError, setSpotifyError] = useState<string | null>(null)
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set())
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    limit,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false
+  })
 
-  const fetchReleases = useCallback(async (isRefresh = false) => {
+  const fetchReleases = useCallback(async (isRefresh = false, page = 1, append = false) => {
     if (isRefresh) {
       setIsRefreshing(true)
-    } else {
+    } else if (page === 1) {
       setIsLoading(true)
+    } else {
+      setIsLoadingMore(true)
     }
     setError(null)
     setSpotifyError(null)
 
     try {
       const url = weeks > 0 
-        ? `/api/releases?limit=${limit}&weeks=${weeks}`
-        : `/api/releases?limit=${limit}&days=${days}`
+        ? `/api/releases?limit=${limit}&weeks=${weeks}&page=${page}`
+        : `/api/releases?limit=${limit}&days=${days}&page=${page}`
       
       const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
-        setReleases(data)
+        
+        if (append && data.releases) {
+          setReleases(prev => [...prev, ...data.releases])
+        } else {
+          setReleases(data.releases || [])
+        }
+        
+        if (data.pagination) {
+          setPagination(data.pagination)
+        }
       } else {
         const errorData = await response.json()
         if (response.status === 503) {
@@ -62,12 +92,27 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
     } finally {
       setIsLoading(false)
       setIsRefreshing(false)
+      setIsLoadingMore(false)
     }
   }, [limit, days, weeks])
 
   useEffect(() => {
     fetchReleases()
   }, [limit, days, weeks, fetchReleases])
+
+  const handleLoadMore = useCallback(async () => {
+    if (pagination.hasNext && !isLoadingMore) {
+      await fetchReleases(false, pagination.page + 1, true)
+    }
+  }, [pagination.hasNext, pagination.page, isLoadingMore, fetchReleases])
+
+  // Set up infinite scroll
+  const { sentinelRef } = useInfiniteScroll({
+    hasMore: pagination.hasNext,
+    isLoading: isLoadingMore,
+    onLoadMore: handleLoadMore,
+    threshold: 200
+  })
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -342,6 +387,42 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
           )}
         </div>
       )}
+
+      {/* Pagination Controls */}
+      {releases.length > 0 && (
+        <div className="flex flex-col items-center space-y-4 pt-6">
+          <div className="text-sm text-muted-foreground">
+            Showing {releases.length} of {pagination.total} releases
+          </div>
+          
+          {pagination.hasNext && (
+            <Button
+              onClick={handleLoadMore}
+              disabled={isLoadingMore}
+              variant="outline"
+              className="w-full max-w-xs"
+            >
+              {isLoadingMore ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading more...
+                </>
+              ) : (
+                'Load More Releases'
+              )}
+            </Button>
+          )}
+          
+          {pagination.totalPages > 1 && (
+            <div className="text-xs text-muted-foreground">
+              Page {pagination.page} of {pagination.totalPages}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-4" />
     </div>
   )
 }

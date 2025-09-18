@@ -118,8 +118,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '50')
+    const page = parseInt(searchParams.get('page') || '1')
     const days = parseInt(searchParams.get('days') || '30')
     const weeks = parseInt(searchParams.get('weeks') || '0')
+    const offset = (page - 1) * limit
 
     // Get releases from the last N days or weeks
     const cutoffDate = new Date()
@@ -129,19 +131,33 @@ export async function GET(request: NextRequest) {
       cutoffDate.setDate(cutoffDate.getDate() - days)
     }
 
-    const { data: releases, error } = await supabase
+    const { data: releases, error, count } = await supabase
       .from('releases')
-      .select('*')
+      .select('*', { count: 'exact' })
       .gte('release_date', cutoffDate.toISOString().split('T')[0])
       .order('release_date', { ascending: false })
-      .limit(limit)
+      .range(offset, offset + limit - 1)
 
     if (error) {
       console.error('Error fetching releases:', error)
       return NextResponse.json({ error: 'Failed to fetch releases' }, { status: 500 })
     }
 
-    return NextResponse.json(releases)
+    const totalPages = Math.ceil((count || 0) / limit)
+    const hasNext = page < totalPages
+    const hasPrev = page > 1
+
+    return NextResponse.json({
+      releases,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages,
+        hasNext,
+        hasPrev
+      }
+    })
   } catch (error) {
     console.error('Error in GET /api/releases:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
