@@ -59,6 +59,11 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
 
     if (show.notes) {
       lines.push(`Notes: ${show.notes}`)
+      lines.push('')
+    }
+
+    if (show.ticket_url) {
+      lines.push(`Tickets: ${show.ticket_url}`)
     }
 
     return lines.join('\n')
