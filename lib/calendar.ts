@@ -1,5 +1,5 @@
 import { Show } from './types'
-import { format, addHours } from 'date-fns'
+import { addHours } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
 
 const BOSTON_TZ = 'America/New_York'
@@ -135,12 +135,12 @@ export function generateICSContent(event: CalendarEvent, uid?: string): string {
     return `${year}${month}${day}T${hours}${minutes}${seconds}`
   }
 
-  // Get timezone offset for the event times
-  const timezoneOffset = event.start.getTimezoneOffset()
-  const offsetHours = Math.abs(Math.floor(timezoneOffset / 60))
-  const offsetMinutes = Math.abs(timezoneOffset % 60)
-  const offsetSign = timezoneOffset <= 0 ? '+' : '-'
-  const timezoneString = `${offsetSign}${String(offsetHours).padStart(2, '0')}${String(offsetMinutes).padStart(2, '0')}`
+  // Get timezone offset for the event times (currently unused but kept for future use)
+  // const timezoneOffset = event.start.getTimezoneOffset()
+  // const offsetHours = Math.abs(Math.floor(timezoneOffset / 60))
+  // const offsetMinutes = Math.abs(timezoneOffset % 60)
+  // const offsetSign = timezoneOffset <= 0 ? '+' : '-'
+  // const timezoneString = `${offsetSign}${String(offsetHours).padStart(2, '0')}${String(offsetMinutes).padStart(2, '0')}`
 
   const lines = [
     'BEGIN:VCALENDAR',

@@ -76,14 +76,7 @@ export function ExportToCalendar({ show, variant = 'button' }: ExportToCalendarP
     }
   }
 
-  // Quick export for mobile (single button)
-  const handleQuickExport = async () => {
-    if (isMobile) {
-      await handleExport('google')
-    } else {
-      await handleExport('ics')
-    }
-  }
+  // Quick export for mobile (single button) - removed unused function
 
   if (variant === 'card') {
     return (
