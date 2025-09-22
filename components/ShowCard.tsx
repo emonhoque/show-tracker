@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2 } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 
@@ -41,11 +41,40 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   // Get userName from localStorage on client side
   useEffect(() => {
     setUserName(localStorage.getItem('userName'))
   }, [])
+
+  const formatShowAsText = (show: Show): string => {
+    const lines = [
+      show.title,
+      '',
+      formatUserTime(show.date_time, show.time_local),
+      show.venue,
+      show.city
+    ]
+
+    if (show.notes) {
+      lines.push(`Notes: ${show.notes}`)
+    }
+
+    return lines.join('\n')
+  }
+
+  const handleCopyShowInfo = async () => {
+    try {
+      const text = formatShowAsText(show)
+      await navigator.clipboard.writeText(text)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy text:', error)
+      alert('Failed to copy show info')
+    }
+  }
 
   const handleRSVP = async (status: 'going' | 'maybe' | 'not_going' | null) => {
     if (!userName || loading) return
@@ -189,6 +218,15 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
             </Button>
           )}
           {!isPast && <ExportToCalendar show={show} />}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyShowInfo}
+            className="text-blue-800 hover:text-blue-900 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/20"
+          >
+            <Copy className="w-4 h-4 mr-1" />
+            {copySuccess ? 'Copied!' : 'Copy'}
+          </Button>
           {show.google_photos_url && isPast && (
             <Button
               variant="outline"
