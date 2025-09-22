@@ -188,7 +188,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
               </a>
             </Button>
           )}
-          <ExportToCalendar show={show} />
+          {!isPast && <ExportToCalendar show={show} />}
           {show.google_photos_url && isPast && (
             <Button
               variant="outline"
