@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run update-version && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "update-version": "node scripts/update-version.js",
+    "prebuild": "npm run update-version"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

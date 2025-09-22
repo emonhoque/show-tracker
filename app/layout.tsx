@@ -80,6 +80,14 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
+                // Check for updates immediately, even before page load
+                navigator.serviceWorker.getRegistration().then(function(registration) {
+                  if (registration) {
+                    // Force update check immediately
+                    registration.update();
+                  }
+                });
+
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js', {
                     scope: '/',
@@ -87,6 +95,52 @@ export default function RootLayout({
                   })
                     .then(function(registration) {
                       console.log('Service worker registered successfully');
+                      
+                      // Check for updates every time the page loads
+                      registration.addEventListener('updatefound', function() {
+                        console.log('Service worker update found');
+                        const newWorker = registration.installing;
+                        if (newWorker) {
+                          newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed') {
+                              if (navigator.serviceWorker.controller) {
+                                // New service worker is available, force reload
+                                console.log('New service worker available, reloading...');
+                                window.location.reload();
+                              } else {
+                                // First time installation
+                                console.log('Service worker installed for the first time');
+                              }
+                            }
+                          });
+                        }
+                      });
+                      
+                      // Force check for updates on every page load
+                      registration.update();
+                      
+                      // Also check for updates when the page becomes visible again
+                      document.addEventListener('visibilitychange', function() {
+                        if (!document.hidden) {
+                          registration.update();
+                        }
+                      });
+                      
+                      // Check for updates when the page regains focus
+                      window.addEventListener('focus', function() {
+                        registration.update();
+                      });
+                      
+                      // Listen for messages from the service worker
+                      navigator.serviceWorker.addEventListener('message', function(event) {
+                        if (event.data.type === 'SW_UPDATE_AVAILABLE') {
+                          console.log('Service worker update available:', event.data.version);
+                          // Force reload to get the new version
+                          window.location.reload();
+                        } else if (event.data.type === 'SW_ACTIVATED') {
+                          console.log('New service worker activated:', event.data.version);
+                        }
+                      });
                     })
                     .catch(function(registrationError) {
                       console.error('Service worker registration failed:', registrationError);
