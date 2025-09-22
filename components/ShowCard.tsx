@@ -9,6 +9,7 @@ import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
 import { ExternalLink, MoreVertical, Edit, Trash2 } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
+import { ExportToCalendar } from '@/components/ExportToCalendar'
 
 // Spotify and Apple Music icons as SVG components
 const SpotifyIcon = ({ className }: { className?: string }) => (
@@ -187,6 +188,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
               </a>
             </Button>
           )}
+          <ExportToCalendar show={show} />
           {show.google_photos_url && isPast && (
             <Button
               variant="outline"
