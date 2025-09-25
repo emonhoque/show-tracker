@@ -68,7 +68,7 @@ export default function RecapPage() {
   const handleCopySummary = async () => {
     if (!recapData || !userName) return
     
-    const userIndex = recapData.leaderboard.findIndex(user => user.name === userName?.toLowerCase())
+    const userIndex = recapData.leaderboard.findIndex(user => user.name === userName)
     const position = userIndex + 1
     const totalUsers = recapData.leaderboard.length
     
@@ -288,7 +288,7 @@ export default function RecapPage() {
                   </Button>
                   
                   {recapData.personalSummary.totalShows > 0 && (() => {
-                    const userIndex = recapData.leaderboard.findIndex(user => user.name === userName?.toLowerCase())
+                    const userIndex = recapData.leaderboard.findIndex(user => user.name === userName)
                     const position = userIndex + 1
                     const totalUsers = recapData.leaderboard.length
                     
@@ -354,6 +354,237 @@ export default function RecapPage() {
                 </CardHeader>
                 <CardContent>
                   <RecapChart data={recapData.monthlyData} year={selectedYear} />
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Your Stats and Group Stats */}
+            {recapData.stats && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Stats and Group Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Your Personal Stats */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-lg text-foreground">Your Stats</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Core Activity Stats */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Total Shows</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.personalTotalShows}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Shows you attended
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Solo Shows</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.personalSolos}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Times you went alone
+                        </div>
+                      </div>
+                      
+                      {/* Time-Based Stats */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your First Show</div>
+                        <div className="text-lg font-bold text-primary truncate">
+                          {recapData.stats.personalFirstShow?.title || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalFirstShow?.date || 'N/A'}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Last Show</div>
+                        <div className="text-lg font-bold text-primary truncate">
+                          {recapData.stats.personalLastShow?.title || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalLastShow?.date || 'N/A'}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Longest Gap</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.personalLongestGap?.days || 0} days
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalLongestGap?.startDate || 'N/A'} → {recapData.stats.personalLongestGap?.endDate || 'N/A'}
+                        </div>
+                      </div>
+                      
+                      {/* Pattern & Preference Stats */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Busiest Month</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.personalBusiestMonth?.month || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalBusiestMonth?.count || 0} shows
+                        </div>
+                      </div>
+                      
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most Common Day</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.personalMostCommonDay?.day || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalMostCommonDay?.count || 0} shows
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Top Venue</div>
+                        <div className="text-lg font-bold text-primary truncate">
+                          {recapData.stats.personalTopVenue?.venue || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalTopVenue?.count || 0} visits
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Your Back-to-Back Nights</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.personalBackToBackNights?.count || 0}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Consecutive day shows
+                        </div>
+                        {recapData.stats.personalBackToBackNights?.examples && recapData.stats.personalBackToBackNights.examples.length > 0 && (
+                          <div className="text-xs text-muted-foreground mt-2">
+                            {recapData.stats.personalBackToBackNights.examples.slice(0, 2).map((example, index) => (
+                              <div key={index} className="truncate">
+                                {example.dates.join(', ')}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Group Stats */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-lg text-foreground">Group Stats</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Group Activity Overview */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Total Shows</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.totalShows}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Across all attendees
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Group Total</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.groupTotal}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Total shows attended
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Average per Person</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.averageShowsPerPerson.toFixed(1)}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Shows per person
+                        </div>
+                      </div>
+                      
+                      {/* Group Patterns & Preferences */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Group Busiest Month</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.groupBusiestMonth?.month || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.groupBusiestMonth?.count || 0} shows
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Group Top Venue</div>
+                        <div className="text-lg font-bold text-primary truncate">
+                          {recapData.stats.groupTopVenue?.venue || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.groupTopVenue?.count || 0} visits
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most Popular Day</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.mostPopularDay?.day || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.mostPopularDay?.count || 0} total attendance
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most People in One Show</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.mostPeopleInOneShow?.count || 0} people
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 truncate">
+                          {recapData.stats.mostPeopleInOneShow?.showTitle || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {recapData.stats.mostPeopleInOneShow?.date || 'N/A'}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most Solos</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.mostSolos?.name ? formatNameForDisplay(recapData.stats.mostSolos.name) : 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.mostSolos?.count || 0} solo shows
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most Active User</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.mostActiveUser?.name ? formatNameForDisplay(recapData.stats.mostActiveUser.name) : 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.mostActiveUser?.count || 0} shows
+                        </div>
+                      </div>
+                      
+                      {/* Group Achievements & Streaks */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Biggest Streak</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.biggestStreak?.user ? formatNameForDisplay(recapData.stats.biggestStreak.user) : 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.biggestStreak?.streak || 0} months in a row
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}

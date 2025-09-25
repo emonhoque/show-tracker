@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { formatNameForDisplay } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,32 @@ interface RecapChartProps {
 
 export function RecapChart({ data }: RecapChartProps) {
   const [chartType, setChartType] = useState<'grid' | 'line'>('line')
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark') || 
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+      setIsDarkMode(isDark)
+    }
+    
+    checkDarkMode()
+    
+    // Listen for theme changes
+    const observer = new MutationObserver(checkDarkMode)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', checkDarkMode)
+    
+    return () => {
+      observer.disconnect()
+      mediaQuery.removeEventListener('change', checkDarkMode)
+    }
+  }, [])
   
   if (data.length === 0) {
     return (
@@ -227,19 +252,19 @@ export function RecapChart({ data }: RecapChartProps) {
 
       {/* Line chart view - Mobile first */}
       {chartType === 'line' && (
-        <div className="h-64 w-full sm:h-72">
+        <div className="h-64 w-full sm:h-72 text-foreground">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 15, right: 20, left: 15, bottom: 15 }}>
               <CartesianGrid strokeDasharray="1 1" stroke="hsl(var(--muted))" opacity={0.3} />
               <XAxis 
                 dataKey="month" 
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fontSize: 10, fill: 'currentColor' }}
                 tickLine={false}
                 axisLine={false}
                 interval="preserveStartEnd"
               />
               <YAxis 
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fontSize: 10, fill: 'currentColor' }}
                 tickLine={false}
                 axisLine={false}
                 allowDecimals={false}
@@ -274,7 +299,8 @@ export function RecapChart({ data }: RecapChartProps) {
                   display: 'flex',
                   flexWrap: 'wrap',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  color: 'currentColor'
                 }}
                 iconType="line"
               />
