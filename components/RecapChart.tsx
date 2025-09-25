@@ -181,7 +181,7 @@ export function RecapChart({ data }: RecapChartProps) {
                   {/* Monthly breakdown */}
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-foreground">Monthly Breakdown</div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-4 gap-2">
                       {user.monthlyCounts.map((count, index) => {
                         const isPeak = count === maxMonth && count > 0
                         return (
@@ -307,7 +307,7 @@ export function RecapChart({ data }: RecapChartProps) {
 
       {/* Chart description */}
       <p className="text-xs text-muted-foreground">
-        Counts use Boston time and exclude Maybe and Not going
+        Counts exclude Maybe and Not going
       </p>
     </div>
   )

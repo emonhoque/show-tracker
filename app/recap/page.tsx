@@ -242,7 +242,7 @@ export default function RecapPage() {
                     You went to {recapData.personalSummary.totalShows} show{recapData.personalSummary.totalShows !== 1 ? 's' : ''} in {selectedYear}.
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Based on Boston time, Jan 1 to Dec 31.
+                    Your year in review from January through December.
                   </p>
                 </div>
                 
@@ -335,7 +335,7 @@ export default function RecapPage() {
                       </div>
                     ))}
                     <p className="text-xs text-muted-foreground mt-4">
-                      Totals use Boston time and exclude Maybe and Not going
+                      Totals exclude Maybe and Not going
                     </p>
                   </div>
                 ) : (
