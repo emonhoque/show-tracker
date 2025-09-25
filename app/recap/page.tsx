@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,24 +23,7 @@ export default function RecapPage() {
 
   const router = useRouter()
 
-  // Check if component is mounted on client side
-  useEffect(() => {
-    setMounted(true)
-    const storedName = localStorage.getItem('userName')
-    if (storedName) {
-      setUserName(storedName)
-      setAuthenticated(true)
-    }
-  }, [])
-
-  // Fetch recap data when year changes
-  useEffect(() => {
-    if (authenticated) {
-      fetchRecapData()
-    }
-  }, [selectedYear, authenticated])
-
-  const fetchRecapData = async () => {
+  const fetchRecapData = useCallback(async () => {
     setLoading(true)
     try {
       const userParam = userName ? `&user=${encodeURIComponent(userName)}` : ''
@@ -56,7 +39,24 @@ export default function RecapPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedYear, userName])
+
+  // Check if component is mounted on client side
+  useEffect(() => {
+    setMounted(true)
+    const storedName = localStorage.getItem('userName')
+    if (storedName) {
+      setUserName(storedName)
+      setAuthenticated(true)
+    }
+  }, [])
+
+  // Fetch recap data when year changes
+  useEffect(() => {
+    if (authenticated) {
+      fetchRecapData()
+    }
+  }, [selectedYear, authenticated, fetchRecapData])
 
   const handleLogout = () => {
     localStorage.removeItem('userName')
@@ -137,14 +137,6 @@ export default function RecapPage() {
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/')}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              ← Back to Shows
-            </Button>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Recap</h1>
               {userName && (
@@ -203,6 +195,14 @@ export default function RecapPage() {
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Year Selector */}
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← Back to Shows
+          </Button>
           <label htmlFor="year-select" className="text-sm font-medium text-foreground">
             Year:
           </label>
@@ -303,7 +303,7 @@ export default function RecapPage() {
                     
                     return (
                       <div className="text-xs text-muted-foreground flex items-center">
-                        🏆 You're ranked {getOrdinal(position)} out of {totalUsers} attendees!
+                        🏆 You&apos;re ranked {getOrdinal(position)} out of {totalUsers} attendees!
                       </div>
                     )
                   })()}
