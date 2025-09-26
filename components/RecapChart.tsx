@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { formatNameForDisplay } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
@@ -20,32 +20,8 @@ interface RecapChartProps {
 
 export function RecapChart({ data }: RecapChartProps) {
   const [chartType, setChartType] = useState<'grid' | 'line'>('line')
-  const [isDarkMode, setIsDarkMode] = useState(false)
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   
-  // Detect dark mode
-  useEffect(() => {
-    const checkDarkMode = () => {
-      const isDark = document.documentElement.classList.contains('dark') || 
-                    window.matchMedia('(prefers-color-scheme: dark)').matches
-      setIsDarkMode(isDark)
-    }
-    
-    checkDarkMode()
-    
-    // Listen for theme changes
-    const observer = new MutationObserver(checkDarkMode)
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-    
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', checkDarkMode)
-    
-    return () => {
-      observer.disconnect()
-      mediaQuery.removeEventListener('change', checkDarkMode)
-    }
-  }, [])
   
   if (data.length === 0) {
     return (

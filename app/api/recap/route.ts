@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { toZonedTime } from 'date-fns-tz'
 
+// Partial RSVP type for recap queries that only select name and status
+interface PartialRSVP {
+  name: string
+  status: 'going' | 'maybe' | 'not_going'
+}
+
 const BOSTON_TZ = 'America/New_York'
 
 export interface RecapData {
@@ -199,7 +205,7 @@ export async function GET(request: NextRequest) {
 
         // Process RSVPs for this show
         if (show.rsvps && Array.isArray(show.rsvps)) {
-          show.rsvps.forEach((rsvp: { name: string; status: string }) => {
+          show.rsvps.forEach((rsvp: PartialRSVP) => {
             // Only count "going" status
             if (rsvp.status === 'going') {
               const userName = rsvp.name.trim()
@@ -353,7 +359,7 @@ export async function GET(request: NextRequest) {
       let personalSolos = 0
       if (shows && currentUser) {
         shows.forEach(show => {
-          const goingRSVPs = show.rsvps?.filter((rsvp: any) => rsvp.status === 'going') || []
+          const goingRSVPs = show.rsvps?.filter((rsvp: PartialRSVP) => rsvp.status === 'going') || []
           if (goingRSVPs.length === 1 && goingRSVPs[0].name.trim() === currentUser) {
             personalSolos++
           }
@@ -365,7 +371,7 @@ export async function GET(request: NextRequest) {
       let personalLastShow = null
       if (currentUser && shows) {
         const userShows = shows.filter(show => 
-          show.rsvps?.some((rsvp: any) => rsvp.name.trim() === currentUser && rsvp.status === 'going')
+          show.rsvps?.some((rsvp: PartialRSVP) => rsvp.name.trim() === currentUser && rsvp.status === 'going')
         ).sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime())
         
         if (userShows.length > 0) {
@@ -389,7 +395,7 @@ export async function GET(request: NextRequest) {
       let personalLongestGap = null
       if (currentUser && shows) {
         const userShows = shows.filter(show => 
-          show.rsvps?.some((rsvp: any) => rsvp.name.trim() === currentUser && rsvp.status === 'going')
+          show.rsvps?.some((rsvp: PartialRSVP) => rsvp.name.trim() === currentUser && rsvp.status === 'going')
         ).sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime())
         
         let maxGap = 0
@@ -420,14 +426,14 @@ export async function GET(request: NextRequest) {
       }
       
       // Personal back-to-back nights
-      let personalBackToBackNights = { count: 0, examples: [] as Array<{ dates: string[] }> }
+      const personalBackToBackNights = { count: 0, examples: [] as Array<{ dates: string[] }> }
       if (currentUser && shows) {
         const userShowDates: Date[] = []
         shows.forEach(show => {
           const showDate = new Date(show.date_time)
           const bostonDate = toZonedTime(showDate, BOSTON_TZ)
           
-          if (show.rsvps?.some((rsvp: any) => rsvp.name.trim() === currentUser && rsvp.status === 'going')) {
+          if (show.rsvps?.some((rsvp: PartialRSVP) => rsvp.name.trim() === currentUser && rsvp.status === 'going')) {
             userShowDates.push(bostonDate)
           }
         })
@@ -495,7 +501,7 @@ export async function GET(request: NextRequest) {
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         
         shows.forEach(show => {
-          if (show.rsvps?.some((rsvp: any) => rsvp.name.trim() === currentUser && rsvp.status === 'going')) {
+          if (show.rsvps?.some((rsvp: PartialRSVP) => rsvp.name.trim() === currentUser && rsvp.status === 'going')) {
             const showDate = new Date(show.date_time)
             const bostonDate = toZonedTime(showDate, BOSTON_TZ)
             const dayOfWeek = dayNames[bostonDate.getDay()]
@@ -559,7 +565,7 @@ export async function GET(request: NextRequest) {
       // Most people in one show
       if (shows) {
         shows.forEach(show => {
-          const goingCount = show.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0
+          const goingCount = show.rsvps?.filter((rsvp: PartialRSVP) => rsvp.status === 'going').length || 0
           if (goingCount > mostPeopleInOneShow.count) {
             const showDate = new Date(show.date_time)
             const bostonDate = toZonedTime(showDate, BOSTON_TZ)
@@ -576,7 +582,7 @@ export async function GET(request: NextRequest) {
       const soloCounts = new Map<string, number>()
       if (shows) {
         shows.forEach(show => {
-          const goingRSVPs = show.rsvps?.filter((rsvp: any) => rsvp.status === 'going') || []
+          const goingRSVPs = show.rsvps?.filter((rsvp: PartialRSVP) => rsvp.status === 'going') || []
           if (goingRSVPs.length === 1) {
             const userName = goingRSVPs[0].name.trim()
             soloCounts.set(userName, (soloCounts.get(userName) || 0) + 1)
@@ -604,25 +610,10 @@ export async function GET(request: NextRequest) {
       const averageShowsPerPerson = users.length > 0 ? groupTotal / users.length : 0
       
       // Time-based stats
-      let firstShowOfYear = { title: '', date: '' }
-      let lastShowOfYear = { title: '', date: '' }
       
       if (shows && shows.length > 0) {
-        const sortedShows = [...shows].sort((a, b) => new Date(a.date_time).getTime() - new Date(b.date_time).getTime())
-        
-        const firstDate = new Date(sortedShows[0].date_time)
-        const firstBostonDate = toZonedTime(firstDate, BOSTON_TZ)
-        firstShowOfYear = {
-          title: sortedShows[0].title,
-          date: firstBostonDate.toLocaleDateString()
-        }
-        
-        const lastDate = new Date(sortedShows[sortedShows.length - 1].date_time)
-        const lastBostonDate = toZonedTime(lastDate, BOSTON_TZ)
-        lastShowOfYear = {
-          title: sortedShows[sortedShows.length - 1].title,
-          date: lastBostonDate.toLocaleDateString()
-        }
+        // Note: firstShowOfYear and lastShowOfYear are calculated but not used in the response
+        // They could be added to the response if needed in the future
       }
       
       // Longest gap between shows
@@ -657,7 +648,7 @@ export async function GET(request: NextRequest) {
           const showDate = new Date(show.date_time)
           const bostonDate = toZonedTime(showDate, BOSTON_TZ)
           
-          show.rsvps?.forEach((rsvp: any) => {
+          show.rsvps?.forEach((rsvp: PartialRSVP) => {
             if (rsvp.status === 'going') {
               const userName = rsvp.name.trim()
               if (!userShowDates.has(userName)) {
@@ -736,7 +727,7 @@ export async function GET(request: NextRequest) {
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         
         shows.forEach(show => {
-          const goingCount = show.rsvps?.filter((rsvp: any) => rsvp.status === 'going').length || 0
+          const goingCount = show.rsvps?.filter((rsvp: PartialRSVP) => rsvp.status === 'going').length || 0
           if (goingCount > 0) {
             const showDate = new Date(show.date_time)
             const bostonDate = toZonedTime(showDate, BOSTON_TZ)
