@@ -70,6 +70,31 @@ export interface RecapData {
       count: number
     } | null
     
+    // Personal artist stats
+    personalTopArtists: Array<{
+      artist: string
+      count: number
+      position: string
+      image_url?: string
+    }>
+    personalTopHeadliners: Array<{
+      artist: string
+      count: number
+      image_url?: string
+    }>
+    personalTopSupportActs: Array<{
+      artist: string
+      count: number
+      image_url?: string
+    }>
+    personalMostSeenArtist: {
+      artist: string
+      count: number
+      image_url?: string
+    } | null
+    personalUniqueArtists: number
+    personalArtistDiversity: number // ratio of unique artists to total shows
+    
     // Group stats
     totalShows: number
     groupBusiestMonth: {
@@ -102,6 +127,35 @@ export interface RecapData {
     biggestStreak: {
       user: string
       streak: number
+    } | null
+    
+    // Group artist stats
+    groupTopArtists: Array<{
+      artist: string
+      count: number
+      position: string
+      image_url?: string
+    }>
+    groupTopHeadliners: Array<{
+      artist: string
+      count: number
+      image_url?: string
+    }>
+    groupTopSupportActs: Array<{
+      artist: string
+      count: number
+      image_url?: string
+    }>
+    groupMostSeenArtist: {
+      artist: string
+      count: number
+      image_url?: string
+    } | null
+    groupUniqueArtists: number
+    groupArtistDiversity: number
+    mostDiverseUser: {
+      name: string
+      diversity: number
     } | null
   }
 }

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS shows (
     google_photos_url TEXT,
     poster_url TEXT,
     notes TEXT,
+    show_artists JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -95,6 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_releases_release_date ON releases(release_date DE
 CREATE INDEX IF NOT EXISTS idx_releases_spotify_id ON releases(spotify_id);
 CREATE INDEX IF NOT EXISTS idx_user_artists_user_id ON user_artists(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_artists_artist_id ON user_artists(artist_id);
+CREATE INDEX IF NOT EXISTS idx_shows_artists_gin ON shows USING gin(show_artists);
 
 -- Optional indexes for future features (uncomment if needed)
 -- CREATE INDEX IF NOT EXISTS idx_rsvps_name_lower ON rsvps(LOWER(name));

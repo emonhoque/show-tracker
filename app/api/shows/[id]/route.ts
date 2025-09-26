@@ -56,7 +56,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const { title, date_local, time_local, city, venue, ticket_url, spotify_url, apple_music_url, google_photos_url, poster_url, notes } = await request.json()
+    const { title, date_local, time_local, city, venue, ticket_url, google_photos_url, poster_url, notes, show_artists } = await request.json()
 
     if (!id) {
       return NextResponse.json(
@@ -96,15 +96,6 @@ export async function PUT(
       return NextResponse.json({ error: ticketUrlValidation.error }, { status: 400 })
     }
 
-    const spotifyUrlValidation = validateUrl(spotify_url || '')
-    if (!spotifyUrlValidation.isValid) {
-      return NextResponse.json({ error: spotifyUrlValidation.error }, { status: 400 })
-    }
-
-    const appleMusicUrlValidation = validateUrl(apple_music_url || '')
-    if (!appleMusicUrlValidation.isValid) {
-      return NextResponse.json({ error: appleMusicUrlValidation.error }, { status: 400 })
-    }
 
     const googlePhotosUrlValidation = validateUrl(google_photos_url || '')
     if (!googlePhotosUrlValidation.isValid) {
@@ -134,11 +125,10 @@ export async function PUT(
         city: cityValidation.sanitizedValue,
         venue: venueValidation.sanitizedValue,
         ticket_url: ticketUrlValidation.sanitizedValue || null,
-        spotify_url: spotifyUrlValidation.sanitizedValue || null,
-        apple_music_url: appleMusicUrlValidation.sanitizedValue || null,
         google_photos_url: googlePhotosUrlValidation.sanitizedValue || null,
         poster_url: posterUrlValidation.sanitizedValue || null,
-        notes: notesValidation.sanitizedValue || null
+        notes: notesValidation.sanitizedValue || null,
+        show_artists: show_artists || []
       })
       .eq('id', id)
       .select()

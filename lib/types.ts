@@ -1,3 +1,11 @@
+export interface ShowArtist {
+  artist: string
+  position: 'Headliner' | 'Support'
+  image_url?: string
+  spotify_id: string
+  spotify_url: string
+}
+
 export interface Show {
   id: string
   title: string
@@ -11,6 +19,7 @@ export interface Show {
   google_photos_url?: string | null
   poster_url?: string | null
   notes?: string | null
+  show_artists?: ShowArtist[]
   created_at: string
 }
 

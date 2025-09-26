@@ -208,6 +208,83 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
           )}
         </div>
 
+        {/* Show Artists */}
+        {show.show_artists && show.show_artists.length > 0 && (
+          <div className="space-y-2">
+            {/* Headliners */}
+            {show.show_artists.filter(artist => artist.position === 'Headliner').length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Headliner</div>
+                <div className="flex flex-wrap gap-2">
+                  {show.show_artists
+                    .filter(artist => artist.position === 'Headliner')
+                    .map((artist, index) => (
+                    <Button
+                      key={`headliner-${index}`}
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="h-auto p-2 flex items-center space-x-2"
+                    >
+                      <a
+                        href={artist.spotify_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2"
+                      >
+                        {artist.image_url && (
+                          <img
+                            src={artist.image_url}
+                            alt={artist.artist}
+                            className="w-6 h-6 rounded-lg object-cover"
+                          />
+                        )}
+                        <span className="text-sm font-medium">{artist.artist}</span>
+                      </a>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Support Acts */}
+            {show.show_artists.filter(artist => artist.position === 'Support').length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Support</div>
+                <div className="flex flex-wrap gap-2">
+                  {show.show_artists
+                    .filter(artist => artist.position === 'Support')
+                    .map((artist, index) => (
+                    <Button
+                      key={`support-${index}`}
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="h-auto p-2 flex items-center space-x-2"
+                    >
+                      <a
+                        href={artist.spotify_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2"
+                      >
+                        {artist.image_url && (
+                          <img
+                            src={artist.image_url}
+                            alt={artist.artist}
+                            className="w-6 h-6 rounded-lg object-cover"
+                          />
+                        )}
+                        <span className="text-sm font-medium">{artist.artist}</span>
+                      </a>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2">
           {show.ticket_url && !isPast && (
@@ -245,20 +322,26 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
               </a>
             </Button>
           )}
-          {show.spotify_url && (
+          {/* Only show Spotify button if no show artists (old style) */}
+          {(!show.show_artists || show.show_artists.length === 0) && (
             <Button
               variant="outline"
               size="sm"
               asChild
               className="text-green-800 hover:text-green-900 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300"
             >
-              <a href={show.spotify_url} target="_blank" rel="noopener noreferrer">
+              <a 
+                href={`https://open.spotify.com/search/${encodeURIComponent(show.title)}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
                 <SpotifyIcon className="w-4 h-4 mr-1" />
                 Spotify
               </a>
             </Button>
           )}
-          {show.apple_music_url && (
+          {/* Only show Apple Music button if no show artists (old style) */}
+          {(!show.show_artists || show.show_artists.length === 0) && show.apple_music_url && (
             <Button
               variant="outline"
               size="sm"
