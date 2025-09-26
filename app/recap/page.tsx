@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
@@ -481,9 +482,6 @@ export default function RecapPage() {
                         <div className="text-xs text-muted-foreground mt-1">
                           Unique artists seen
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          {(recapData.stats.personalArtistDiversity * 100).toFixed(1)}% diversity
-                        </div>
                       </div>
                       
                       <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
@@ -513,9 +511,11 @@ export default function RecapPage() {
                                 {index + 1}
                               </div>
                               {artist.image_url && (
-                                <img 
+                                <Image 
                                   src={artist.image_url} 
                                   alt={artist.artist}
+                                  width={32}
+                                  height={32}
                                   className="w-8 h-8 rounded-full object-cover"
                                 />
                               )}
@@ -644,19 +644,6 @@ export default function RecapPage() {
                         </div>
                       </div>
                       
-                      {/* Group Artist Diversity Stats */}
-                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                        <div className="text-sm text-muted-foreground">Group Artist Diversity</div>
-                        <div className="text-2xl font-bold text-primary">
-                          {recapData.stats.groupUniqueArtists}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Unique artists seen
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {(recapData.stats.groupArtistDiversity * 100).toFixed(1)}% diversity
-                        </div>
-                      </div>
                       
                       <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                         <div className="text-sm text-muted-foreground">Group Most Seen Artist</div>
@@ -668,15 +655,6 @@ export default function RecapPage() {
                         </div>
                       </div>
                       
-                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                        <div className="text-sm text-muted-foreground">Most Diverse User</div>
-                        <div className="text-lg font-bold text-primary">
-                          {recapData.stats.mostDiverseUser?.name ? formatNameForDisplay(recapData.stats.mostDiverseUser.name) : 'N/A'}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {(recapData.stats.mostDiverseUser?.diversity || 0 * 100).toFixed(1)}% diversity
-                        </div>
-                      </div>
                     </div>
                   </div>
 
@@ -695,9 +673,11 @@ export default function RecapPage() {
                                 {index + 1}
                               </div>
                               {artist.image_url && (
-                                <img 
+                                <Image 
                                   src={artist.image_url} 
                                   alt={artist.artist}
+                                  width={32}
+                                  height={32}
                                   className="w-8 h-8 rounded-full object-cover"
                                 />
                               )}

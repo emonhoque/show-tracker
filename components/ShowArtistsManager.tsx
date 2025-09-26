@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ShowArtist } from '@/lib/types'
@@ -143,9 +144,11 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
                 >
                   <div className="flex items-center space-x-2">
                     {artist.images[0] && (
-                      <img
+                      <Image
                         src={artist.images[0].url}
                         alt={artist.name}
+                        width={32}
+                        height={32}
                         className="w-8 h-8 rounded-lg object-cover"
                       />
                     )}
@@ -180,9 +183,11 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
             <div key={index} className="flex items-center justify-between p-3 bg-background rounded border">
               <div className="flex items-center space-x-3">
                 {artist.image_url && (
-                  <img
+                  <Image
                     src={artist.image_url}
                     alt={artist.artist}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-lg object-cover"
                   />
                 )}
@@ -228,7 +233,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
 
       {showArtists.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4">
-          No artists added yet. Click "Add Artist" to search and add artists from Spotify.
+          No artists added yet. Click &quot;Add Artist&quot; to search and add artists from Spotify.
         </p>
       )}
     </div>

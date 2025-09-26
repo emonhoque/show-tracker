@@ -233,9 +233,11 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                         className="flex items-center space-x-2"
                       >
                         {artist.image_url && (
-                          <img
+                          <Image
                             src={artist.image_url}
                             alt={artist.artist}
+                            width={24}
+                            height={24}
                             className="w-6 h-6 rounded-lg object-cover"
                           />
                         )}
@@ -269,9 +271,11 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                         className="flex items-center space-x-2"
                       >
                         {artist.image_url && (
-                          <img
+                          <Image
                             src={artist.image_url}
                             alt={artist.artist}
+                            width={24}
+                            height={24}
                             className="w-6 h-6 rounded-lg object-cover"
                           />
                         )}

@@ -173,7 +173,7 @@ function generateUserColor(name: string): string {
 }
 
 // Helper function to extract artists from show_artists JSONB
-function extractArtistsFromShow(showArtists: any): Array<{
+function extractArtistsFromShow(showArtists: unknown): Array<{
   artist: string
   position: string
   image_url?: string
@@ -183,18 +183,21 @@ function extractArtistsFromShow(showArtists: any): Array<{
     return []
   }
   
-  return showArtists.map((artist: any) => ({
-    artist: artist.artist || '',
-    position: artist.position || '',
-    image_url: artist.image_url,
-    spotify_id: artist.spotify_id
-  }))
+  return showArtists.map((artist: unknown) => {
+    const artistObj = artist as Record<string, unknown>
+    return {
+      artist: (artistObj.artist as string) || '',
+      position: (artistObj.position as string) || '',
+      image_url: artistObj.image_url as string | undefined,
+      spotify_id: artistObj.spotify_id as string | undefined
+    }
+  })
 }
 
 // Helper function to calculate artist statistics for a user
 function calculateUserArtistStats(userShows: Array<{
   id: string
-  show_artists: any
+  show_artists: unknown
 }>) {
   const artistCounts = new Map<string, {
     count: number
@@ -234,6 +237,63 @@ function calculateUserArtistStats(userShows: Array<{
   const uniqueArtists = artistCounts.size
   const totalShows = userShows.length
   const diversity = totalShows > 0 ? uniqueArtists / totalShows : 0
+  
+  return {
+    topArtists,
+    mostSeenArtist,
+    uniqueArtists,
+    diversity
+  }
+}
+
+// Helper function to calculate group artist statistics
+// Each person attending a show counts as 1 entry for each artist at that show
+function calculateGroupArtistStats(shows: Array<{
+  id: string
+  show_artists: unknown
+  rsvps?: PartialRSVP[]
+}>) {
+  const artistCounts = new Map<string, {
+    count: number
+    image_url?: string
+  }>()
+  
+  shows.forEach(show => {
+    const artists = extractArtistsFromShow(show.show_artists)
+    const attendingCount = show.rsvps?.filter(rsvp => rsvp.status === 'going').length || 0
+    
+    artists.forEach(artistData => {
+      const artistName = artistData.artist
+      if (!artistName) return
+      
+      // Each person attending counts as 1 entry for this artist
+      if (!artistCounts.has(artistName)) {
+        artistCounts.set(artistName, {
+          count: 0,
+          image_url: artistData.image_url
+        })
+      }
+      const artistStat = artistCounts.get(artistName)!
+      artistStat.count += attendingCount
+    })
+  })
+  
+  // Convert to sorted arrays
+  const topArtists = Array.from(artistCounts.entries())
+    .map(([artist, data]) => ({
+      artist,
+      count: data.count,
+      image_url: data.image_url
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+  
+  const mostSeenArtist = topArtists.length > 0 ? topArtists[0] : null
+  const uniqueArtists = artistCounts.size
+  const totalAttendances = shows.reduce((sum, show) => {
+    return sum + (show.rsvps?.filter(rsvp => rsvp.status === 'going').length || 0)
+  }, 0)
+  const diversity = totalAttendances > 0 ? uniqueArtists / totalAttendances : 0
   
   return {
     topArtists,
@@ -934,12 +994,8 @@ export async function GET(request: NextRequest) {
       
       if (shows) {
         // Calculate group artist stats from all shows
-        const allShows = shows.map(show => ({
-          id: show.id,
-          show_artists: show.show_artists
-        }))
-        
-        const groupArtistStats = calculateUserArtistStats(allShows)
+        // Each person attending a show counts as 1 entry for each artist at that show
+        const groupArtistStats = calculateGroupArtistStats(shows)
         groupTopArtists = groupArtistStats.topArtists
         groupMostSeenArtist = groupArtistStats.mostSeenArtist
         groupUniqueArtists = groupArtistStats.uniqueArtists
