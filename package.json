@@ -7,7 +7,7 @@
     "build": "npm run update-version && next build",
     "start": "next start",
     "lint": "eslint",
-    "update-version": "node scripts/update-version.js",
+    "update-version": "node scripts/update-version.mjs",
     "prebuild": "npm run update-version"
   },
   "dependencies": {
