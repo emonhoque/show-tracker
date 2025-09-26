@@ -293,7 +293,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
             <Music className="h-6 w-6" />
             Release Radar
             <span className="text-sm font-normal text-gray-600">
-              {weeks > 0 ? `(Last ${weeks} week${weeks !== 1 ? 's' : ''})` : `(Last ${days} days)`}
+              {weeks > 0 ? `(Last ${weeks * 7} days)` : `(Last ${days} days)`}
             </span>
           </h2>
         </div>
@@ -323,7 +323,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
           <Music className="h-6 w-6" />
           Release Radar
           <span className="text-sm font-normal text-gray-600">
-            {weeks > 0 ? `(Last ${weeks} week${weeks !== 1 ? 's' : ''})` : `(Last ${days} days)`}
+            {weeks > 0 ? `(Last ${weeks * 7} days)` : `(Last ${days} days)`}
           </span>
         </h2>
         <ReleaseFilters 

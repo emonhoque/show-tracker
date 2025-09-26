@@ -603,7 +603,7 @@ export default function Home() {
           </TabsContent>
           
           <TabsContent value="releases" className="space-y-6">
-            <ReleasesFeed userName={userName} days={90} />
+            <ReleasesFeed userName={userName} weeks={13} />
           </TabsContent>
         </Tabs>
       </main>
