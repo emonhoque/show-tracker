@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectTrigger, SelectContent, SelectOption } from '@/components/ui/select'
+import { ShowArtist } from '@/lib/types'
+import { ShowArtistsManager } from '@/components/ShowArtistsManager'
 
 interface AddShowModalProps {
   open: boolean
@@ -30,11 +32,10 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
     city: 'Boston',
     venue: '',
     ticket_url: '',
-    spotify_url: '',
-    apple_music_url: '',
     poster_url: '',
     notes: ''
   })
+  const [showArtists, setShowArtists] = useState<ShowArtist[]>([])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -115,7 +116,7 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
       const response = await fetch('/api/shows', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, poster_url: posterUrl })
+        body: JSON.stringify({ ...formData, poster_url: posterUrl, show_artists: showArtists })
       })
 
       if (!response.ok) {
@@ -131,11 +132,10 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
         city: 'Boston',
         venue: '',
         ticket_url: '',
-        spotify_url: '',
-        apple_music_url: '',
         poster_url: '',
         notes: ''
       })
+      setShowArtists([])
       setSelectedFile(null)
       setPreviewUrl(null)
       onOpenChange(false)
@@ -331,6 +331,12 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
                 required
               />
             </div>
+
+            {/* Show Artists Management */}
+            <ShowArtistsManager
+              showArtists={showArtists}
+              onArtistsChange={setShowArtists}
+            />
             
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Ticket URL</label>
@@ -344,29 +350,6 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
               />
             </div>
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Spotify URL</label>
-              <Input
-                type="url"
-                value={formData.spotify_url}
-                onChange={(e) => handleChange('spotify_url', e.target.value)}
-                placeholder="https://open.spotify.com/..."
-                className="w-full h-10 text-sm"
-                style={{ fontSize: '16px' }}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Apple Music URL</label>
-              <Input
-                type="url"
-                value={formData.apple_music_url}
-                onChange={(e) => handleChange('apple_music_url', e.target.value)}
-                placeholder="https://music.apple.com/..."
-                className="w-full h-10 text-sm"
-                style={{ fontSize: '16px' }}
-              />
-            </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">Poster Image</label>
