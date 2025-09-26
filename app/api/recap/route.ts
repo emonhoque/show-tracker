@@ -74,17 +74,6 @@ export interface RecapData {
     personalTopArtists: Array<{
       artist: string
       count: number
-      position: string
-      image_url?: string
-    }>
-    personalTopHeadliners: Array<{
-      artist: string
-      count: number
-      image_url?: string
-    }>
-    personalTopSupportActs: Array<{
-      artist: string
-      count: number
       image_url?: string
     }>
     personalMostSeenArtist: {
@@ -131,17 +120,6 @@ export interface RecapData {
     
     // Group artist stats
     groupTopArtists: Array<{
-      artist: string
-      count: number
-      position: string
-      image_url?: string
-    }>
-    groupTopHeadliners: Array<{
-      artist: string
-      count: number
-      image_url?: string
-    }>
-    groupTopSupportActs: Array<{
       artist: string
       count: number
       image_url?: string
@@ -194,6 +172,77 @@ function generateUserColor(name: string): string {
   return COLOR_PALETTE[colorIndex]
 }
 
+// Helper function to extract artists from show_artists JSONB
+function extractArtistsFromShow(showArtists: any): Array<{
+  artist: string
+  position: string
+  image_url?: string
+  spotify_id?: string
+}> {
+  if (!showArtists || !Array.isArray(showArtists)) {
+    return []
+  }
+  
+  return showArtists.map((artist: any) => ({
+    artist: artist.artist || '',
+    position: artist.position || '',
+    image_url: artist.image_url,
+    spotify_id: artist.spotify_id
+  }))
+}
+
+// Helper function to calculate artist statistics for a user
+function calculateUserArtistStats(userShows: Array<{
+  id: string
+  show_artists: any
+}>) {
+  const artistCounts = new Map<string, {
+    count: number
+    image_url?: string
+  }>()
+  
+  userShows.forEach(show => {
+    const artists = extractArtistsFromShow(show.show_artists)
+    
+    artists.forEach(artistData => {
+      const artistName = artistData.artist
+      if (!artistName) return
+      
+      // Overall artist counts
+      if (!artistCounts.has(artistName)) {
+        artistCounts.set(artistName, {
+          count: 0,
+          image_url: artistData.image_url
+        })
+      }
+      const artistStat = artistCounts.get(artistName)!
+      artistStat.count++
+    })
+  })
+  
+  // Convert to sorted arrays
+  const topArtists = Array.from(artistCounts.entries())
+    .map(([artist, data]) => ({
+      artist,
+      count: data.count,
+      image_url: data.image_url
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+  
+  const mostSeenArtist = topArtists.length > 0 ? topArtists[0] : null
+  const uniqueArtists = artistCounts.size
+  const totalShows = userShows.length
+  const diversity = totalShows > 0 ? uniqueArtists / totalShows : 0
+  
+  return {
+    topArtists,
+    mostSeenArtist,
+    uniqueArtists,
+    diversity
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -216,7 +265,7 @@ export async function GET(request: NextRequest) {
     const yearStartUTC = toZonedTime(yearStart, BOSTON_TZ)
     const yearEndUTC = toZonedTime(yearEnd, BOSTON_TZ)
 
-    // Get all shows in the year with their RSVPs
+    // Get all shows in the year with their RSVPs and artist data
     const { data: shows, error: showsError } = await supabase
       .from('shows')
       .select(`
@@ -224,6 +273,7 @@ export async function GET(request: NextRequest) {
         title,
         date_time,
         venue,
+        show_artists,
         rsvps(name, status)
       `)
       .gte('date_time', yearStartUTC.toISOString())
@@ -577,6 +627,35 @@ export async function GET(request: NextRequest) {
         }
       }
       
+      // Personal artist stats
+      let personalTopArtists: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }> = []
+      let personalMostSeenArtist: {
+        artist: string
+        count: number
+        image_url?: string
+      } | null = null
+      let personalUniqueArtists = 0
+      let personalArtistDiversity = 0
+      
+      if (currentUser && shows) {
+        const userShows = shows.filter(show => 
+          show.rsvps?.some((rsvp: PartialRSVP) => rsvp.name.trim() === currentUser && rsvp.status === 'going')
+        ).map(show => ({
+          id: show.id,
+          show_artists: show.show_artists
+        }))
+        
+        const artistStats = calculateUserArtistStats(userShows)
+        personalTopArtists = artistStats.topArtists
+        personalMostSeenArtist = artistStats.mostSeenArtist
+        personalUniqueArtists = artistStats.uniqueArtists
+        personalArtistDiversity = artistStats.diversity
+      }
+      
       // Group stats
       const totalShows = shows?.length || 0
       
@@ -835,6 +914,64 @@ export async function GET(request: NextRequest) {
         }
       }
       
+      // Group artist stats
+      let groupTopArtists: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }> = []
+      let groupMostSeenArtist: {
+        artist: string
+        count: number
+        image_url?: string
+      } | null = null
+      let groupUniqueArtists = 0
+      let groupArtistDiversity = 0
+      let mostDiverseUser: {
+        name: string
+        diversity: number
+      } | null = null
+      
+      if (shows) {
+        // Calculate group artist stats from all shows
+        const allShows = shows.map(show => ({
+          id: show.id,
+          show_artists: show.show_artists
+        }))
+        
+        const groupArtistStats = calculateUserArtistStats(allShows)
+        groupTopArtists = groupArtistStats.topArtists
+        groupMostSeenArtist = groupArtistStats.mostSeenArtist
+        groupUniqueArtists = groupArtistStats.uniqueArtists
+        groupArtistDiversity = groupArtistStats.diversity
+        
+        // Find most diverse user
+        let maxDiversity = 0
+        let mostDiverseUserName = ''
+        
+        users.forEach(user => {
+          const userShows = shows.filter(show => 
+            show.rsvps?.some((rsvp: PartialRSVP) => rsvp.name.trim() === user.name && rsvp.status === 'going')
+          ).map(show => ({
+            id: show.id,
+            show_artists: show.show_artists
+          }))
+          
+          const userArtistStats = calculateUserArtistStats(userShows)
+          if (userArtistStats.diversity > maxDiversity) {
+            maxDiversity = userArtistStats.diversity
+            mostDiverseUserName = user.displayName
+          }
+        })
+        
+        if (maxDiversity > 0) {
+          mostDiverseUser = {
+            name: mostDiverseUserName,
+            diversity: maxDiversity
+          }
+        }
+      }
+      
       return {
         // Personal stats
         personalTotalShows,
@@ -848,6 +985,12 @@ export async function GET(request: NextRequest) {
         personalMaxShowsInMonth,
         personalMostCommonDay,
         
+        // Personal artist stats
+        personalTopArtists,
+        personalMostSeenArtist,
+        personalUniqueArtists,
+        personalArtistDiversity,
+        
         // Group stats
         totalShows,
         groupBusiestMonth,
@@ -858,7 +1001,14 @@ export async function GET(request: NextRequest) {
         groupTotal,
         averageShowsPerPerson,
         mostPopularDay,
-        biggestStreak
+        biggestStreak,
+        
+        // Group artist stats
+        groupTopArtists,
+        groupMostSeenArtist,
+        groupUniqueArtists,
+        groupArtistDiversity,
+        mostDiverseUser
       }
     })()
 

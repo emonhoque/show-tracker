@@ -471,7 +471,67 @@ export default function RecapPage() {
                           </div>
                         )}
                       </div>
+                      
+                      {/* Artist Diversity Stats */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Artist Diversity</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.personalUniqueArtists}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Unique artists seen
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {(recapData.stats.personalArtistDiversity * 100).toFixed(1)}% diversity
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most Seen Artist</div>
+                        <div className="text-lg font-bold text-primary truncate">
+                          {recapData.stats.personalMostSeenArtist?.artist || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.personalMostSeenArtist?.count || 0} times
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Personal Artist Stats */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-lg text-foreground">Your Artist Stats</h4>
+                    
+                    {/* Top Artists */}
+                    {recapData.stats.personalTopArtists.length > 0 && (
+                      <div className="space-y-3">
+                        <h5 className="font-medium text-foreground">Your Top Artists</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {recapData.stats.personalTopArtists.slice(0, 8).map((artist, index) => (
+                            <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                              <div className="text-sm font-medium text-muted-foreground w-6">
+                                {index + 1}
+                              </div>
+                              {artist.image_url && (
+                                <img 
+                                  src={artist.image_url} 
+                                  alt={artist.artist}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-foreground truncate">
+                                  {artist.artist}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Group Stats */}
@@ -583,7 +643,77 @@ export default function RecapPage() {
                           {recapData.stats.biggestStreak?.streak || 0} months in a row
                         </div>
                       </div>
+                      
+                      {/* Group Artist Diversity Stats */}
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Group Artist Diversity</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {recapData.stats.groupUniqueArtists}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Unique artists seen
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {(recapData.stats.groupArtistDiversity * 100).toFixed(1)}% diversity
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Group Most Seen Artist</div>
+                        <div className="text-lg font-bold text-primary truncate">
+                          {recapData.stats.groupMostSeenArtist?.artist || 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {recapData.stats.groupMostSeenArtist?.count || 0} times
+                        </div>
+                      </div>
+                      
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="text-sm text-muted-foreground">Most Diverse User</div>
+                        <div className="text-lg font-bold text-primary">
+                          {recapData.stats.mostDiverseUser?.name ? formatNameForDisplay(recapData.stats.mostDiverseUser.name) : 'N/A'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {(recapData.stats.mostDiverseUser?.diversity || 0 * 100).toFixed(1)}% diversity
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Group Artist Stats */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-lg text-foreground">Group Artist Stats</h4>
+                    
+                    {/* Group Top Artists */}
+                    {recapData.stats.groupTopArtists.length > 0 && (
+                      <div className="space-y-3">
+                        <h5 className="font-medium text-foreground">Group Top Artists</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {recapData.stats.groupTopArtists.slice(0, 8).map((artist, index) => (
+                            <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                              <div className="text-sm font-medium text-muted-foreground w-6">
+                                {index + 1}
+                              </div>
+                              {artist.image_url && (
+                                <img 
+                                  src={artist.image_url} 
+                                  alt={artist.artist}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-foreground truncate">
+                                  {artist.artist}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
