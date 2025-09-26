@@ -128,7 +128,7 @@ The app now includes a community-driven Release Radar tracking system:
 
 #### Viewing Releases
 - New releases from all tracked artists appear in the Music tab
-- Shows releases from the last 12 weeks by default
+- Shows releases from the last 90 days by default
 - Each release shows artist name, release type (album/single/EP), release date, and Spotify link
 - Releases are automatically fetched and updated
 
