@@ -196,7 +196,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
                     className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Add "{searchQuery}" as Custom Artist
+                    Add &quot;{searchQuery}&quot; as Custom Artist
                   </Button>
                 </div>
               )}
@@ -216,7 +216,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 <Plus className="w-4 h-4 mr-1" />
-                Add "{searchQuery}" as Custom Artist
+                Add &quot;{searchQuery}&quot; as Custom Artist
               </Button>
             </div>
           )}
