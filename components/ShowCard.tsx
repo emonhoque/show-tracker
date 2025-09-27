@@ -52,12 +52,36 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       show.city
     ]
 
-    if (show.notes) {
-      lines.push(`Notes: ${show.notes}`)
+    // Add headliner and support information
+    if (show.show_artists && show.show_artists.length > 0) {
       lines.push('')
+      
+      // Headliners
+      const headliners = show.show_artists.filter(artist => artist.position === 'Headliner')
+      if (headliners.length > 0) {
+        lines.push('Headliner:')
+        headliners.forEach(artist => {
+          lines.push(`  • ${artist.artist}`)
+        })
+      }
+      
+      // Support acts
+      const supportActs = show.show_artists.filter(artist => artist.position === 'Support')
+      if (supportActs.length > 0) {
+        lines.push('Support:')
+        supportActs.forEach(artist => {
+          lines.push(`  • ${artist.artist}`)
+        })
+      }
+    }
+
+    if (show.notes) {
+      lines.push('')
+      lines.push(`Notes: ${show.notes}`)
     }
 
     if (show.ticket_url) {
+      lines.push('')
       lines.push(`Tickets: ${show.ticket_url}`)
     }
 
