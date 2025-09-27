@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ShowArtist } from '@/lib/types'
-import { Plus, Trash2, Search } from 'lucide-react'
+import { Plus, Trash2, Search, Music } from 'lucide-react'
 
 interface ShowArtistsManagerProps {
   showArtists: ShowArtist[]
@@ -72,6 +72,25 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
       image_url: spotifyArtist.images[0]?.url || '',
       spotify_id: spotifyArtist.id,
       spotify_url: spotifyArtist.external_urls.spotify
+    }
+
+    onArtistsChange([...showArtists, newArtist])
+    setSearchQuery('')
+    setSearchResults([])
+    setShowSearch(false)
+  }
+
+  const addCustomArtist = () => {
+    if (!searchQuery.trim()) return
+
+    // First artist is headliner, subsequent artists are support by default
+    const isFirstArtist = showArtists.length === 0
+    const newArtist: ShowArtist = {
+      artist: searchQuery.trim(),
+      position: isFirstArtist ? 'Headliner' : 'Support',
+      image_url: '',
+      spotify_id: '',
+      spotify_url: ''
     }
 
     onArtistsChange([...showArtists, newArtist])
@@ -165,13 +184,41 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
                   </Button>
                 </div>
               ))}
+              
+              {/* Add Custom Artist Button at the end of results */}
+              {searchQuery && (
+                <div className="flex justify-center pt-2 border-t">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addCustomArtist}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add "{searchQuery}" as Custom Artist
+                  </Button>
+                </div>
+              )}
             </div>
           )}
 
           {searchResults.length === 0 && searchQuery && !searching && (
-            <p className="text-sm text-muted-foreground text-center py-2">
-              No artists found. Try a different search term.
-            </p>
+            <div className="text-center py-2 space-y-2">
+              <p className="text-sm text-muted-foreground">
+                No artists found. Try a different search term.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addCustomArtist}
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add "{searchQuery}" as Custom Artist
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -182,7 +229,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
           {showArtists.map((artist, index) => (
             <div key={index} className="flex items-center justify-between p-3 bg-background rounded border">
               <div className="flex items-center space-x-3">
-                {artist.image_url && (
+                {artist.image_url ? (
                   <Image
                     src={artist.image_url}
                     alt={artist.artist}
@@ -190,10 +237,21 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
                     height={48}
                     className="w-12 h-12 rounded-lg object-cover"
                   />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                    <Music className="w-6 h-6 text-muted-foreground" />
+                  </div>
                 )}
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium">{artist.artist}</span>
+                    <span className={`font-medium ${!artist.spotify_id ? 'text-muted-foreground' : ''}`}>
+                      {artist.artist}
+                    </span>
+                    {!artist.spotify_id && (
+                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                        Custom
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-1">
                     <Button

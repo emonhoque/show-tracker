@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2, Copy } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 
@@ -218,31 +218,60 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Headliner')
+                    .sort((a, b) => {
+                      // Sort Spotify artists first, then custom artists
+                      if (a.spotify_id && !b.spotify_id) return -1
+                      if (!a.spotify_id && b.spotify_id) return 1
+                      return 0
+                    })
                     .map((artist, index) => (
                     <Button
                       key={`headliner-${index}`}
                       variant="outline"
                       size="sm"
-                      asChild
+                      asChild={!!artist.spotify_url}
                       className="h-auto p-2 flex items-center space-x-2"
                     >
-                      <a
-                        href={artist.spotify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-2"
-                      >
-                        {artist.image_url && (
-                          <Image
-                            src={artist.image_url}
-                            alt={artist.artist}
-                            width={24}
-                            height={24}
-                            className="w-6 h-6 rounded-lg object-cover"
-                          />
-                        )}
-                        <span className="text-sm font-medium">{artist.artist}</span>
-                      </a>
+                      {artist.spotify_url ? (
+                        <a
+                          href={artist.spotify_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-2"
+                        >
+                          {artist.image_url ? (
+                            <Image
+                              src={artist.image_url}
+                              alt={artist.artist}
+                              width={24}
+                              height={24}
+                              className="w-6 h-6 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                              <Music className="w-3 h-3 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="text-sm font-medium">{artist.artist}</span>
+                        </a>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          {artist.image_url ? (
+                            <Image
+                              src={artist.image_url}
+                              alt={artist.artist}
+                              width={24}
+                              height={24}
+                              className="w-6 h-6 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                              <Music className="w-3 h-3 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="text-sm font-medium">{artist.artist}</span>
+                        </div>
+                      )}
                     </Button>
                   ))}
                 </div>
@@ -256,32 +285,61 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Support')
+                    .sort((a, b) => {
+                      // Sort Spotify artists first, then custom artists
+                      if (a.spotify_id && !b.spotify_id) return -1
+                      if (!a.spotify_id && b.spotify_id) return 1
+                      return 0
+                    })
                     .map((artist, index) => (
-                    <Button
-                      key={`support-${index}`}
-                      variant="outline"
-                      size="sm"
-                      asChild
-                      className="h-auto p-2 flex items-center space-x-2"
-                    >
-                      <a
-                        href={artist.spotify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-2"
-                      >
-                        {artist.image_url && (
-                          <Image
-                            src={artist.image_url}
-                            alt={artist.artist}
-                            width={24}
-                            height={24}
-                            className="w-6 h-6 rounded-lg object-cover"
-                          />
-                        )}
-                        <span className="text-sm font-medium">{artist.artist}</span>
-                      </a>
-                    </Button>
+                     <Button
+                       key={`support-${index}`}
+                       variant="outline"
+                       size="sm"
+                       asChild={!!artist.spotify_url}
+                       className="h-auto p-2 flex items-center space-x-2"
+                     >
+                       {artist.spotify_url ? (
+                         <a
+                           href={artist.spotify_url}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="flex items-center space-x-2"
+                         >
+                           {artist.image_url ? (
+                             <Image
+                               src={artist.image_url}
+                               alt={artist.artist}
+                               width={24}
+                               height={24}
+                               className="w-6 h-6 rounded-lg object-cover"
+                             />
+                           ) : (
+                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                               <Music className="w-3 h-3 text-muted-foreground" />
+                             </div>
+                           )}
+                           <span className="text-sm font-medium">{artist.artist}</span>
+                         </a>
+                       ) : (
+                         <div className="flex items-center space-x-2">
+                           {artist.image_url ? (
+                             <Image
+                               src={artist.image_url}
+                               alt={artist.artist}
+                               width={24}
+                               height={24}
+                               className="w-6 h-6 rounded-lg object-cover"
+                             />
+                           ) : (
+                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                               <Music className="w-3 h-3 text-muted-foreground" />
+                             </div>
+                           )}
+                           <span className="text-sm font-medium">{artist.artist}</span>
+                         </div>
+                       )}
+                     </Button>
                   ))}
                 </div>
               </div>
@@ -323,24 +381,6 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
               <a href={show.google_photos_url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-4 h-4 mr-1" />
                 Photos
-              </a>
-            </Button>
-          )}
-          {/* Only show Spotify button if no show artists (old style) */}
-          {(!show.show_artists || show.show_artists.length === 0) && (
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="text-green-800 hover:text-green-900 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300"
-            >
-              <a 
-                href={`https://open.spotify.com/search/${encodeURIComponent(show.title)}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <SpotifyIcon className="w-4 h-4 mr-1" />
-                Spotify
               </a>
             </Button>
           )}
