@@ -48,8 +48,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       show.title,
       '',
       formatUserTime(show.date_time, show.time_local),
-      show.venue,
-      show.city
+      `${show.venue}, ${show.city}`
     ]
 
     // Add headliner and support information
@@ -70,6 +69,15 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       if (supportActs.length > 0) {
         lines.push('Support:')
         supportActs.forEach(artist => {
+          lines.push(`  • ${artist.artist}`)
+        })
+      }
+      
+      // Local acts
+      const localActs = show.show_artists.filter(artist => artist.position === 'Local')
+      if (localActs.length > 0) {
+        lines.push('Local Support:')
+        localActs.forEach(artist => {
           lines.push(`  • ${artist.artist}`)
         })
       }
@@ -313,6 +321,73 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                     .map((artist, index) => (
                      <Button
                        key={`support-${index}`}
+                       variant="outline"
+                       size="sm"
+                       asChild={!!artist.spotify_url}
+                       className="h-auto p-2 flex items-center space-x-2"
+                     >
+                       {artist.spotify_url ? (
+                         <a
+                           href={artist.spotify_url}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="flex items-center space-x-2"
+                         >
+                           {artist.image_url ? (
+                             <Image
+                               src={artist.image_url}
+                               alt={artist.artist}
+                               width={24}
+                               height={24}
+                               className="w-6 h-6 rounded-lg object-cover"
+                             />
+                           ) : (
+                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                               <Music className="w-3 h-3 text-muted-foreground" />
+                             </div>
+                           )}
+                           <span className="text-sm font-medium">{artist.artist}</span>
+                         </a>
+                       ) : (
+                         <div className="flex items-center space-x-2">
+                           {artist.image_url ? (
+                             <Image
+                               src={artist.image_url}
+                               alt={artist.artist}
+                               width={24}
+                               height={24}
+                               className="w-6 h-6 rounded-lg object-cover"
+                             />
+                           ) : (
+                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                               <Music className="w-3 h-3 text-muted-foreground" />
+                             </div>
+                           )}
+                           <span className="text-sm font-medium">{artist.artist}</span>
+                         </div>
+                       )}
+                     </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Local Acts */}
+            {show.show_artists.filter(artist => artist.position === 'Local').length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Local Support</div>
+                <div className="flex flex-wrap gap-2">
+                  {show.show_artists
+                    .filter(artist => artist.position === 'Local')
+                    .sort((a, b) => {
+                      // Sort Spotify artists first, then custom artists
+                      if (a.spotify_id && !b.spotify_id) return -1
+                      if (!a.spotify_id && b.spotify_id) return 1
+                      return 0
+                    })
+                    .map((artist, index) => (
+                     <Button
+                       key={`local-${index}`}
                        variant="outline"
                        size="sm"
                        asChild={!!artist.spotify_url}

@@ -104,7 +104,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
     onArtistsChange(updatedArtists)
   }
 
-  const updateArtistPosition = (index: number, position: 'Headliner' | 'Support') => {
+  const updateArtistPosition = (index: number, position: 'Headliner' | 'Support' | 'Local') => {
     const updatedArtists = showArtists.map((artist, i) => 
       i === index ? { ...artist, position } : artist
     )
@@ -253,24 +253,33 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
                       </span>
                     )}
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex border rounded-md overflow-hidden mt-1">
                     <Button
                       type="button"
                       size="sm"
-                      variant={artist.position === 'Headliner' ? 'default' : 'outline'}
+                      variant={artist.position === 'Headliner' ? 'default' : 'ghost'}
                       onClick={() => updateArtistPosition(index, 'Headliner')}
-                      className="h-8 px-3 text-xs"
+                      className="h-8 px-3 text-xs rounded-none border-0"
                     >
                       Headliner
                     </Button>
                     <Button
                       type="button"
                       size="sm"
-                      variant={artist.position === 'Support' ? 'default' : 'outline'}
+                      variant={artist.position === 'Support' ? 'default' : 'ghost'}
                       onClick={() => updateArtistPosition(index, 'Support')}
-                      className="h-8 px-3 text-xs"
+                      className="h-8 px-3 text-xs rounded-none border-0 border-l"
                     >
                       Support
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={artist.position === 'Local' ? 'default' : 'ghost'}
+                      onClick={() => updateArtistPosition(index, 'Local')}
+                      className="h-8 px-3 text-xs rounded-none border-0 border-l"
+                    >
+                      Local
                     </Button>
                   </div>
                 </div>
