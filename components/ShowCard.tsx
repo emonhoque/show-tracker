@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
@@ -172,18 +172,28 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
     : null
 
   return (
-    <Card className="w-full mb-4">
-      <CardContent className="p-4 space-y-3">
-        {/* Header with Title and Actions */}
-        <div className="flex justify-between items-start">
-          <h3 className="text-xl font-bold text-foreground">{show.title}</h3>
+    <Card className="w-full mb-6 overflow-hidden">
+      {/* Header Section */}
+      <CardHeader className="pb-4">
+        <div className="flex justify-between items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xl font-bold leading-tight mb-2">
+              {show.title}
+            </CardTitle>
+            <CardDescription className="text-base font-medium">
+              {formatUserTime(show.date_time, show.time_local)}
+            </CardDescription>
+            <div className="text-sm text-muted-foreground mt-1">
+              {show.venue} • {show.city}
+            </div>
+          </div>
           {(onEdit || (onDelete && !isPast)) && (
             <DropdownMenu.DropdownMenu>
               <DropdownMenu.DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 flex-shrink-0"
                   aria-label={`More options for ${show.title}`}
                 >
                   <MoreVertical className="h-4 w-4" />
@@ -209,39 +219,40 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
             </DropdownMenu.DropdownMenu>
           )}
         </div>
+      </CardHeader>
 
+      {/* Main Content Section */}
+      <CardContent className="space-y-6">
         {/* Poster Image */}
         {show.poster_url && (
-          <div className="w-full">
+          <div className="w-full -mx-6">
             <Image
               src={show.poster_url}
               alt={`${show.title} poster`}
               width={400}
               height={320}
-              className="w-full max-h-80 object-contain rounded-lg bg-gray-50 dark:bg-gray-800 cursor-pointer hover:opacity-90 transition-opacity"
+              className="w-full max-h-80 object-contain cursor-pointer"
               onClick={() => setImageModalOpen(true)}
             />
           </div>
         )}
 
-        {/* Date/Time, Venue, and Location */}
-        <div>
-          <div className="text-lg font-semibold text-foreground">
-            {formatUserTime(show.date_time, show.time_local)}
+        {/* Notes Section */}
+        {show.notes && (
+          <div className="bg-muted/50 rounded-lg p-3 border-l-4 border-muted-foreground/20">
+            <p className="text-sm text-muted-foreground italic">{show.notes}</p>
           </div>
-          <p className="text-muted-foreground">{show.venue}, {show.city}</p>
-          {show.notes && (
-            <p className="text-sm text-muted-foreground italic mt-1">{show.notes}</p>
-          )}
-        </div>
+        )}
 
         {/* Show Artists */}
         {show.show_artists && show.show_artists.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {/* Headliners */}
             {show.show_artists.filter(artist => artist.position === 'Headliner').length > 0 && (
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Headliner</div>
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
+                  Headliner
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Headliner')
@@ -257,7 +268,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                       variant="outline"
                       size="sm"
                       asChild={!!artist.spotify_url}
-                      className="h-auto p-2 flex items-center space-x-2"
+                      className="h-auto p-3 flex items-center space-x-2 rounded-lg"
                     >
                       {artist.spotify_url ? (
                         <a
@@ -270,13 +281,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                             <Image
                               src={artist.image_url}
                               alt={artist.artist}
-                              width={24}
-                              height={24}
-                              className="w-6 h-6 rounded-lg object-cover"
+                              width={28}
+                              height={28}
+                              className="w-7 h-7 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
-                              <Music className="w-3 h-3 text-muted-foreground" />
+                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                              <Music className="w-4 h-4 text-muted-foreground" />
                             </div>
                           )}
                           <span className="text-sm font-medium">{artist.artist}</span>
@@ -287,13 +298,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                             <Image
                               src={artist.image_url}
                               alt={artist.artist}
-                              width={24}
-                              height={24}
-                              className="w-6 h-6 rounded-lg object-cover"
+                              width={28}
+                              height={28}
+                              className="w-7 h-7 rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
-                              <Music className="w-3 h-3 text-muted-foreground" />
+                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                              <Music className="w-4 h-4 text-muted-foreground" />
                             </div>
                           )}
                           <span className="text-sm font-medium">{artist.artist}</span>
@@ -307,8 +318,10 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
             
             {/* Support Acts */}
             {show.show_artists.filter(artist => artist.position === 'Support').length > 0 && (
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Support</div>
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
+                  Support
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Support')
@@ -324,7 +337,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                        variant="outline"
                        size="sm"
                        asChild={!!artist.spotify_url}
-                       className="h-auto p-2 flex items-center space-x-2"
+                       className="h-auto p-3 flex items-center space-x-2 rounded-lg"
                      >
                        {artist.spotify_url ? (
                          <a
@@ -337,13 +350,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                              <Image
                                src={artist.image_url}
                                alt={artist.artist}
-                               width={24}
-                               height={24}
-                               className="w-6 h-6 rounded-lg object-cover"
+                               width={28}
+                               height={28}
+                               className="w-7 h-7 rounded-full object-cover"
                              />
                            ) : (
-                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
-                               <Music className="w-3 h-3 text-muted-foreground" />
+                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                               <Music className="w-4 h-4 text-muted-foreground" />
                              </div>
                            )}
                            <span className="text-sm font-medium">{artist.artist}</span>
@@ -354,13 +367,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                              <Image
                                src={artist.image_url}
                                alt={artist.artist}
-                               width={24}
-                               height={24}
-                               className="w-6 h-6 rounded-lg object-cover"
+                               width={28}
+                               height={28}
+                               className="w-7 h-7 rounded-full object-cover"
                              />
                            ) : (
-                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
-                               <Music className="w-3 h-3 text-muted-foreground" />
+                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                               <Music className="w-4 h-4 text-muted-foreground" />
                              </div>
                            )}
                            <span className="text-sm font-medium">{artist.artist}</span>
@@ -374,8 +387,10 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
             
             {/* Local Acts */}
             {show.show_artists.filter(artist => artist.position === 'Local').length > 0 && (
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Local Support</div>
+              <div className="space-y-3">
+                <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
+                  Local Support
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Local')
@@ -391,7 +406,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                        variant="outline"
                        size="sm"
                        asChild={!!artist.spotify_url}
-                       className="h-auto p-2 flex items-center space-x-2"
+                       className="h-auto p-3 flex items-center space-x-2 rounded-lg"
                      >
                        {artist.spotify_url ? (
                          <a
@@ -404,13 +419,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                              <Image
                                src={artist.image_url}
                                alt={artist.artist}
-                               width={24}
-                               height={24}
-                               className="w-6 h-6 rounded-lg object-cover"
+                               width={28}
+                               height={28}
+                               className="w-7 h-7 rounded-full object-cover"
                              />
                            ) : (
-                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
-                               <Music className="w-3 h-3 text-muted-foreground" />
+                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                               <Music className="w-4 h-4 text-muted-foreground" />
                              </div>
                            )}
                            <span className="text-sm font-medium">{artist.artist}</span>
@@ -421,13 +436,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                              <Image
                                src={artist.image_url}
                                alt={artist.artist}
-                               width={24}
-                               height={24}
-                               className="w-6 h-6 rounded-lg object-cover"
+                               width={28}
+                               height={28}
+                               className="w-7 h-7 rounded-full object-cover"
                              />
                            ) : (
-                             <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
-                               <Music className="w-3 h-3 text-muted-foreground" />
+                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                               <Music className="w-4 h-4 text-muted-foreground" />
                              </div>
                            )}
                            <span className="text-sm font-medium">{artist.artist}</span>
@@ -441,17 +456,62 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
           </div>
         )}
 
+        {/* RSVPs Section */}
+        {(rsvps?.going?.length > 0 || rsvps?.maybe?.length > 0 || rsvps?.not_going?.length > 0) && (
+          <div className="space-y-3">
+            <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
+              {isPast ? 'Attendance' : 'RSVPs'}
+            </div>
+            <div className="space-y-2 text-sm">
+              {rsvps?.going?.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">
+                    {isPast ? 'Went:' : 'Going:'}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {rsvps.going.map(formatNameForDisplay).join(', ')}
+                  </span>
+                </div>
+              )}
+              {rsvps?.maybe?.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">
+                    Maybe:
+                  </span>
+                  <span className="text-muted-foreground">
+                    {rsvps.maybe.map(formatNameForDisplay).join(', ')}
+                  </span>
+                </div>
+              )}
+              {rsvps?.not_going?.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-foreground">
+                    {isPast ? "Didn't Go:" : 'Not Going:'}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {rsvps.not_going.map(formatNameForDisplay).join(', ')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </CardContent>
+
+      {/* Footer Section */}
+      <CardFooter className="flex-col gap-4 pt-0">
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 w-full">
           {show.ticket_url && !isPast && (
             <Button
               variant="outline"
               size="sm"
               asChild
+              className="flex-1 sm:flex-none"
             >
               <a href={show.ticket_url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-1" />
-                Ticket
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Get Tickets
               </a>
             </Button>
           )}
@@ -460,20 +520,20 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
             variant="outline"
             size="sm"
             onClick={handleCopyShowInfo}
-            className="text-blue-800 hover:text-blue-900 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/20"
+            className="flex-1 sm:flex-none"
           >
-            <Copy className="w-4 h-4 mr-1" />
-            {copySuccess ? 'Copied!' : 'Copy'}
+            <Copy className="w-4 h-4 mr-2" />
+            {copySuccess ? 'Copied!' : 'Copy Info'}
           </Button>
           {show.google_photos_url && isPast && (
             <Button
               variant="outline"
               size="sm"
               asChild
-              className="text-blue-800 hover:text-blue-900 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-950/20"
+              className="flex-1 sm:flex-none"
             >
               <a href={show.google_photos_url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-1" />
+                <ExternalLink className="w-4 h-4 mr-2" />
                 Photos
               </a>
             </Button>
@@ -484,46 +544,27 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
               variant="outline"
               size="sm"
               asChild
-              className="text-red-800 hover:text-red-900 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300"
+              className="flex-1 sm:flex-none"
             >
               <a href={show.apple_music_url} target="_blank" rel="noopener noreferrer">
-                <AppleMusicIcon className="w-4 h-4 mr-1" />
+                <AppleMusicIcon className="w-4 h-4 mr-2" />
                 Apple Music
               </a>
             </Button>
           )}
         </div>
 
-        {/* RSVPs */}
-        <div className="space-y-2 text-sm text-foreground">
-          {rsvps?.going?.length > 0 && (
-            <div>
-              <span className="font-semibold">{isPast ? 'Went:' : 'Going:'}</span> {rsvps.going.map(formatNameForDisplay).join(', ')}
-            </div>
-          )}
-          {rsvps?.maybe?.length > 0 && (
-            <div>
-              <span className="font-semibold">Maybe:</span> {rsvps.maybe.map(formatNameForDisplay).join(', ')}
-            </div>
-          )}
-          {rsvps?.not_going?.length > 0 && (
-            <div>
-              <span className="font-semibold">{isPast ? "Didn't Go:" : 'Not Going:'}</span> {rsvps.not_going.map(formatNameForDisplay).join(', ')}
-            </div>
-          )}
-        </div>
-
         {/* RSVP Buttons (only for upcoming shows) */}
         {!isPast && userName && (
-          <div className="pt-2 border-t border-border">
-            <div className="text-sm text-muted-foreground mb-2">Your RSVP:</div>
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+          <div className="w-full space-y-3">
+            <div className="text-sm font-medium text-foreground">Your RSVP:</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Button
                 size="sm"
                 variant={userStatus === 'going' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'going' ? null : 'going')}
                 disabled={loading}
-                className="w-full sm:w-auto"
+                className="w-full"
               >
                 Going
               </Button>
@@ -532,7 +573,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                 variant={userStatus === 'maybe' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'maybe' ? null : 'maybe')}
                 disabled={loading}
-                className="w-full sm:w-auto"
+                className="w-full"
               >
                 Maybe
               </Button>
@@ -541,37 +582,38 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                 variant={userStatus === 'not_going' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'not_going' ? null : 'not_going')}
                 disabled={loading}
-                className="w-full sm:w-auto"
+                className="w-full"
               >
                 Not Going
               </Button>
-              {userStatus && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleRSVP(null)}
-                  disabled={loading}
-                  className="w-full sm:w-auto"
-                >
-                  Clear
-                </Button>
-              )}
             </div>
+            {userStatus && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleRSVP(null)}
+                disabled={loading}
+                className="w-full"
+              >
+                Clear RSVP
+              </Button>
+            )}
           </div>
         )}
 
         {/* Attendance Button (only for past shows) */}
         {isPast && userName && (
-          <div className="pt-2 border-t border-border">
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+          <div className="w-full space-y-3">
+            <div className="text-sm font-medium text-foreground">Attendance:</div>
+            <div className="flex gap-2">
               <Button
                 size="sm"
                 variant={userStatus === 'going' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'going' ? null : 'going')}
                 disabled={loading}
-                className="w-full sm:w-auto"
+                className="flex-1"
               >
-                {userStatus === 'going' ? 'I was there!' : 'I was there!'}
+                {userStatus === 'going' ? 'I was there!' : 'Mark as Attended'}
               </Button>
               {userStatus === 'going' && (
                 <Button
@@ -579,7 +621,6 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                   variant="ghost"
                   onClick={() => handleRSVP(null)}
                   disabled={loading}
-                  className="w-full sm:w-auto"
                 >
                   Clear
                 </Button>
@@ -587,7 +628,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
             </div>
           </div>
         )}
-      </CardContent>
+      </CardFooter>
       
       {/* Image Modal */}
       {show.poster_url && (
