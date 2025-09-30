@@ -366,6 +366,7 @@ function calculateUserArtistStats(userShows: Array<{
   const artistCounts = new Map<string, {
     count: number
     image_url?: string
+    isHeadliner: boolean
   }>()
   
   userShows.forEach(show => {
@@ -375,26 +376,44 @@ function calculateUserArtistStats(userShows: Array<{
       const artistName = artistData.artist
       if (!artistName) return
       
+      const isHeadliner = artistData.position === 'Headliner'
+      
       // Overall artist counts
       if (!artistCounts.has(artistName)) {
         artistCounts.set(artistName, {
           count: 0,
-          image_url: artistData.image_url
+          image_url: artistData.image_url,
+          isHeadliner: false
         })
       }
       const artistStat = artistCounts.get(artistName)!
       artistStat.count++
+      // If this artist has ever been a headliner, mark them as such
+      if (isHeadliner) {
+        artistStat.isHeadliner = true
+      }
     })
   })
   
-  // Convert to sorted arrays
+  // Convert to sorted arrays, prioritizing headliners
   const topArtists = Array.from(artistCounts.entries())
     .map(([artist, data]) => ({
       artist,
       count: data.count,
-      image_url: data.image_url
+      image_url: data.image_url,
+      isHeadliner: data.isHeadliner
     }))
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => {
+      // First sort by count (descending)
+      if (b.count !== a.count) {
+        return b.count - a.count
+      }
+      // If counts are equal, prioritize headliners
+      if (a.isHeadliner && !b.isHeadliner) return -1
+      if (!a.isHeadliner && b.isHeadliner) return 1
+      // If both are headliners or both are not, sort alphabetically
+      return a.artist.localeCompare(b.artist)
+    })
     .slice(0, 10)
   
   const mostSeenArtist = topArtists.length > 0 ? topArtists[0] : null
@@ -420,6 +439,7 @@ function calculateGroupArtistStats(shows: Array<{
   const artistCounts = new Map<string, {
     count: number
     image_url?: string
+    isHeadliner: boolean
   }>()
   
   shows.forEach(show => {
@@ -430,26 +450,44 @@ function calculateGroupArtistStats(shows: Array<{
       const artistName = artistData.artist
       if (!artistName) return
       
+      const isHeadliner = artistData.position === 'Headliner'
+      
       // Each person attending counts as 1 entry for this artist
       if (!artistCounts.has(artistName)) {
         artistCounts.set(artistName, {
           count: 0,
-          image_url: artistData.image_url
+          image_url: artistData.image_url,
+          isHeadliner: false
         })
       }
       const artistStat = artistCounts.get(artistName)!
       artistStat.count += attendingCount
+      // If this artist has ever been a headliner, mark them as such
+      if (isHeadliner) {
+        artistStat.isHeadliner = true
+      }
     })
   })
   
-  // Convert to sorted arrays
+  // Convert to sorted arrays, prioritizing headliners
   const topArtists = Array.from(artistCounts.entries())
     .map(([artist, data]) => ({
       artist,
       count: data.count,
-      image_url: data.image_url
+      image_url: data.image_url,
+      isHeadliner: data.isHeadliner
     }))
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => {
+      // First sort by count (descending)
+      if (b.count !== a.count) {
+        return b.count - a.count
+      }
+      // If counts are equal, prioritize headliners
+      if (a.isHeadliner && !b.isHeadliner) return -1
+      if (!a.isHeadliner && b.isHeadliner) return 1
+      // If both are headliners or both are not, sort alphabetically
+      return a.artist.localeCompare(b.artist)
+    })
     .slice(0, 10)
   
   const mostSeenArtist = topArtists.length > 0 ? topArtists[0] : null

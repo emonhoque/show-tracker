@@ -172,7 +172,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
     : null
 
   return (
-    <Card className="w-full mb-6 overflow-hidden">
+    <Card className="w-full mb-6 overflow-hidden gap-1">
       {/* Header Section */}
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start gap-4">
@@ -222,10 +222,10 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       </CardHeader>
 
       {/* Main Content Section */}
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Poster Image */}
         {show.poster_url && (
-          <div className="w-full -mx-6">
+          <div className="w-full flex items-center justify-center bg-muted/30 rounded-lg overflow-hidden">
             <Image
               src={show.poster_url}
               alt={`${show.title} poster`}

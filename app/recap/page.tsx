@@ -789,7 +789,7 @@ export default function RecapPage() {
                           {recapData.stats.groupMostSeenArtist?.artist || 'N/A'}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
-                          {recapData.stats.groupMostSeenArtist?.count || 0} times
+                          {recapData.stats.groupMostSeenArtist?.count || 0} {recapData.stats.groupMostSeenArtist?.count !== 1 ? 'times seen' : 'time seen'}
                         </div>
                       </div>
                       
@@ -842,7 +842,7 @@ export default function RecapPage() {
                                       {artist.artist}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
                                     </div>
                                   </div>
                                 </div>
@@ -877,7 +877,7 @@ export default function RecapPage() {
                                       {artist.artist}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
                                     </div>
                                   </div>
                                 </div>
@@ -916,7 +916,7 @@ export default function RecapPage() {
                                       {artist.artist}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
                                     </div>
                                   </div>
                                 </div>
@@ -955,7 +955,7 @@ export default function RecapPage() {
                                       {artist.artist}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
                                     </div>
                                   </div>
                                 </div>
