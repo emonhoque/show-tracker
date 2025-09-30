@@ -21,12 +21,13 @@ export function ShowCardSkeleton() {
         <div className="w-full -mx-6 h-48 bg-muted animate-pulse"></div>
 
         {/* Artists Section Skeleton */}
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <div className="h-4 bg-muted rounded w-20 animate-pulse"></div>
-            <div className="flex flex-wrap gap-2">
-              <div className="h-10 bg-muted rounded-lg w-24 animate-pulse"></div>
-              <div className="h-10 bg-muted rounded-lg w-32 animate-pulse"></div>
+        <div className="space-y-2">
+          <div className="space-y-1">
+            <div className="h-3 bg-muted rounded w-16 animate-pulse"></div>
+            <div className="flex flex-wrap gap-1">
+              <div className="h-7 bg-muted rounded w-20 animate-pulse"></div>
+              <div className="h-7 bg-muted rounded w-24 animate-pulse"></div>
+              <div className="h-7 bg-muted rounded w-18 animate-pulse"></div>
             </div>
           </div>
         </div>

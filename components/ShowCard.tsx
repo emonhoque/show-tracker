@@ -246,13 +246,11 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
 
         {/* Show Artists */}
         {show.show_artists && show.show_artists.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Headliners */}
             {show.show_artists.filter(artist => artist.position === 'Headliner').length > 0 && (
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
-                  Headliner
-                </div>
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-foreground">Headliner</div>
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Headliner')
@@ -263,65 +261,35 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                       return 0
                     })
                     .map((artist, index) => (
-                    <Button
-                      key={`headliner-${index}`}
-                      variant="outline"
-                      size="sm"
-                      asChild={!!artist.spotify_url}
-                      className="h-auto p-3 flex items-center space-x-2 rounded-lg"
-                    >
-                      {artist.spotify_url ? (
-                        <a
-                          href={artist.spotify_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center space-x-2"
-                        >
-                          {artist.image_url ? (
-                            <Image
-                              src={artist.image_url}
-                              alt={artist.artist}
-                              width={28}
-                              height={28}
-                              className="w-7 h-7 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                              <Music className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                          )}
-                          <span className="text-sm font-medium">{artist.artist}</span>
-                        </a>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          {artist.image_url ? (
-                            <Image
-                              src={artist.image_url}
-                              alt={artist.artist}
-                              width={28}
-                              height={28}
-                              className="w-7 h-7 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                              <Music className="w-4 h-4 text-muted-foreground" />
-                            </div>
-                          )}
-                          <span className="text-sm font-medium">{artist.artist}</span>
-                        </div>
-                      )}
-                    </Button>
-                  ))}
+                      <div
+                        key={`headliner-${index}`}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border bg-muted/30 ${artist.spotify_url ? 'cursor-pointer' : ''}`}
+                        onClick={() => artist.spotify_url && window.open(artist.spotify_url, '_blank')}
+                      >
+                        {artist.image_url ? (
+                          <Image
+                            src={artist.image_url}
+                            alt={artist.artist}
+                            width={24}
+                            height={24}
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                            <Music className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                        )}
+                        <span className="text-sm font-medium">{artist.artist}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
             
             {/* Support Acts */}
             {show.show_artists.filter(artist => artist.position === 'Support').length > 0 && (
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
-                  Support
-                </div>
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-foreground">Support</div>
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Support')
@@ -332,65 +300,35 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                       return 0
                     })
                     .map((artist, index) => (
-                     <Button
-                       key={`support-${index}`}
-                       variant="outline"
-                       size="sm"
-                       asChild={!!artist.spotify_url}
-                       className="h-auto p-3 flex items-center space-x-2 rounded-lg"
-                     >
-                       {artist.spotify_url ? (
-                         <a
-                           href={artist.spotify_url}
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           className="flex items-center space-x-2"
-                         >
-                           {artist.image_url ? (
-                             <Image
-                               src={artist.image_url}
-                               alt={artist.artist}
-                               width={28}
-                               height={28}
-                               className="w-7 h-7 rounded-full object-cover"
-                             />
-                           ) : (
-                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                               <Music className="w-4 h-4 text-muted-foreground" />
-                             </div>
-                           )}
-                           <span className="text-sm font-medium">{artist.artist}</span>
-                         </a>
-                       ) : (
-                         <div className="flex items-center space-x-2">
-                           {artist.image_url ? (
-                             <Image
-                               src={artist.image_url}
-                               alt={artist.artist}
-                               width={28}
-                               height={28}
-                               className="w-7 h-7 rounded-full object-cover"
-                             />
-                           ) : (
-                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                               <Music className="w-4 h-4 text-muted-foreground" />
-                             </div>
-                           )}
-                           <span className="text-sm font-medium">{artist.artist}</span>
-                         </div>
-                       )}
-                     </Button>
-                  ))}
+                      <div
+                        key={`support-${index}`}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border bg-muted/30 ${artist.spotify_url ? 'cursor-pointer' : ''}`}
+                        onClick={() => artist.spotify_url && window.open(artist.spotify_url, '_blank')}
+                      >
+                        {artist.image_url ? (
+                          <Image
+                            src={artist.image_url}
+                            alt={artist.artist}
+                            width={24}
+                            height={24}
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                            <Music className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                        )}
+                        <span className="text-sm font-medium">{artist.artist}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
             
             {/* Local Acts */}
             {show.show_artists.filter(artist => artist.position === 'Local').length > 0 && (
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
-                  Local Support
-                </div>
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-foreground">Local Support</div>
                 <div className="flex flex-wrap gap-2">
                   {show.show_artists
                     .filter(artist => artist.position === 'Local')
@@ -401,55 +339,27 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                       return 0
                     })
                     .map((artist, index) => (
-                     <Button
-                       key={`local-${index}`}
-                       variant="outline"
-                       size="sm"
-                       asChild={!!artist.spotify_url}
-                       className="h-auto p-3 flex items-center space-x-2 rounded-lg"
-                     >
-                       {artist.spotify_url ? (
-                         <a
-                           href={artist.spotify_url}
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           className="flex items-center space-x-2"
-                         >
-                           {artist.image_url ? (
-                             <Image
-                               src={artist.image_url}
-                               alt={artist.artist}
-                               width={28}
-                               height={28}
-                               className="w-7 h-7 rounded-full object-cover"
-                             />
-                           ) : (
-                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                               <Music className="w-4 h-4 text-muted-foreground" />
-                             </div>
-                           )}
-                           <span className="text-sm font-medium">{artist.artist}</span>
-                         </a>
-                       ) : (
-                         <div className="flex items-center space-x-2">
-                           {artist.image_url ? (
-                             <Image
-                               src={artist.image_url}
-                               alt={artist.artist}
-                               width={28}
-                               height={28}
-                               className="w-7 h-7 rounded-full object-cover"
-                             />
-                           ) : (
-                             <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                               <Music className="w-4 h-4 text-muted-foreground" />
-                             </div>
-                           )}
-                           <span className="text-sm font-medium">{artist.artist}</span>
-                         </div>
-                       )}
-                     </Button>
-                  ))}
+                      <div
+                        key={`local-${index}`}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border bg-muted/30 ${artist.spotify_url ? 'cursor-pointer' : ''}`}
+                        onClick={() => artist.spotify_url && window.open(artist.spotify_url, '_blank')}
+                      >
+                        {artist.image_url ? (
+                          <Image
+                            src={artist.image_url}
+                            alt={artist.artist}
+                            width={24}
+                            height={24}
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                            <Music className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                        )}
+                        <span className="text-sm font-medium">{artist.artist}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
@@ -499,7 +409,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       </CardContent>
 
       {/* Footer Section */}
-      <CardFooter className="flex-col gap-4 pt-0">
+      <CardFooter className="flex-col gap-4 pt-0 !items-stretch">
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 w-full">
           {show.ticket_url && !isPast && (
@@ -556,15 +466,15 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
 
         {/* RSVP Buttons (only for upcoming shows) */}
         {!isPast && userName && (
-          <div className="w-full space-y-3">
-            <div className="text-sm font-medium text-foreground">Your RSVP:</div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="pt-2 border-t border-border">
+            <div className="text-sm text-muted-foreground mb-2">Your RSVP:</div>
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
               <Button
                 size="sm"
                 variant={userStatus === 'going' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'going' ? null : 'going')}
                 disabled={loading}
-                className="w-full"
+                className="w-full sm:w-auto"
               >
                 Going
               </Button>
@@ -573,7 +483,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                 variant={userStatus === 'maybe' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'maybe' ? null : 'maybe')}
                 disabled={loading}
-                className="w-full"
+                className="w-full sm:w-auto"
               >
                 Maybe
               </Button>
@@ -582,38 +492,37 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                 variant={userStatus === 'not_going' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'not_going' ? null : 'not_going')}
                 disabled={loading}
-                className="w-full"
+                className="w-full sm:w-auto"
               >
                 Not Going
               </Button>
+              {userStatus && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleRSVP(null)}
+                  disabled={loading}
+                  className="w-full sm:w-auto"
+                >
+                  Clear
+                </Button>
+              )}
             </div>
-            {userStatus && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleRSVP(null)}
-                disabled={loading}
-                className="w-full"
-              >
-                Clear RSVP
-              </Button>
-            )}
           </div>
         )}
 
         {/* Attendance Button (only for past shows) */}
         {isPast && userName && (
-          <div className="w-full space-y-3">
-            <div className="text-sm font-medium text-foreground">Attendance:</div>
-            <div className="flex gap-2">
+          <div className="pt-2 border-t border-border">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
               <Button
                 size="sm"
                 variant={userStatus === 'going' ? 'default' : 'outline'}
                 onClick={() => handleRSVP(userStatus === 'going' ? null : 'going')}
                 disabled={loading}
-                className="flex-1"
+                className="w-full sm:w-auto"
               >
-                {userStatus === 'going' ? 'I was there!' : 'Mark as Attended'}
+                {userStatus === 'going' ? 'I was there!' : 'I was there!'}
               </Button>
               {userStatus === 'going' && (
                 <Button
@@ -621,6 +530,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                   variant="ghost"
                   onClick={() => handleRSVP(null)}
                   disabled={loading}
+                  className="w-full sm:w-auto"
                 >
                   Clear
                 </Button>
