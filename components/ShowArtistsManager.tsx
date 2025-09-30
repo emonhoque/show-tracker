@@ -88,7 +88,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
     const newArtist: ShowArtist = {
       artist: searchQuery.trim(),
       position: isFirstArtist ? 'Headliner' : 'Support',
-      image_url: '',
+      image_url: 'https://dorosdstv5ifoevu.public.blob.vercel-storage.com/ab6761610000e5eb359a5c25a8bbfe678cc4fd0e.webp',
       spotify_id: '',
       spotify_url: ''
     }
