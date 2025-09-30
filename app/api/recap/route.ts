@@ -84,6 +84,25 @@ export interface RecapData {
     personalUniqueArtists: number
     personalArtistDiversity: number // ratio of unique artists to total shows
     
+    // Personal artist stats by position
+    personalTopArtistsByPosition: {
+      Headliner: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }>
+      Support: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }>
+      Local: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }>
+    }
+    
     // Group stats
     totalShows: number
     groupBusiestMonth: {
@@ -135,6 +154,25 @@ export interface RecapData {
       name: string
       diversity: number
     } | null
+    
+    // Group artist stats by position
+    groupTopArtistsByPosition: {
+      Headliner: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }>
+      Support: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }>
+      Local: Array<{
+        artist: string
+        count: number
+        image_url?: string
+      }>
+    }
   }
 }
 
@@ -194,6 +232,132 @@ function extractArtistsFromShow(showArtists: unknown): Array<{
   })
 }
 
+// Helper function to calculate artist statistics for a user by position
+function calculateUserArtistStatsByPosition(userShows: Array<{
+  id: string
+  show_artists: unknown
+}>) {
+  const positionStats = {
+    Headliner: new Map<string, { count: number; image_url?: string }>(),
+    Support: new Map<string, { count: number; image_url?: string }>(),
+    Local: new Map<string, { count: number; image_url?: string }>()
+  }
+  
+  userShows.forEach(show => {
+    const artists = extractArtistsFromShow(show.show_artists)
+    
+    artists.forEach(artistData => {
+      const artistName = artistData.artist
+      const position = artistData.position as 'Headliner' | 'Support' | 'Local'
+      
+      if (!artistName || !positionStats[position]) return
+      
+      if (!positionStats[position].has(artistName)) {
+        positionStats[position].set(artistName, {
+          count: 0,
+          image_url: artistData.image_url
+        })
+      }
+      const artistStat = positionStats[position].get(artistName)!
+      artistStat.count++
+    })
+  })
+  
+  // Convert to sorted arrays for each position
+  const result = {
+    Headliner: Array.from(positionStats.Headliner.entries())
+      .map(([artist, data]) => ({
+        artist,
+        count: data.count,
+        image_url: data.image_url
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10),
+    Support: Array.from(positionStats.Support.entries())
+      .map(([artist, data]) => ({
+        artist,
+        count: data.count,
+        image_url: data.image_url
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10),
+    Local: Array.from(positionStats.Local.entries())
+      .map(([artist, data]) => ({
+        artist,
+        count: data.count,
+        image_url: data.image_url
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+  }
+  
+  return result
+}
+
+// Helper function to calculate group artist statistics by position
+function calculateGroupArtistStatsByPosition(shows: Array<{
+  id: string
+  show_artists: unknown
+  rsvps?: PartialRSVP[]
+}>) {
+  const positionStats = {
+    Headliner: new Map<string, { count: number; image_url?: string }>(),
+    Support: new Map<string, { count: number; image_url?: string }>(),
+    Local: new Map<string, { count: number; image_url?: string }>()
+  }
+  
+  shows.forEach(show => {
+    const artists = extractArtistsFromShow(show.show_artists)
+    const attendingCount = show.rsvps?.filter(rsvp => rsvp.status === 'going').length || 0
+    
+    artists.forEach(artistData => {
+      const artistName = artistData.artist
+      const position = artistData.position as 'Headliner' | 'Support' | 'Local'
+      
+      if (!artistName || !positionStats[position]) return
+      
+      if (!positionStats[position].has(artistName)) {
+        positionStats[position].set(artistName, {
+          count: 0,
+          image_url: artistData.image_url
+        })
+      }
+      const artistStat = positionStats[position].get(artistName)!
+      artistStat.count += attendingCount
+    })
+  })
+  
+  // Convert to sorted arrays for each position
+  const result = {
+    Headliner: Array.from(positionStats.Headliner.entries())
+      .map(([artist, data]) => ({
+        artist,
+        count: data.count,
+        image_url: data.image_url
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10),
+    Support: Array.from(positionStats.Support.entries())
+      .map(([artist, data]) => ({
+        artist,
+        count: data.count,
+        image_url: data.image_url
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10),
+    Local: Array.from(positionStats.Local.entries())
+      .map(([artist, data]) => ({
+        artist,
+        count: data.count,
+        image_url: data.image_url
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+  }
+  
+  return result
+}
+
 // Helper function to calculate artist statistics for a user
 function calculateUserArtistStats(userShows: Array<{
   id: string
@@ -202,6 +366,7 @@ function calculateUserArtistStats(userShows: Array<{
   const artistCounts = new Map<string, {
     count: number
     image_url?: string
+    isHeadliner: boolean
   }>()
   
   userShows.forEach(show => {
@@ -211,26 +376,44 @@ function calculateUserArtistStats(userShows: Array<{
       const artistName = artistData.artist
       if (!artistName) return
       
+      const isHeadliner = artistData.position === 'Headliner'
+      
       // Overall artist counts
       if (!artistCounts.has(artistName)) {
         artistCounts.set(artistName, {
           count: 0,
-          image_url: artistData.image_url
+          image_url: artistData.image_url,
+          isHeadliner: false
         })
       }
       const artistStat = artistCounts.get(artistName)!
       artistStat.count++
+      // If this artist has ever been a headliner, mark them as such
+      if (isHeadliner) {
+        artistStat.isHeadliner = true
+      }
     })
   })
   
-  // Convert to sorted arrays
+  // Convert to sorted arrays, prioritizing headliners
   const topArtists = Array.from(artistCounts.entries())
     .map(([artist, data]) => ({
       artist,
       count: data.count,
-      image_url: data.image_url
+      image_url: data.image_url,
+      isHeadliner: data.isHeadliner
     }))
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => {
+      // First sort by count (descending)
+      if (b.count !== a.count) {
+        return b.count - a.count
+      }
+      // If counts are equal, prioritize headliners
+      if (a.isHeadliner && !b.isHeadliner) return -1
+      if (!a.isHeadliner && b.isHeadliner) return 1
+      // If both are headliners or both are not, sort alphabetically
+      return a.artist.localeCompare(b.artist)
+    })
     .slice(0, 10)
   
   const mostSeenArtist = topArtists.length > 0 ? topArtists[0] : null
@@ -256,6 +439,7 @@ function calculateGroupArtistStats(shows: Array<{
   const artistCounts = new Map<string, {
     count: number
     image_url?: string
+    isHeadliner: boolean
   }>()
   
   shows.forEach(show => {
@@ -266,26 +450,44 @@ function calculateGroupArtistStats(shows: Array<{
       const artistName = artistData.artist
       if (!artistName) return
       
+      const isHeadliner = artistData.position === 'Headliner'
+      
       // Each person attending counts as 1 entry for this artist
       if (!artistCounts.has(artistName)) {
         artistCounts.set(artistName, {
           count: 0,
-          image_url: artistData.image_url
+          image_url: artistData.image_url,
+          isHeadliner: false
         })
       }
       const artistStat = artistCounts.get(artistName)!
       artistStat.count += attendingCount
+      // If this artist has ever been a headliner, mark them as such
+      if (isHeadliner) {
+        artistStat.isHeadliner = true
+      }
     })
   })
   
-  // Convert to sorted arrays
+  // Convert to sorted arrays, prioritizing headliners
   const topArtists = Array.from(artistCounts.entries())
     .map(([artist, data]) => ({
       artist,
       count: data.count,
-      image_url: data.image_url
+      image_url: data.image_url,
+      isHeadliner: data.isHeadliner
     }))
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => {
+      // First sort by count (descending)
+      if (b.count !== a.count) {
+        return b.count - a.count
+      }
+      // If counts are equal, prioritize headliners
+      if (a.isHeadliner && !b.isHeadliner) return -1
+      if (!a.isHeadliner && b.isHeadliner) return 1
+      // If both are headliners or both are not, sort alphabetically
+      return a.artist.localeCompare(b.artist)
+    })
     .slice(0, 10)
   
   const mostSeenArtist = topArtists.length > 0 ? topArtists[0] : null
@@ -700,6 +902,11 @@ export async function GET(request: NextRequest) {
       } | null = null
       let personalUniqueArtists = 0
       let personalArtistDiversity = 0
+      let personalTopArtistsByPosition = {
+        Headliner: [] as Array<{ artist: string; count: number; image_url?: string }>,
+        Support: [] as Array<{ artist: string; count: number; image_url?: string }>,
+        Local: [] as Array<{ artist: string; count: number; image_url?: string }>
+      }
       
       if (currentUser && shows) {
         const userShows = shows.filter(show => 
@@ -714,6 +921,9 @@ export async function GET(request: NextRequest) {
         personalMostSeenArtist = artistStats.mostSeenArtist
         personalUniqueArtists = artistStats.uniqueArtists
         personalArtistDiversity = artistStats.diversity
+        
+        // Calculate position-based stats
+        personalTopArtistsByPosition = calculateUserArtistStatsByPosition(userShows)
       }
       
       // Group stats
@@ -991,6 +1201,11 @@ export async function GET(request: NextRequest) {
         name: string
         diversity: number
       } | null = null
+      let groupTopArtistsByPosition = {
+        Headliner: [] as Array<{ artist: string; count: number; image_url?: string }>,
+        Support: [] as Array<{ artist: string; count: number; image_url?: string }>,
+        Local: [] as Array<{ artist: string; count: number; image_url?: string }>
+      }
       
       if (shows) {
         // Calculate group artist stats from all shows
@@ -1000,6 +1215,9 @@ export async function GET(request: NextRequest) {
         groupMostSeenArtist = groupArtistStats.mostSeenArtist
         groupUniqueArtists = groupArtistStats.uniqueArtists
         groupArtistDiversity = groupArtistStats.diversity
+        
+        // Calculate position-based group stats
+        groupTopArtistsByPosition = calculateGroupArtistStatsByPosition(shows)
         
         // Find most diverse user
         let maxDiversity = 0
@@ -1046,6 +1264,7 @@ export async function GET(request: NextRequest) {
         personalMostSeenArtist,
         personalUniqueArtists,
         personalArtistDiversity,
+        personalTopArtistsByPosition,
         
         // Group stats
         totalShows,
@@ -1064,7 +1283,8 @@ export async function GET(request: NextRequest) {
         groupMostSeenArtist,
         groupUniqueArtists,
         groupArtistDiversity,
-        mostDiverseUser
+        mostDiverseUser,
+        groupTopArtistsByPosition
       }
     })()
 

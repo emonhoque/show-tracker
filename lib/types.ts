@@ -1,6 +1,6 @@
 export interface ShowArtist {
   artist: string
-  position: 'Headliner' | 'Support'
+  position: 'Headliner' | 'Support' | 'Local'
   image_url?: string
   spotify_id: string
   spotify_url: string

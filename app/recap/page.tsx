@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LogOut, Copy, Plus, Menu } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
@@ -500,38 +501,175 @@ export default function RecapPage() {
                   <div className="space-y-4">
                     <h4 className="font-semibold text-lg text-foreground">Your Artist Stats</h4>
                     
-                    {/* Top Artists */}
-                    {recapData.stats.personalTopArtists.length > 0 && (
-                      <div className="space-y-3">
-                        <h5 className="font-medium text-foreground">Your Top Artists</h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {recapData.stats.personalTopArtists.slice(0, 8).map((artist, index) => (
-                            <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                              <div className="text-sm font-medium text-muted-foreground w-6">
-                                {index + 1}
-                              </div>
-                              {artist.image_url && (
-                                <Image 
-                                  src={artist.image_url} 
-                                  alt={artist.artist}
-                                  width={32}
-                                  height={32}
-                                  className="w-8 h-8 rounded-full object-cover"
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-foreground truncate">
-                                  {artist.artist}
+                    {/* Artist Stats Tabs */}
+                    <Tabs defaultValue="all" className="w-full">
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="all">
+                          All
+                        </TabsTrigger>
+                        <TabsTrigger value="headliner">
+                          Headliners
+                        </TabsTrigger>
+                        <TabsTrigger value="support">
+                          Support
+                        </TabsTrigger>
+                        <TabsTrigger value="local">
+                          Local
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      {/* All Artists Tab */}
+                      <TabsContent value="all" className="space-y-3">
+                        {recapData.stats.personalTopArtists.length > 0 && (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Your Top Artists</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.personalTopArtists.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {artist.count} show{artist.count !== 1 ? 's' : ''}
-                                </div>
-                              </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      {/* Headliners Tab */}
+                      <TabsContent value="headliner" className="space-y-3">
+                        {recapData.stats.personalTopArtistsByPosition.Headliner.length > 0 ? (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Your Top Headliners</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.personalTopArtistsByPosition.Headliner.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            No headliners seen this year
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      {/* Support Tab */}
+                      <TabsContent value="support" className="space-y-3">
+                        {recapData.stats.personalTopArtistsByPosition.Support.length > 0 ? (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Your Top Support Acts</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.personalTopArtistsByPosition.Support.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            No support acts seen this year
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      {/* Local Tab */}
+                      <TabsContent value="local" className="space-y-3">
+                        {recapData.stats.personalTopArtistsByPosition.Local.length > 0 ? (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Your Top Local Acts</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.personalTopArtistsByPosition.Local.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} show{artist.count !== 1 ? 's' : ''}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            No local acts seen this year
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
                   </div>
 
                   {/* Group Stats */}
@@ -651,7 +789,7 @@ export default function RecapPage() {
                           {recapData.stats.groupMostSeenArtist?.artist || 'N/A'}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
-                          {recapData.stats.groupMostSeenArtist?.count || 0} times
+                          {recapData.stats.groupMostSeenArtist?.count || 0} {recapData.stats.groupMostSeenArtist?.count !== 1 ? 'times seen' : 'time seen'}
                         </div>
                       </div>
                       
@@ -662,38 +800,175 @@ export default function RecapPage() {
                   <div className="space-y-4">
                     <h4 className="font-semibold text-lg text-foreground">Group Artist Stats</h4>
                     
-                    {/* Group Top Artists */}
-                    {recapData.stats.groupTopArtists.length > 0 && (
-                      <div className="space-y-3">
-                        <h5 className="font-medium text-foreground">Group Top Artists</h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {recapData.stats.groupTopArtists.slice(0, 8).map((artist, index) => (
-                            <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                              <div className="text-sm font-medium text-muted-foreground w-6">
-                                {index + 1}
-                              </div>
-                              {artist.image_url && (
-                                <Image 
-                                  src={artist.image_url} 
-                                  alt={artist.artist}
-                                  width={32}
-                                  height={32}
-                                  className="w-8 h-8 rounded-full object-cover"
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-foreground truncate">
-                                  {artist.artist}
+                    {/* Group Artist Stats Tabs */}
+                    <Tabs defaultValue="all" className="w-full">
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="all">
+                          All
+                        </TabsTrigger>
+                        <TabsTrigger value="headliner">
+                          Headliners
+                        </TabsTrigger>
+                        <TabsTrigger value="support">
+                          Support
+                        </TabsTrigger>
+                        <TabsTrigger value="local">
+                          Local
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      {/* All Artists Tab */}
+                      <TabsContent value="all" className="space-y-3">
+                        {recapData.stats.groupTopArtists.length > 0 && (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Group Top Artists</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.groupTopArtists.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {artist.count} show{artist.count !== 1 ? 's' : ''}
-                                </div>
-                              </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      {/* Headliners Tab */}
+                      <TabsContent value="headliner" className="space-y-3">
+                        {recapData.stats.groupTopArtistsByPosition.Headliner.length > 0 ? (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Group Top Headliners</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.groupTopArtistsByPosition.Headliner.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            No headliners seen this year
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      {/* Support Tab */}
+                      <TabsContent value="support" className="space-y-3">
+                        {recapData.stats.groupTopArtistsByPosition.Support.length > 0 ? (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Group Top Support Acts</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.groupTopArtistsByPosition.Support.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            No support acts seen this year
+                          </div>
+                        )}
+                      </TabsContent>
+                      
+                      {/* Local Tab */}
+                      <TabsContent value="local" className="space-y-3">
+                        {recapData.stats.groupTopArtistsByPosition.Local.length > 0 ? (
+                          <div className="space-y-3">
+                            <h5 className="font-medium text-foreground">Group Top Local Acts</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {recapData.stats.groupTopArtistsByPosition.Local.slice(0, 8).map((artist, index) => (
+                                <div key={artist.artist} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-sm font-medium text-muted-foreground w-6">
+                                    {index + 1}
+                                  </div>
+                                  {artist.image_url && (
+                                    <Image 
+                                      src={artist.image_url} 
+                                      alt={artist.artist}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-foreground truncate">
+                                      {artist.artist}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {artist.count} {artist.count !== 1 ? 'times seen' : 'time seen'}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground py-8">
+                            No local acts seen this year
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </CardContent>
               </Card>
