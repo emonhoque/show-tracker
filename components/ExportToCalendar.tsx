@@ -17,6 +17,7 @@ import {
   CalendarExportOptions 
 } from '@/lib/calendar'
 import { Calendar, Download, ExternalLink, Clock, MapPin, AlertCircle } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 interface ExportToCalendarProps {
   show: Show
@@ -28,6 +29,7 @@ export function ExportToCalendar({ show, variant = 'button' }: ExportToCalendarP
   const [duration, setDuration] = useState(getDefaultDuration(show))
   const [isExporting, setIsExporting] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   const isMobile = isMobileDevice()
 
@@ -39,7 +41,14 @@ export function ExportToCalendar({ show, variant = 'button' }: ExportToCalendarP
       // Validate show data
       const validation = validateShowForCalendar(show)
       if (!validation.isValid) {
-        setValidationError(validation.errors.join(', '))
+        const errorMessage = validation.errors.join(', ')
+        setValidationError(errorMessage)
+        showToast({
+          title: 'Export Failed',
+          description: `Cannot export: ${errorMessage}`,
+          type: 'error',
+          duration: 5000
+        })
         return
       }
 
@@ -70,7 +79,14 @@ export function ExportToCalendar({ show, variant = 'button' }: ExportToCalendarP
       setIsOpen(false)
     } catch (error) {
       console.error('Export error:', error)
-      setValidationError(error instanceof Error ? error.message : 'Failed to export to calendar')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to export to calendar'
+      setValidationError(errorMessage)
+      showToast({
+        title: 'Export Failed',
+        description: errorMessage,
+        type: 'error',
+        duration: 5000
+      })
     } finally {
       setIsExporting(false)
     }
@@ -241,13 +257,19 @@ export function ExportToCalendar({ show, variant = 'button' }: ExportToCalendarP
 export function QuickExportButton({ show }: { show: Show }) {
   const [isExporting, setIsExporting] = useState(false)
   const isMobile = isMobileDevice()
+  const { showToast } = useToast()
 
   const handleQuickExport = async () => {
     setIsExporting(true)
     try {
       const validation = validateShowForCalendar(show)
       if (!validation.isValid) {
-        alert(`Cannot export: ${validation.errors.join(', ')}`)
+        showToast({
+          title: 'Export Failed',
+          description: `Cannot export: ${validation.errors.join(', ')}`,
+          type: 'error',
+          duration: 5000
+        })
         return
       }
 
@@ -266,7 +288,12 @@ export function QuickExportButton({ show }: { show: Show }) {
       }
     } catch (error) {
       console.error('Export error:', error)
-      alert('Failed to export to calendar')
+      showToast({
+        title: 'Export Failed',
+        description: 'Failed to export to calendar',
+        type: 'error',
+        duration: 5000
+      })
     } finally {
       setIsExporting(false)
     }

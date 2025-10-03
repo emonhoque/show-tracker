@@ -19,6 +19,7 @@ import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { Plus, LogOut, Menu, BarChart3 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
+import { useToast } from '@/components/ui/toast'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 
 export default function Home() {
@@ -64,6 +65,7 @@ export default function Home() {
 
   // Get theme - this will be handled by ThemeToggle component
   const { theme, setTheme } = useTheme()
+  const { showToast } = useToast()
 
   // Monitor online/offline status
   useEffect(() => {
@@ -305,6 +307,14 @@ export default function Home() {
   }
 
   const handleShowAdded = async () => {
+    // Show success toast
+    showToast({
+      title: 'Show Created',
+      description: 'Your new show has been added successfully!',
+      type: 'success',
+      duration: 4000
+    })
+    
     // Invalidate cache and refresh data
     setCacheVersion(prev => prev + 1)
     // Small delay to ensure database has been updated
@@ -333,6 +343,14 @@ export default function Home() {
   }
 
   const handleShowUpdated = async () => {
+    // Show success toast
+    showToast({
+      title: 'Show Updated',
+      description: 'Your show has been updated successfully!',
+      type: 'success',
+      duration: 4000
+    })
+    
     // Invalidate cache and refresh data
     setCacheVersion(prev => prev + 1)
     // Small delay to ensure database has been updated
@@ -368,6 +386,24 @@ export default function Home() {
     }
   }
 
+  const handleDuplicateShow = async (duplicatedShow: Show) => {
+    // Add the duplicated show to the upcoming shows list
+    setUpcomingShows(prev => [duplicatedShow, ...prev])
+    
+    // Update filtered shows if they exist
+    if (filteredUpcomingShows.length > 0) {
+      setFilteredUpcomingShows(prev => [duplicatedShow, ...prev])
+    }
+    
+    // Show success toast
+    showToast({
+      title: 'Show Duplicated',
+      description: `"${duplicatedShow.title}" has been duplicated successfully!`,
+      type: 'success',
+      duration: 4000
+    })
+  }
+
   const confirmDeleteShow = async () => {
     if (!deletingShowId) return
 
@@ -378,9 +414,22 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to delete show')
+        showToast({
+          title: 'Delete Failed',
+          description: errorData.error || 'Failed to delete show',
+          type: 'error',
+          duration: 5000
+        })
         return
       }
+
+      // Show success toast
+      showToast({
+        title: 'Show Deleted',
+        description: 'The show has been deleted successfully!',
+        type: 'success',
+        duration: 4000
+      })
 
       // Invalidate cache and refresh shows
       setCacheVersion(prev => prev + 1)
@@ -390,7 +439,12 @@ export default function Home() {
       setDeletingShowTitle('')
     } catch (error) {
       console.error('Error deleting show:', error)
-      alert('Failed to delete show')
+      showToast({
+        title: 'Delete Failed',
+        description: 'Failed to delete show',
+        type: 'error',
+        duration: 5000
+      })
     }
   }
 
@@ -557,6 +611,7 @@ export default function Home() {
                   onEdit={handleEditShow}
                   onDelete={handleDeleteShow}
                   onRSVPUpdate={() => updateRSVPs(show.id)}
+                  onDuplicate={handleDuplicateShow}
                 />
               ))
             )}
@@ -583,6 +638,7 @@ export default function Home() {
                     onEdit={handleEditShow}
                     onDelete={handleDeleteShow}
                     onRSVPUpdate={() => updateRSVPs(show.id)}
+                    onDuplicate={handleDuplicateShow}
                   />
                 ))}
                 

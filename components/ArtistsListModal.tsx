@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Music, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Card, CardContent } from '@/components/ui/card'
 import { Artist } from '@/lib/types'
+import { useToast } from '@/components/ui/toast'
 
 // Spotify Icon Component
 const SpotifyIcon = ({ className }: { className?: string }) => (
@@ -29,8 +30,9 @@ export function ArtistsListModal({ onArtistRemoved }: ArtistsListModalProps) {
   const [artists, setArtists] = useState<Artist[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { showToast } = useToast()
 
-  const fetchArtists = async () => {
+  const fetchArtists = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     
@@ -40,23 +42,40 @@ export function ArtistsListModal({ onArtistRemoved }: ArtistsListModalProps) {
         const data = await response.json()
         setArtists(data)
       } else {
-        setError('Failed to fetch artists')
+        const errorMessage = 'Failed to fetch artists'
+        setError(errorMessage)
+        showToast({
+          title: 'Load Failed',
+          description: errorMessage,
+          type: 'error',
+          duration: 4000
+        })
       }
     } catch (err) {
-      setError('Error loading artists')
+      const errorMessage = 'Error loading artists'
+      setError(errorMessage)
       console.error('Error fetching artists:', err)
+      showToast({
+        title: 'Load Failed',
+        description: errorMessage,
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [showToast])
 
   useEffect(() => {
     if (open) {
       fetchArtists()
     }
-  }, [open])
+  }, [open, fetchArtists])
 
   const handleRemoveArtist = async (artistId: string) => {
+    const artistToRemove = artists.find(artist => artist.id === artistId)
+    const artistName = artistToRemove?.artist_name || 'Artist'
+    
     try {
       const response = await fetch(`/api/artists/${artistId}`, {
         method: 'DELETE'
@@ -65,11 +84,31 @@ export function ArtistsListModal({ onArtistRemoved }: ArtistsListModalProps) {
       if (response.ok) {
         setArtists(prev => prev.filter(artist => artist.id !== artistId))
         onArtistRemoved?.(artistId)
+        
+        // Show success toast
+        showToast({
+          title: 'Artist Removed',
+          description: `"${artistName}" has been removed from your tracked artists`,
+          type: 'success',
+          duration: 4000
+        })
       } else {
         console.error('Failed to remove artist')
+        showToast({
+          title: 'Remove Failed',
+          description: 'Failed to remove artist',
+          type: 'error',
+          duration: 4000
+        })
       }
     } catch (error) {
       console.error('Error removing artist:', error)
+      showToast({
+        title: 'Remove Failed',
+        description: 'Failed to remove artist',
+        type: 'error',
+        duration: 4000
+      })
     }
   }
 

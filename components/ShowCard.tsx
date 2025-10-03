@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
+import { useToast } from '@/components/ui/toast'
 
 // Apple Music icon as SVG component
 
@@ -30,13 +31,15 @@ interface ShowCardProps {
   onEdit?: (show: Show) => void
   onDelete?: (showId: string) => void
   onRSVPUpdate?: () => void
+  onDuplicate?: (show: Show) => void
 }
 
-export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }: ShowCardProps) {
+export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate }: ShowCardProps) {
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const { showToast } = useToast()
 
   // Get userName from localStorage on client side
   useEffect(() => {
@@ -104,7 +107,48 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       setTimeout(() => setCopySuccess(false), 2000)
     } catch (error) {
       console.error('Failed to copy text:', error)
-      alert('Failed to copy show info')
+      showToast({
+        title: 'Copy Failed',
+        description: 'Failed to copy show info',
+        type: 'error',
+        duration: 3000
+      })
+    }
+  }
+
+  const handleDuplicate = async () => {
+    if (!onDuplicate) return
+    
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/shows/${show.id}/duplicate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        showToast({
+          title: 'Duplicate Failed',
+          description: error.error || 'Failed to duplicate show',
+          type: 'error',
+          duration: 4000
+        })
+        return
+      }
+
+      const duplicatedShow = await response.json()
+      onDuplicate(duplicatedShow)
+    } catch (error) {
+      console.error('Error duplicating show:', error)
+      showToast({
+        title: 'Duplicate Failed',
+        description: 'Failed to duplicate show',
+        type: 'error',
+        duration: 4000
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -128,7 +172,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
 
         if (!response.ok) {
           const error = await response.json()
-          alert(error.error || 'Failed to save RSVP')
+          showToast({
+            title: 'RSVP Failed',
+            description: error.error || 'Failed to save RSVP',
+            type: 'error',
+            duration: 4000
+          })
           return
         }
       } else {
@@ -144,7 +193,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
 
         if (!response.ok) {
           const error = await response.json()
-          alert(error.error || 'Failed to remove RSVP')
+          showToast({
+            title: 'RSVP Failed',
+            description: error.error || 'Failed to remove RSVP',
+            type: 'error',
+            duration: 4000
+          })
           return
         }
       }
@@ -155,7 +209,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
       }
     } catch (error) {
       console.error('Error saving RSVP:', error)
-      alert('Failed to save RSVP')
+      showToast({
+        title: 'RSVP Failed',
+        description: 'Failed to save RSVP',
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setLoading(false)
     }
@@ -187,7 +246,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
               {show.venue} • {show.city}
             </div>
           </div>
-          {(onEdit || (onDelete && !isPast)) && (
+          {(onEdit || (onDelete && !isPast) || (onDuplicate && userName === 'emon hoque')) && (
             <DropdownMenu.DropdownMenu>
               <DropdownMenu.DropdownMenuTrigger asChild>
                 <Button 
@@ -206,7 +265,16 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate }
                     Edit
                   </DropdownMenu.DropdownMenuItem>
                 )}
-                {onDelete && !isPast && (
+                {onDuplicate && userName === 'emon hoque' && !isPast && (
+                  <DropdownMenu.DropdownMenuItem 
+                    onClick={handleDuplicate}
+                    disabled={loading}
+                  >
+                    <CopyIcon className="mr-2 h-4 w-4" />
+                    Duplicate
+                  </DropdownMenu.DropdownMenuItem>
+                )}
+                {onDelete && (!isPast || userName === 'emon hoque') && (
                   <DropdownMenu.DropdownMenuItem 
                     onClick={() => onDelete(show.id)}
                     className="text-red-600 focus:text-red-600"
