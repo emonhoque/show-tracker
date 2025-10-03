@@ -1,41 +1,112 @@
-# Show Tracker
+<div align="center">
 
-A modern, password-protected Progressive Web App (PWA) for groups to track shows and manage RSVPs. Built with Next.js 15.5.2 and Supabase, featuring offline capabilities and native app-like experience.
+# 🎵 Show Tracker
 
-## Features
+**A modern Progressive Web App for groups to track concerts and manage RSVPs**
 
+[![Version](https://img.shields.io/badge/version-1.6.5-blue)](https://github.com/emonhoque/show-tracker/releases)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
+
+Built with Next.js 15.5.2 and Supabase, featuring offline capabilities and native app-like experience.
+
+</div>
+
+---
+
+## 📖 Table of Contents
+
+- [Why Show Tracker?](#-why-show-tracker)
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [Deployment](#-deployment)
+- [API Reference](#-api-reference)
+- [Tech Stack](#-tech-stack)
+- [Performance](#-performance)
+- [Troubleshooting](#-troubleshooting)
+- [FAQ](#-faq)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## 🎯 Why Show Tracker?
+
+Keep your concert group organized with:
+- **Shared calendar** - Everyone sees upcoming shows at a glance
+- **Easy RSVPs** - Know who's going where
+- **New music tracking** - Never miss releases from your favorite artists
+- **Year-end stats** - See your concert history and trends
+- **Works offline** - Install as an app, use anywhere
+
+Built for music lovers who attend lots of shows and want to stay coordinated.
+
+## ✨ Features
+
+### Core Functionality
 - 🔐 **Password-protected access** - Simple shared password with show/hide toggle
-- 📅 **Show management** - Add, edit, and delete shows with intuitive time picker
-- ✅ **Smart RSVP system** - Going/Maybe/Not Going for upcoming, I was there!/Clear for past shows
-- 🔍 **Advanced filtering** - Filter shows by status and people with smart AND logic for multiple selections
-- 📱 **Progressive Web App** - Installable on mobile and desktop devices with scroll-to-top
-- 🕐 **Smart time picker** - Starts at 3 PM, cycles to 2 PM (realistic show times)
-- 📊 **Intelligent sorting** - Next show first (upcoming), newest first (past)
-- 🌐 **Offline detection** - Graceful handling when connection is lost
-- ⚡ **High-performance database** - Optimized queries, indexes, and caching
-- 🚀 **Instant RSVP updates** - Optimistic UI updates for immediate feedback
-- 📄 **Pagination** - Efficient loading of past shows (20 per page) with infinite scroll
-- 🎨 **Modern UI** - Clean, responsive design with smooth animations and dark/light theme support
-- 🎵 **Music integration** - Spotify and Apple Music links for shows
-- 📸 **Photo sharing** - Google Photos links for past shows
-- 🖼️ **Poster uploads** - Upload and display show posters with Vercel Blob storage
+- 📅 **Show management** - Add, edit, delete, and duplicate shows with intuitive time picker
+- ✅ **Smart RSVP system** - Going/Maybe/Not Going for upcoming shows, I was there!/Clear for past shows
+- 🔍 **Advanced filtering** - Filter by status and people with smart AND logic for complex queries
+- 🔔 **Toast notifications** - Real-time feedback for all user actions
+- 📋 **Copy & share** - One-click copy of show details for easy sharing
+
+### Music & Artists
 - 🎶 **Community Release Radar** - Track new releases from any artist the community adds
-- 🔍 **Artist Search** - Search and add artists to shows and community pool via Spotify API
-- 📊 **Performance monitoring** - Vercel Speed Insights integration for performance tracking
+- 🔍 **Artist Search** - Search and add artists to shows via Spotify API
+- 🎵 **Music integration** - Spotify and Apple Music links for shows
+- 🎯 **Headliner tracking** - Mark and track headliners in your year-end recap
+- 🖼️ **Artist images** - Automatic artist photos from Spotify
+
+### Data & Analytics
 - 📈 **Year-end Recap** - Comprehensive analytics with leaderboards, monthly trends, and personal stats
 - 📅 **Calendar Export** - Export shows to Google Calendar or download .ics files with custom duration
+- 📊 **Performance monitoring** - Vercel Speed Insights integration
+- 📸 **Photo sharing** - Google Photos links for past shows
+- 🖼️ **Poster uploads** - Upload and display show posters with Vercel Blob storage
+
+### PWA & Performance
+- 📱 **Progressive Web App** - Installable on mobile and desktop devices
+- 🌐 **Offline capabilities** - Works without internet connection with graceful degradation
+- ⚡ **Instant updates** - Optimistic UI updates for immediate feedback
+- 🚀 **High-performance** - Optimized queries, indexes, and caching (80% fewer database calls)
+- 📄 **Infinite scroll** - Efficient loading of past shows (20 per page)
+- 🔄 **Auto-recovery** - Automatic chunk loading error recovery with cache clearing
+- 🎨 **Dark/light theme** - System preference detection with manual toggle
+- 🕐 **Smart time picker** - Realistic show times (3 PM to 2 AM)
+- 📊 **Intelligent sorting** - Next show first (upcoming), newest first (past)
+
+### Integrations
 - 🔔 **Discord Integration** - Optional Discord bot notifications for new and updated shows
-- 📋 **Copy Show Info** - One-click copy of show details for sharing
-- 🖼️ **Image Modal** - Full-screen poster viewing with zoom capabilities
+- 🤖 **Automated updates** - GitHub Actions for release checking (4x daily)
+- ⚙️ **Auto-versioning** - Automated cache busting on deployment
 
-## Quick Start
+## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+
-- A Supabase account
-- A Spotify Developer account (for Release Radar feature)
+**Want to run locally in 5 minutes?** Follow these steps:
 
-### Setup
+## ✅ Prerequisites
+
+Before you begin, ensure you have:
+- ✅ **Node.js 18+** installed ([Download](https://nodejs.org))
+- ✅ **A Supabase account** ([Sign up free](https://supabase.com))
+- ✅ **A Spotify Developer account** for Release Radar ([Register](https://developer.spotify.com))
+- ⚠️ *Optional:* Vercel account for deployment
+- ⚠️ *Optional:* Discord bot for notifications
+
+**Check your Node.js version:**
+```bash
+node --version  # Should be 18.x or higher
+```
+
+## 📦 Installation
 
 1. **Clone the repository**
    ```bash
@@ -54,31 +125,58 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
    - This single file sets up tables, indexes, and optimized RLS policies
 
 4. **Configure environment variables**
-   Create a `.env.local` file in the root directory:
+
+## ⚙️ Configuration
+
+Create a `.env.local` file in the root directory with the following variables:
+
+| Variable | Required | Description | Example |
+|----------|:--------:|-------------|---------|
+| `NEXT_PUBLIC_APP_PASSWORD` | ✅ | Shared access password for the app | `boston-shows-2024` |
+| `SUPABASE_URL` | ✅ | Your Supabase project URL | `https://xxx.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase service role key | `eyJhbGc...` |
+| `SPOTIFY_CLIENT_ID` | ✅ | Spotify API client ID | `abc123...` |
+| `SPOTIFY_CLIENT_SECRET` | ✅ | Spotify API client secret | `xyz789...` |
+| `TZ` | ✅ | Your timezone | `America/New_York` |
+| `BLOB_READ_WRITE_TOKEN` | ⚠️ | Vercel Blob storage token | Auto-generated on Vercel |
+| `DISCORD_BOT_API_URL` | ❌ | Discord webhook URL for notifications | `https://your-bot.com/api` |
+| `CRON_SECRET` | ❌ | Secret for securing cron endpoints | Any random string |
+
+**Minimal `.env.local` example:**
    ```env
-   # Public environment variables (available to client)
    NEXT_PUBLIC_APP_PASSWORD="your-chosen-password"
-   
-   # Server-only environment variables
    SUPABASE_URL=your_supabase_project_url
    SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-   
-   # Timezone configuration
-   TZ=America/New_York
-   
-   # Vercel Storage Blob (optional)
-   BLOB_READ_WRITE_TOKEN=blob
-   
-   # Spotify API (for Release Radar feature)
    SPOTIFY_CLIENT_ID=your_spotify_client_id
    SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-   
-   # Cron job security (optional)
-   CRON_SECRET=your_secure_random_string
-   
-   # Discord bot integration (optional)
-   DISCORD_BOT_API_URL=your_discord_bot_api_url
+   TZ=America/New_York
    ```
+
+<details>
+<summary><strong>🔧 Advanced Configuration (Click to expand)</strong></summary>
+
+### Spotify API Setup
+1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Create a new app
+3. Copy Client ID and Client Secret to your `.env.local`
+4. No redirect URI needed for this application
+
+### Discord Bot Integration
+1. Set up a Discord bot with webhook capabilities
+2. Configure the webhook endpoint URL
+3. Add `DISCORD_BOT_API_URL` to your environment variables
+4. Notifications are sent asynchronously and won't block operations
+
+### Vercel Blob Storage
+1. Deploy to Vercel (or set up locally)
+2. Enable Vercel Blob in your project settings
+3. Token is auto-generated in production
+4. For local development, use `blob` as placeholder
+
+### GitHub Actions (Automated Release Checks)
+See [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md) for detailed instructions.
+
+</details>
 
 5. **Run the application**
    ```bash
@@ -87,7 +185,9 @@ A modern, password-protected Progressive Web App (PWA) for groups to track shows
 
 6. **Visit** [http://localhost:3000](http://localhost:3000)
 
-## Usage
+---
+
+## 📖 Usage
 
 ### Web App
 1. Enter the shared password and your name
@@ -227,40 +327,88 @@ Optional Discord bot notifications for show updates:
 - **Zoom Capabilities**: Enhanced image viewing experience
 - **Mobile Friendly**: Touch-optimized for mobile devices
 
-## Deployment
+## 🚀 Deployment
 
-The easiest way to deploy is using [Vercel](https://vercel.com/new):
+### Deploy to Vercel (Recommended)
 
+The easiest way to deploy is using [Vercel](https://vercel.com):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/emonhoque/show-tracker)
+
+**Manual deployment:**
 1. Push your code to GitHub
 2. Connect your repository to Vercel
-3. Add your environment variables in Vercel's dashboard
+3. Add your environment variables in Vercel's dashboard (see [Configuration](#%EF%B8%8F-configuration))
 4. Deploy!
 
-## Tech Stack
+> **Note:** Vercel automatically generates `BLOB_READ_WRITE_TOKEN` for Blob storage.
 
-- **Frontend**: Next.js 15.5.2, React 19.1.0, TypeScript 5
-- **Styling**: Tailwind CSS 4
-- **Database**: Supabase (PostgreSQL) with performance optimizations
-- **PWA**: Service Worker, Web App Manifest
-- **Icons**: Lucide React
-- **Date Handling**: date-fns with timezone support
-- **UI Components**: Radix UI primitives
-- **Testing**: Jest with React Testing Library
-- **File Storage**: Vercel Blob for poster uploads
-- **Performance**: Vercel Speed Insights
-- **Charts**: Recharts for data visualization
-- **Calendar**: ICS generation and Google Calendar integration
-- **Deployment**: Vercel (recommended)
+### Other Platforms
 
-## Database Setup
+This app can be deployed to any platform that supports Next.js 15:
+- **Netlify** - Configure build command: `npm run build`
+- **Railway** - Add Dockerfile or use Node.js template
+- **Self-hosted** - Run `npm run build && npm start`
 
-The app uses a single, comprehensive database setup file (`database-complete-setup.sql`) that includes:
+> **Important:** For platforms other than Vercel, you'll need to configure alternative file storage for poster uploads (currently uses Vercel Blob).
 
-- **Tables**: `shows`, `rsvps`, `artists`, `releases`, and `user_artists` with proper relationships
-- **Show Fields**: title, date_time, time_local, city, venue, ticket_url, spotify_url, apple_music_url, google_photos_url, poster_url, notes, show_artists
-- **Indexes**: Optimized for upcoming/past shows and RSVP joins
-- **RLS Policies**: Streamlined for performance and security
-- **Statistics**: Updated for optimal query planning
+## 🛠️ Tech Stack
+
+### Core Framework
+- **[Next.js](https://nextjs.org)** 15.5.2 - React framework with App Router
+- **[React](https://react.dev)** 19.1.0 - UI library
+- **[TypeScript](https://www.typescriptlang.org)** 5.x - Type safety
+
+### Styling & UI
+- **[Tailwind CSS](https://tailwindcss.com)** 4.x - Utility-first CSS
+- **[Radix UI](https://radix-ui.com)** - Accessible component primitives
+- **[Lucide React](https://lucide.dev)** - Icon library
+- **[Recharts](https://recharts.org)** - Data visualization
+
+### Backend & Data
+- **[Supabase](https://supabase.com)** - PostgreSQL database with RLS
+- **[Vercel Blob](https://vercel.com/storage/blob)** - File storage for posters
+- **[Spotify API](https://developer.spotify.com)** - Music data
+
+### Utilities
+- **[date-fns](https://date-fns.org)** - Date manipulation with timezone support
+- **[class-variance-authority](https://cva.style)** - Component variants
+- **[clsx](https://github.com/lukeed/clsx)** & **[tailwind-merge](https://github.com/dcastil/tailwind-merge)** - Class management
+
+### Performance & Monitoring
+- **[Vercel Speed Insights](https://vercel.com/analytics)** - Performance tracking
+- **Optimized Database** - Strategic indexing and caching
+- **Service Worker** - Offline capabilities and caching
+
+### Development
+- **[ESLint](https://eslint.org)** - Code linting
+- **[React Testing Library](https://testing-library.com)** - Component testing
+- **GitHub Actions** - Automated release checking
+
+## 🗄️ Database Setup
+
+The app uses a single, comprehensive database setup file ([database-complete-setup.sql](database-complete-setup.sql)) that includes:
+
+### Tables
+- **`shows`** - Show information with JSONB artist data
+- **`rsvps`** - RSVP tracking with composite primary key
+- **`artists`** - Spotify artist data for release tracking
+- **`releases`** - Music releases from tracked artists
+- **`user_artists`** - Many-to-many relationship for community tracking
+
+### Key Features
+- **Optimized indexes** - For upcoming/past shows and RSVP joins
+- **Row Level Security (RLS)** - Streamlined policies for performance
+- **JSONB fields** - Flexible artist and metadata storage
+- **Cascading deletes** - Automatic cleanup of related data
+- **Statistics** - Pre-analyzed for optimal query planning
+
+### Schema Highlights
+**Shows table fields:**
+- `title`, `date_time`, `time_local`, `city`, `venue`
+- `ticket_url`, `spotify_url`, `apple_music_url`, `google_photos_url`
+- `poster_url`, `notes`
+- `show_artists` (JSONB) - Flexible artist data with roles
 
 ## PWA Features
 
@@ -276,47 +424,229 @@ This app is a fully functional Progressive Web App with:
 - **Pull-to-refresh**: Native gesture support for refreshing content
 - **Chunk error recovery**: Automatic recovery from JavaScript chunk loading failures
 
-## Performance & Technical Details
+## ⚡ Performance
 
-### Database Optimizations
-- **Combined queries**: Shows and RSVPs fetched in single database calls (eliminates N+1 problem)
-- **Strategic indexes**: Optimized for upcoming/past shows and RSVP joins
-- **RLS optimization**: Streamlined Row Level Security policies for better performance
-- **Response caching**: API responses cached with appropriate headers (1-5 minutes)
+Show Tracker is optimized for speed and efficiency:
 
-### Frontend Optimizations
-- **Optimistic updates**: RSVP changes feel instant with immediate UI feedback
-- **Infinite scroll**: Past shows load 20 at a time with seamless infinite scroll
-- **Skeleton loading**: Smooth loading states prevent layout shifts
-- **Smart caching**: Static assets cached, API data always fresh
-- **Efficient re-renders**: Minimal unnecessary component updates
-- **Chunk loading**: Optimized webpack configuration for mobile performance
-- **Error handling**: Robust chunk load error recovery with automatic cache clearing
-
-### Performance Impact
+### Metrics
 - **80% fewer database calls** - From 11+ queries to just 2 per page load
 - **2-5x faster queries** - Optimized database structure and indexes
-- **Instant RSVP updates** - No waiting for server responses
-- **Better scalability** - Handles large numbers of shows efficiently
+- **Instant RSVP updates** - Optimistic UI, no waiting for server
+- **< 150KB bundle** - Efficient code splitting and lazy loading
 
-## Security & Additional Features
+### Database Optimizations
+- ✅ **Combined queries** - Shows and RSVPs in single calls (eliminates N+1)
+- ✅ **Strategic indexes** - Optimized for upcoming/past shows and joins
+- ✅ **Streamlined RLS** - Simplified policies for better performance
+- ✅ **Response caching** - API responses cached (1-5 minutes)
+- ✅ **JSONB storage** - Efficient artist data without extra joins
 
-### Security
-- **Input sanitization**: All user inputs are validated and sanitized
-- **Database security**: Row Level Security (RLS) policies for data protection
-- **File upload security**: Type and size validation for poster uploads (JPEG, PNG, WebP, max 10MB)
-- **XSS protection**: HTML sanitization to prevent cross-site scripting attacks
-- **Calendar security**: Proper timezone handling and validation for calendar exports
+### Frontend Optimizations
+- ✅ **Optimistic updates** - Immediate UI feedback, background sync
+- ✅ **Infinite scroll** - Paginated past shows (20 at a time)
+- ✅ **Skeleton loading** - Smooth loading states, no layout shifts
+- ✅ **Smart caching** - Service worker for static assets
+- ✅ **Code splitting** - Route-based and component lazy loading
+- ✅ **Error recovery** - Automatic chunk load error handling
 
-### User Experience
-- **Theme switching**: Dark and light mode with persistent preference
-- **Mobile optimization**: Touch-friendly interface with proper mobile gestures
-- **Offline indicators**: Clear visual feedback when connection is lost
-- **Loading states**: Skeleton loaders and smooth transitions
-- **Error handling**: Graceful error recovery and user feedback
-- **Image viewing**: Full-screen poster modal with zoom capabilities
-- **Copy functionality**: One-click copy of show details for sharing
+### PWA Performance
+- ✅ **Offline-first** - Critical data cached for offline access
+- ✅ **Background sync** - Updates when connection restored
+- ✅ **Install prompts** - Native app-like installation
+- ✅ **Auto-updates** - Service worker updates on new deployment
 
-## License
+## 🔒 Security
+
+- ✅ **Input validation** - All user inputs validated and sanitized
+- ✅ **Row Level Security** - Supabase RLS policies protect data
+- ✅ **File upload security** - Type and size validation (JPEG, PNG, WebP, max 10MB)
+- ✅ **XSS protection** - HTML sanitization prevents script injection
+- ✅ **Environment variables** - Sensitive data in `.env.local` (never committed)
+- ✅ **HTTPS only** - Secure connections in production
+- ✅ **CRON_SECRET** - Optional secret for securing automated endpoints
+
+---
+
+## 🔧 Troubleshooting
+
+### Service Worker Not Updating
+- Hard refresh: `Ctrl+Shift+R` (Windows) or `Cmd+Shift+R` (Mac)
+- Clear cache in browser settings
+- Check service worker update in DevTools → Application → Service Workers
+
+### Environment Variables Not Loading
+- Ensure `.env.local` is in root directory (not in subdirectories)
+- Restart dev server after adding/modifying variables: `npm run dev`
+- Check Vercel dashboard for production environment variables
+- Verify variable names match exactly (case-sensitive)
+
+### Database Connection Issues
+- Verify Supabase URL and service role key in `.env.local`
+- Check RLS policies are enabled (run `database-complete-setup.sql`)
+- Ensure Supabase project is active (not paused)
+- Check network connectivity and firewall settings
+
+### Spotify API Errors
+- Verify client ID and secret are correct
+- Check API credentials haven't expired
+- Ensure you're within Spotify API rate limits
+- Test credentials at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+
+### Build/Deployment Failures
+- Clear Next.js cache: `rm -rf .next`
+- Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
+- Check Node.js version: `node --version` (should be 18+)
+- Review build logs for specific errors
+
+### Poster Upload Issues
+- Ensure `BLOB_READ_WRITE_TOKEN` is set (auto-generated on Vercel)
+- Check file size (max 10MB) and type (JPEG, PNG, WebP only)
+- Verify Vercel Blob is enabled in project settings
+- Check browser console for specific error messages
+
+---
+
+## ❓ FAQ
+
+**Q: Can I use this for my own group?**
+A: Absolutely! This project is MIT licensed and designed to be easily customizable for any group.
+
+**Q: Do I need a paid Supabase account?**
+A: No, the free tier is sufficient for small to medium groups (up to 500MB database, 50MB file storage).
+
+**Q: Can I customize the password?**
+A: Yes, set `NEXT_PUBLIC_APP_PASSWORD` in your environment variables to any password you choose.
+
+**Q: How do I update artist release data?**
+A: Set up the GitHub Action (see [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md)) or manually call `/api/cron/check-releases`.
+
+**Q: Can I deploy to platforms other than Vercel?**
+A: Yes, but you'll need to configure alternative file storage (currently uses Vercel Blob). Consider AWS S3, Cloudinary, or Supabase Storage.
+
+**Q: How do I add more people to my group?**
+A: Just share the password and URL! Anyone with the password can access and add their name.
+
+**Q: Can I have multiple groups/instances?**
+A: Yes, deploy separate instances with different Supabase databases and passwords for each group.
+
+**Q: Is there a mobile app?**
+A: The PWA can be installed on mobile devices as an app. Tap "Add to Home Screen" in your browser menu.
+
+**Q: How do I backup my data?**
+A: Use Supabase's built-in backup features or export data via their dashboard (Projects → Database → Backups).
+
+---
+
+## 📚 API Reference
+
+<details>
+<summary><strong>View API Endpoints</strong></summary>
+
+### Shows API
+
+#### Get Upcoming Shows
+```http
+GET /api/shows/upcoming
+```
+Returns all upcoming shows with RSVPs.
+
+#### Get Past Shows (Paginated)
+```http
+GET /api/shows/past?page=1&limit=20
+```
+Returns past shows with pagination.
+
+#### Create Show
+```http
+POST /api/shows
+Content-Type: application/json
+
+{
+  "title": "Show Title",
+  "date_time": "2024-12-31T20:00:00Z",
+  "time_local": "20:00",
+  "venue": "Venue Name",
+  "city": "Boston"
+}
+```
+
+#### Duplicate Show
+```http
+POST /api/shows/[id]/duplicate
+```
+Duplicates a show without RSVPs.
+
+### RSVP API
+
+#### Create/Update RSVP
+```http
+POST /api/rsvp
+Content-Type: application/json
+
+{
+  "show_id": "uuid",
+  "name": "User Name",
+  "status": "going" | "maybe" | "not_going"
+}
+```
+
+### Artists API
+
+#### Search Artists
+```http
+GET /api/artists/search?query=artist+name
+```
+Searches Spotify for artists.
+
+#### Get Releases
+```http
+GET /api/releases?weeks=13
+```
+Gets recent releases from tracked artists.
+
+For complete API documentation, see the source code in [app/api/](app/api/).
+
+</details>
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Quick start for contributors:**
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+---
+
+## 📄 License
 
 MIT License - feel free to use this project for your own group!
+
+See [LICENSE](LICENSE) for full details.
+
+---
+
+## 🙏 Acknowledgments
+
+Built with amazing open-source technologies:
+- [Next.js](https://nextjs.org) - React framework
+- [Supabase](https://supabase.com) - Database and backend
+- [Radix UI](https://radix-ui.com) - Accessible components
+- [Tailwind CSS](https://tailwindcss.com) - Styling
+- [Spotify API](https://developer.spotify.com) - Music data
+- [Vercel](https://vercel.com) - Hosting and storage
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#-show-tracker)**
+
+Made with ❤️ for music lovers everywhere
+
+</div>
