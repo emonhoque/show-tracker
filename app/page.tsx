@@ -19,6 +19,7 @@ import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { Plus, LogOut, Menu, BarChart3 } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
+import { useToast } from '@/components/ui/toast'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 
 export default function Home() {
@@ -64,6 +65,7 @@ export default function Home() {
 
   // Get theme - this will be handled by ThemeToggle component
   const { theme, setTheme } = useTheme()
+  const { showToast } = useToast()
 
   // Monitor online/offline status
   useEffect(() => {
@@ -305,6 +307,14 @@ export default function Home() {
   }
 
   const handleShowAdded = async () => {
+    // Show success toast
+    showToast({
+      title: 'Show Created',
+      description: 'Your new show has been added successfully!',
+      type: 'success',
+      duration: 4000
+    })
+    
     // Invalidate cache and refresh data
     setCacheVersion(prev => prev + 1)
     // Small delay to ensure database has been updated
@@ -366,6 +376,24 @@ export default function Home() {
       setDeletingShowTitle(show.title)
       setShowDeleteDialog(true)
     }
+  }
+
+  const handleDuplicateShow = async (duplicatedShow: Show) => {
+    // Add the duplicated show to the upcoming shows list
+    setUpcomingShows(prev => [duplicatedShow, ...prev])
+    
+    // Update filtered shows if they exist
+    if (filteredUpcomingShows.length > 0) {
+      setFilteredUpcomingShows(prev => [duplicatedShow, ...prev])
+    }
+    
+    // Show success toast
+    showToast({
+      title: 'Show Duplicated',
+      description: `"${duplicatedShow.title}" has been duplicated successfully!`,
+      type: 'success',
+      duration: 4000
+    })
   }
 
   const confirmDeleteShow = async () => {
@@ -557,6 +585,7 @@ export default function Home() {
                   onEdit={handleEditShow}
                   onDelete={handleDeleteShow}
                   onRSVPUpdate={() => updateRSVPs(show.id)}
+                  onDuplicate={handleDuplicateShow}
                 />
               ))
             )}
@@ -583,6 +612,7 @@ export default function Home() {
                     onEdit={handleEditShow}
                     onDelete={handleDeleteShow}
                     onRSVPUpdate={() => updateRSVPs(show.id)}
+                    onDuplicate={handleDuplicateShow}
                   />
                 ))}
                 
