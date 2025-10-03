@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
-import { bostonToUTC } from '@/lib/time'
 import { discordService, ShowData } from '@/lib/discord'
 
 export async function POST(
