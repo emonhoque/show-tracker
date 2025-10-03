@@ -343,6 +343,14 @@ export default function Home() {
   }
 
   const handleShowUpdated = async () => {
+    // Show success toast
+    showToast({
+      title: 'Show Updated',
+      description: 'Your show has been updated successfully!',
+      type: 'success',
+      duration: 4000
+    })
+    
     // Invalidate cache and refresh data
     setCacheVersion(prev => prev + 1)
     // Small delay to ensure database has been updated
@@ -406,9 +414,22 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to delete show')
+        showToast({
+          title: 'Delete Failed',
+          description: errorData.error || 'Failed to delete show',
+          type: 'error',
+          duration: 5000
+        })
         return
       }
+
+      // Show success toast
+      showToast({
+        title: 'Show Deleted',
+        description: 'The show has been deleted successfully!',
+        type: 'success',
+        duration: 4000
+      })
 
       // Invalidate cache and refresh shows
       setCacheVersion(prev => prev + 1)
@@ -418,7 +439,12 @@ export default function Home() {
       setDeletingShowTitle('')
     } catch (error) {
       console.error('Error deleting show:', error)
-      alert('Failed to delete show')
+      showToast({
+        title: 'Delete Failed',
+        description: 'Failed to delete show',
+        type: 'error',
+        duration: 5000
+      })
     }
   }
 

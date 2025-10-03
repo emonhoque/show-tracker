@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ShowArtist } from '@/lib/types'
 import { Plus, Trash2, Search, Music } from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
 
 interface ShowArtistsManagerProps {
   showArtists: ShowArtist[]
@@ -30,6 +31,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
   const [searchResults, setSearchResults] = useState<SpotifySearchResult[]>([])
   const [searching, setSearching] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const { showToast } = useToast()
 
   const searchSpotify = async (query: string) => {
     if (!query.trim()) {
@@ -47,13 +49,22 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         console.error('Search failed:', errorData.error || response.statusText)
         setSearchResults([])
-        // You could show a toast notification here if you have a toast system
-        alert(`Search failed: ${errorData.error || response.statusText}`)
+        showToast({
+          title: 'Search Failed',
+          description: errorData.error || response.statusText,
+          type: 'error',
+          duration: 4000
+        })
       }
     } catch (error) {
       console.error('Search error:', error)
       setSearchResults([])
-      alert('Search failed: Network error. Please check your connection.')
+      showToast({
+        title: 'Search Failed',
+        description: 'Network error. Please check your connection.',
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setSearching(false)
     }
@@ -75,6 +86,15 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
     }
 
     onArtistsChange([...showArtists, newArtist])
+    
+    // Show success toast
+    showToast({
+      title: 'Artist Added',
+      description: `"${spotifyArtist.name}" has been added to the show`,
+      type: 'success',
+      duration: 3000
+    })
+    
     setSearchQuery('')
     setSearchResults([])
     setShowSearch(false)
@@ -94,14 +114,32 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
     }
 
     onArtistsChange([...showArtists, newArtist])
+    
+    // Show success toast
+    showToast({
+      title: 'Custom Artist Added',
+      description: `"${searchQuery.trim()}" has been added to the show`,
+      type: 'success',
+      duration: 3000
+    })
+    
     setSearchQuery('')
     setSearchResults([])
     setShowSearch(false)
   }
 
   const removeArtist = (index: number) => {
+    const artistToRemove = showArtists[index]
     const updatedArtists = showArtists.filter((_, i) => i !== index)
     onArtistsChange(updatedArtists)
+    
+    // Show success toast
+    showToast({
+      title: 'Artist Removed',
+      description: `"${artistToRemove.artist}" has been removed from the show`,
+      type: 'success',
+      duration: 3000
+    })
   }
 
   const updateArtistPosition = (index: number, position: 'Headliner' | 'Support' | 'Local') => {

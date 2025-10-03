@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent } from '@/components/ui/card'
 import { SpotifyArtist, Artist } from '@/lib/types'
 import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
+import { useToast } from '@/components/ui/toast'
 
 interface AddArtistModalProps {
   onArtistAdded?: (artist: Artist) => void
@@ -22,6 +23,7 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
   const [isSearching, setIsSearching] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [spotifyError, setSpotifyError] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return
@@ -31,18 +33,36 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
     try {
       const response = await fetch(`/api/artists/search?q=${encodeURIComponent(searchQuery)}&limit=10`)
       if (response.ok) {
-        const artists = await response.json()
-        setSearchResults(artists)
+        const data = await response.json()
+        setSearchResults(data.artists || [])
       } else {
         const errorData = await response.json()
         if (response.status === 503) {
           setSpotifyError(errorData.message || 'Spotify API not configured')
+          showToast({
+            title: 'Search Failed',
+            description: errorData.message || 'Spotify API not configured',
+            type: 'error',
+            duration: 4000
+          })
         } else {
           console.error('Search failed', response.status, response.statusText)
+          showToast({
+            title: 'Search Failed',
+            description: errorData.error || 'Failed to search for artists',
+            type: 'error',
+            duration: 4000
+          })
         }
       }
     } catch (error) {
       console.error('Search error:', error)
+      showToast({
+        title: 'Search Failed',
+        description: 'Network error. Please check your connection.',
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setIsSearching(false)
     }
@@ -66,6 +86,15 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
       if (response.ok) {
         const newArtist = await response.json()
         onArtistAdded?.(newArtist)
+        
+        // Show success toast
+        showToast({
+          title: 'Artist Added',
+          description: `"${spotifyArtist.name}" has been added to your tracked artists`,
+          type: 'success',
+          duration: 4000
+        })
+        
         setOpen(false)
         setSearchQuery('')
         setSearchResults([])
@@ -73,12 +102,30 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
         const errorData = await response.json()
         if (response.status === 503) {
           setSpotifyError(errorData.message || 'Spotify API not configured')
+          showToast({
+            title: 'Add Failed',
+            description: errorData.message || 'Spotify API not configured',
+            type: 'error',
+            duration: 4000
+          })
         } else {
           console.error('Failed to add artist')
+          showToast({
+            title: 'Add Failed',
+            description: errorData.error || 'Failed to add artist',
+            type: 'error',
+            duration: 4000
+          })
         }
       }
     } catch (error) {
       console.error('Add artist error:', error)
+      showToast({
+        title: 'Add Failed',
+        description: 'Failed to add artist',
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setIsAdding(false)
     }

@@ -11,6 +11,7 @@ import { ReleaseEmptyState } from '@/components/ReleaseEmptyState'
 import { ReleaseErrorState } from '@/components/ReleaseErrorState'
 import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
+import { useToast } from '@/components/ui/toast'
 
 interface ReleaseWithArtist extends Release {
   artists: Array<{ id: string; name: string }> | null
@@ -48,6 +49,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
     hasNext: false,
     hasPrev: false
   })
+  const { showToast } = useToast()
 
   const fetchReleases = useCallback(async (isRefresh = false, page = 1, append = false) => {
     if (isRefresh) {
@@ -131,16 +133,41 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
       
       if (response.ok) {
         await response.json()
+        // Show success toast
+        showToast({
+          title: 'Refresh Complete',
+          description: 'New releases have been fetched from Spotify',
+          type: 'success',
+          duration: 3000
+        })
       } else {
         const errorData = await response.json()
         if (response.status === 503) {
           setSpotifyError(errorData.message || 'Spotify API not configured')
+          showToast({
+            title: 'Refresh Failed',
+            description: errorData.message || 'Spotify API not configured',
+            type: 'error',
+            duration: 4000
+          })
         } else {
           console.error('Failed to fetch releases from Spotify')
+          showToast({
+            title: 'Refresh Failed',
+            description: 'Failed to fetch releases from Spotify',
+            type: 'error',
+            duration: 4000
+          })
         }
       }
     } catch (error) {
       console.error('Error fetching releases from Spotify:', error)
+      showToast({
+        title: 'Refresh Failed',
+        description: 'Network error while refreshing releases',
+        type: 'error',
+        duration: 4000
+      })
     }
 
     // Then refresh the releases list from database

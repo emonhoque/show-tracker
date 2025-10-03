@@ -10,6 +10,7 @@ import { formatNameForDisplay } from '@/lib/validation'
 import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
+import { useToast } from '@/components/ui/toast'
 
 // Apple Music icon as SVG component
 
@@ -38,6 +39,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const { showToast } = useToast()
 
   // Get userName from localStorage on client side
   useEffect(() => {
@@ -105,7 +107,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       setTimeout(() => setCopySuccess(false), 2000)
     } catch (error) {
       console.error('Failed to copy text:', error)
-      alert('Failed to copy show info')
+      showToast({
+        title: 'Copy Failed',
+        description: 'Failed to copy show info',
+        type: 'error',
+        duration: 3000
+      })
     }
   }
 
@@ -121,7 +128,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
 
       if (!response.ok) {
         const error = await response.json()
-        alert(error.error || 'Failed to duplicate show')
+        showToast({
+          title: 'Duplicate Failed',
+          description: error.error || 'Failed to duplicate show',
+          type: 'error',
+          duration: 4000
+        })
         return
       }
 
@@ -129,7 +141,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       onDuplicate(duplicatedShow)
     } catch (error) {
       console.error('Error duplicating show:', error)
-      alert('Failed to duplicate show')
+      showToast({
+        title: 'Duplicate Failed',
+        description: 'Failed to duplicate show',
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setLoading(false)
     }
@@ -155,7 +172,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
 
         if (!response.ok) {
           const error = await response.json()
-          alert(error.error || 'Failed to save RSVP')
+          showToast({
+            title: 'RSVP Failed',
+            description: error.error || 'Failed to save RSVP',
+            type: 'error',
+            duration: 4000
+          })
           return
         }
       } else {
@@ -171,7 +193,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
 
         if (!response.ok) {
           const error = await response.json()
-          alert(error.error || 'Failed to remove RSVP')
+          showToast({
+            title: 'RSVP Failed',
+            description: error.error || 'Failed to remove RSVP',
+            type: 'error',
+            duration: 4000
+          })
           return
         }
       }
@@ -182,7 +209,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       }
     } catch (error) {
       console.error('Error saving RSVP:', error)
-      alert('Failed to save RSVP')
+      showToast({
+        title: 'RSVP Failed',
+        description: 'Failed to save RSVP',
+        type: 'error',
+        duration: 4000
+      })
     } finally {
       setLoading(false)
     }
