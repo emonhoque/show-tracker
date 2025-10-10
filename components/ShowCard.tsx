@@ -477,7 +477,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       </CardContent>
 
       {/* Footer Section */}
-      <CardFooter className="flex-col gap-4 pt-0 !items-stretch">
+      <CardFooter className="flex-col gap-4 pt-4 !items-stretch">
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-2 w-full">
           {show.ticket_url && !isPast && (

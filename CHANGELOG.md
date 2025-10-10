@@ -4,6 +4,16 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.6.6] - 2025-01-03
+
+### Changed
+- Enhanced RecapChart user statistics display for better readability
+  - Improved formatting of total shows and active months statistics
+  - Better visual spacing and layout consistency
+- Fixed ShowCard footer padding for improved visual spacing
+
+---
+
 ## [1.6.5] - 2025-10-03
 
 ### Added

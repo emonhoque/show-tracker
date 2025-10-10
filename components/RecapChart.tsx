@@ -107,7 +107,7 @@ export function RecapChart({ data }: RecapChartProps) {
                           {formatNameForDisplay(user.displayName)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {totalShows} total • {activeMonths} active
+                          {totalShows} total shows
                         </div>
                       </div>
                     </div>
@@ -141,6 +141,12 @@ export function RecapChart({ data }: RecapChartProps) {
                           Peak: {monthNames[user.monthlyCounts.indexOf(maxMonth)]} ({maxMonth} show{maxMonth !== 1 ? 's' : ''})
                         </span>
                       )}
+                      {maxMonth > 0 && activeMonths > 0 && (
+                        <span className="ml-2">• </span>
+                      )}
+                      <span>
+                        Active in {activeMonths} month{activeMonths !== 1 ? 's' : ''}
+                      </span>
                       {activeMonths < 12 && (
                         <span className="ml-2">
                           • {12 - activeMonths} inactive month{12 - activeMonths !== 1 ? 's' : ''}
@@ -174,7 +180,7 @@ export function RecapChart({ data }: RecapChartProps) {
                         {formatNameForDisplay(user.displayName)}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {totalShows} total • {activeMonths} active months
+                        {totalShows} total shows
                       </div>
                     </div>
                   </div>
@@ -206,16 +212,22 @@ export function RecapChart({ data }: RecapChartProps) {
                   
                   {/* Insights */}
                   {totalShows > 0 && (
-                    <div className="text-sm text-muted-foreground space-y-1">
+                    <div className="text-sm text-muted-foreground">
                       {maxMonth > 0 && (
-                        <div>
-                          Peak month: {monthNames[peakMonthIndex]} ({maxMonth} show{maxMonth !== 1 ? 's' : ''})
-                        </div>
+                        <span>
+                          Peak: {monthNames[peakMonthIndex]} ({maxMonth} show{maxMonth !== 1 ? 's' : ''})
+                        </span>
                       )}
+                      {maxMonth > 0 && activeMonths > 0 && (
+                        <span className="ml-2">• </span>
+                      )}
+                      <span>
+                        Active in {activeMonths} month{activeMonths !== 1 ? 's' : ''}
+                      </span>
                       {activeMonths < 12 && (
-                        <div>
-                          {12 - activeMonths} inactive month{12 - activeMonths !== 1 ? 's' : ''}
-                        </div>
+                        <span className="ml-2">
+                          • {12 - activeMonths} inactive month{12 - activeMonths !== 1 ? 's' : ''}
+                        </span>
                       )}
                     </div>
                   )}
