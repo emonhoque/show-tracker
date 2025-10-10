@@ -4,7 +4,7 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
-## [1.6.6] - 2025-01-03
+## [1.6.6] - 2025-10-10
 
 ### Changed
 - Enhanced RecapChart user statistics display for better readability
