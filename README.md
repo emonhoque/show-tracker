@@ -90,6 +90,8 @@ Built for music lovers who attend lots of shows and want to stay coordinated.
 
 ## 🚀 Quick Start
 
+**Want to try it first?** Check out the live demo with mock data at: [https://show-tracker.emontofazzal.com/](https://show-tracker.emontofazzal.com/)
+
 **Want to run locally in 5 minutes?** Follow these steps:
 
 ## ✅ Prerequisites
