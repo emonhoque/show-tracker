@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { searchArtists, isSpotifyConfigured } from '@/lib/spotify'
+import { mockArtists } from '@/lib/mockData'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,23 +10,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 })
     }
 
-    // Check if Spotify is configured
-    if (!isSpotifyConfigured) {
-      return NextResponse.json({ 
-        error: 'Spotify API not configured. Please add SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET to your environment variables.' 
-      }, { status: 500 })
-    }
+    // Demo mode - filter mock artists by search query
+    const filteredArtists = mockArtists.filter(artist =>
+      artist.artist_name.toLowerCase().includes(query.toLowerCase())
+    )
 
-    // Search for artists using the existing function
-    const artists = await searchArtists(query, 10)
-    
     return NextResponse.json({
-      artists: artists || []
+      artists: filteredArtists.map(artist => ({
+        id: artist.spotify_id,
+        name: artist.artist_name,
+        image_url: artist.image_url,
+        genres: artist.genres,
+        popularity: 75
+      })),
+      demo: true
     })
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : 'Internal server error' 
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : 'Internal server error'
     }, { status: 500 })
   }
 }

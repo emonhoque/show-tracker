@@ -39,12 +39,18 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [localRsvps, setLocalRsvps] = useState<RSVPSummary>(rsvps)
   const { showToast } = useToast()
 
   // Get userName from localStorage on client side
   useEffect(() => {
     setUserName(localStorage.getItem('userName'))
   }, [])
+
+  // Update local RSVPs when props change
+  useEffect(() => {
+    setLocalRsvps(rsvps)
+  }, [rsvps])
 
   const formatShowAsText = (show: Show): string => {
     const lines = [
@@ -155,12 +161,30 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   const handleRSVP = async (status: 'going' | 'maybe' | 'not_going' | null) => {
     if (!userName || loading) return
 
+    const userNameLower = userName.toLowerCase()
+
+    // Update local state immediately for instant feedback
+    setLocalRsvps(prev => {
+      const newRsvps: RSVPSummary = {
+        going: [...(prev.going || [])].filter(name => name !== userNameLower),
+        maybe: [...(prev.maybe || [])].filter(name => name !== userNameLower),
+        not_going: [...(prev.not_going || [])].filter(name => name !== userNameLower)
+      }
+
+      // Add user to new status if not removing
+      if (status) {
+        newRsvps[status].push(userNameLower)
+      }
+
+      return newRsvps
+    })
+
     setLoading(true)
-    
+
     try {
       if (status) {
         // Add or update RSVP
-        const response = await fetch('/api/rsvp', {
+        await fetch('/api/rsvp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -169,20 +193,9 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             status
           })
         })
-
-        if (!response.ok) {
-          const error = await response.json()
-          showToast({
-            title: 'RSVP Failed',
-            description: error.error || 'Failed to save RSVP',
-            type: 'error',
-            duration: 4000
-          })
-          return
-        }
       } else {
         // Remove RSVP completely
-        const response = await fetch('/api/rsvp/remove', {
+        await fetch('/api/rsvp/remove', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -190,42 +203,27 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             name: userName
           })
         })
-
-        if (!response.ok) {
-          const error = await response.json()
-          showToast({
-            title: 'RSVP Failed',
-            description: error.error || 'Failed to remove RSVP',
-            type: 'error',
-            duration: 4000
-          })
-          return
-        }
       }
 
-      // Update RSVPs after successful API call
+      // Silently update parent component data in background
       if (onRSVPUpdate) {
         onRSVPUpdate()
       }
     } catch (error) {
       console.error('Error saving RSVP:', error)
-      showToast({
-        title: 'RSVP Failed',
-        description: 'Failed to save RSVP',
-        type: 'error',
-        duration: 4000
-      })
+      // Revert local state on error
+      setLocalRsvps(rsvps)
     } finally {
       setLoading(false)
     }
   }
 
-  const userStatus = userName && rsvps
-    ? rsvps.going?.includes(userName.toLowerCase())
+  const userStatus = userName && localRsvps
+    ? localRsvps.going?.includes(userName.toLowerCase())
       ? 'going'
-      : rsvps.maybe?.includes(userName.toLowerCase())
+      : localRsvps.maybe?.includes(userName.toLowerCase())
       ? 'maybe'
-      : rsvps.not_going?.includes(userName.toLowerCase())
+      : localRsvps.not_going?.includes(userName.toLowerCase())
       ? 'not_going'
       : null
     : null
@@ -435,39 +433,39 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
         )}
 
         {/* RSVPs Section */}
-        {(rsvps?.going?.length > 0 || rsvps?.maybe?.length > 0 || rsvps?.not_going?.length > 0) && (
+        {(localRsvps?.going?.length > 0 || localRsvps?.maybe?.length > 0 || localRsvps?.not_going?.length > 0) && (
           <div className="space-y-3">
             <div className="text-sm font-semibold text-foreground border-b border-border pb-1">
               {isPast ? 'Attendance' : 'RSVPs'}
             </div>
             <div className="space-y-2 text-sm">
-              {rsvps?.going?.length > 0 && (
+              {localRsvps?.going?.length > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">
                     {isPast ? 'Went:' : 'Going:'}
                   </span>
                   <span className="text-muted-foreground">
-                    {rsvps.going.map(formatNameForDisplay).join(', ')}
+                    {localRsvps.going.map(formatNameForDisplay).join(', ')}
                   </span>
                 </div>
               )}
-              {rsvps?.maybe?.length > 0 && (
+              {localRsvps?.maybe?.length > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">
                     Maybe:
                   </span>
                   <span className="text-muted-foreground">
-                    {rsvps.maybe.map(formatNameForDisplay).join(', ')}
+                    {localRsvps.maybe.map(formatNameForDisplay).join(', ')}
                   </span>
                 </div>
               )}
-              {rsvps?.not_going?.length > 0 && (
+              {localRsvps?.not_going?.length > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-foreground">
                     {isPast ? "Didn't Go:" : 'Not Going:'}
                   </span>
                   <span className="text-muted-foreground">
-                    {rsvps.not_going.map(formatNameForDisplay).join(', ')}
+                    {localRsvps.not_going.map(formatNameForDisplay).join(', ')}
                   </span>
                 </div>
               )}

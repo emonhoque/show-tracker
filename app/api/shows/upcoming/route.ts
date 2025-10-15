@@ -1,59 +1,12 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/db'
-import { RSVPSummary } from '@/lib/types'
+import { getUpcomingShowsWithRSVPs } from '@/lib/mockData'
 
 export async function GET() {
   try {
-    // Get shows where date_time >= now (using current timestamp)
-    const now = new Date()
-    const { data: shows, error: showsError } = await supabase
-      .from('shows')
-      .select(`
-        *,
-        rsvps(name, status)
-      `)
-      .gte('date_time', now.toISOString())
-      .order('date_time', { ascending: true })
-
-    if (showsError) {
-      console.error('Database error:', showsError)
-      return NextResponse.json(
-        { error: 'Failed to fetch upcoming shows' },
-        { status: 500 }
-      )
-    }
-
-    // Process shows and organize RSVPs
-    const processedShows = (shows || []).map(show => {
-      const rsvps: RSVPSummary = {
-        going: [],
-        maybe: [],
-        not_going: []
-      }
-
-      // Group RSVPs by status
-      if (show.rsvps && Array.isArray(show.rsvps)) {
-        show.rsvps.forEach((rsvp: { name: string; status: string }) => {
-          if (rsvp.status === 'going') {
-            rsvps.going.push(rsvp.name)
-          } else if (rsvp.status === 'maybe') {
-            rsvps.maybe.push(rsvp.name)
-          } else if (rsvp.status === 'not_going') {
-            rsvps.not_going.push(rsvp.name)
-          }
-        })
-      }
-
-      // Remove rsvps from the show object and add processed rsvps
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { rsvps: _rsvps, ...showWithoutRsvps } = show
-      return {
-        ...showWithoutRsvps,
-        rsvps
-      }
-    })
-
-    const response = NextResponse.json(processedShows)
+    // Return mock data instead of database query
+    const upcomingShows = getUpcomingShowsWithRSVPs()
+    
+    const response = NextResponse.json(upcomingShows)
     
     // No caching for upcoming shows to ensure real-time updates
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')

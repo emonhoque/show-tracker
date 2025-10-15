@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/db'
 import { RSVPSummary } from '@/lib/types'
+import { getRsvpsByShowId } from '@/lib/mockData'
 
 export async function GET(
   request: NextRequest,
@@ -9,19 +9,8 @@ export async function GET(
   try {
     const { show_id } = await params
 
-    // Fetch all RSVPs for this show
-    const { data, error } = await supabase
-      .from('rsvps')
-      .select('name, status')
-      .eq('show_id', show_id)
-
-    if (error) {
-      console.error('Database error:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch RSVPs' },
-        { status: 500 }
-      )
-    }
+    // Return mock RSVP data
+    const rsvps = getRsvpsByShowId(show_id)
 
     // Organize RSVPs by status
     const summary: RSVPSummary = {
@@ -30,17 +19,15 @@ export async function GET(
       not_going: []
     }
 
-    if (data) {
-      data.forEach((rsvp) => {
-        if (rsvp.status === 'going') {
-          summary.going.push(rsvp.name)
-        } else if (rsvp.status === 'maybe') {
-          summary.maybe.push(rsvp.name)
-        } else if (rsvp.status === 'not_going') {
-          summary.not_going.push(rsvp.name)
-        }
-      })
-    }
+    rsvps.forEach((rsvp) => {
+      if (rsvp.status === 'going') {
+        summary.going.push(rsvp.name)
+      } else if (rsvp.status === 'maybe') {
+        summary.maybe.push(rsvp.name)
+      } else if (rsvp.status === 'not_going') {
+        summary.not_going.push(rsvp.name)
+      }
+    })
 
     return NextResponse.json(summary)
   } catch (error) {

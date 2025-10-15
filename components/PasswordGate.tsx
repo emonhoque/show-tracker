@@ -26,7 +26,7 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
       return
     }
 
-    if (password !== process.env.NEXT_PUBLIC_APP_PASSWORD) {
+    if (password !== 'testing2025') {
       setError('Incorrect password')
       return
     }
@@ -48,7 +48,9 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">EDM Adoption Clinic Show Tracker</CardTitle>
-          <CardDescription>Enter the shared password and your full name to continue</CardDescription>
+          <CardDescription>
+            Demo Mode: Enter any name and password <strong className="text-foreground">testing2025</strong> to view the application
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

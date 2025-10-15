@@ -307,22 +307,14 @@ export default function Home() {
   }
 
   const handleShowAdded = async () => {
-    // Show success toast
     showToast({
       title: 'Show Created',
-      description: 'Your new show has been added successfully!',
+      description: 'Your new show has been added successfully! (Demo mode - not saved)',
       type: 'success',
       duration: 4000
     })
-    
-    // Invalidate cache and refresh data
-    setCacheVersion(prev => prev + 1)
-    // Small delay to ensure database has been updated
-    await new Promise(resolve => setTimeout(resolve, 100))
-    // Fetch both upcoming and past shows to ensure new show appears
-    await fetchShows(pastShowsPagination.page)
+    setShowAddModal(false)
   }
-
 
   const loadMorePastShows = useCallback(() => {
     if (pastShowsPagination.hasNext && !loadingMore) {
@@ -343,20 +335,12 @@ export default function Home() {
   }
 
   const handleShowUpdated = async () => {
-    // Show success toast
     showToast({
       title: 'Show Updated',
-      description: 'Your show has been updated successfully!',
+      description: 'Your show has been updated successfully! (Demo mode - not saved)',
       type: 'success',
       duration: 4000
     })
-    
-    // Invalidate cache and refresh data
-    setCacheVersion(prev => prev + 1)
-    // Small delay to ensure database has been updated
-    await new Promise(resolve => setTimeout(resolve, 100))
-    // Fetch both upcoming and past shows to ensure updated show appears
-    await fetchShows(pastShowsPagination.page)
     setShowEditModal(false)
     setEditingShow(null)
   }
@@ -387,65 +371,24 @@ export default function Home() {
   }
 
   const handleDuplicateShow = async (duplicatedShow: Show) => {
-    // Add the duplicated show to the upcoming shows list
-    setUpcomingShows(prev => [duplicatedShow, ...prev])
-    
-    // Update filtered shows if they exist
-    if (filteredUpcomingShows.length > 0) {
-      setFilteredUpcomingShows(prev => [duplicatedShow, ...prev])
-    }
-    
-    // Show success toast
     showToast({
       title: 'Show Duplicated',
-      description: `"${duplicatedShow.title}" has been duplicated successfully!`,
+      description: `"${duplicatedShow.title}" has been duplicated successfully! (Demo mode - not saved)`,
       type: 'success',
       duration: 4000
     })
   }
 
   const confirmDeleteShow = async () => {
-    if (!deletingShowId) return
-
-    try {
-      const response = await fetch(`/api/shows/${deletingShowId}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        showToast({
-          title: 'Delete Failed',
-          description: errorData.error || 'Failed to delete show',
-          type: 'error',
-          duration: 5000
-        })
-        return
-      }
-
-      // Show success toast
-      showToast({
-        title: 'Show Deleted',
-        description: 'The show has been deleted successfully!',
-        type: 'success',
-        duration: 4000
-      })
-
-      // Invalidate cache and refresh shows
-      setCacheVersion(prev => prev + 1)
-      await fetchShows(pastShowsPagination.page)
-      setShowDeleteDialog(false)
-      setDeletingShowId(null)
-      setDeletingShowTitle('')
-    } catch (error) {
-      console.error('Error deleting show:', error)
-      showToast({
-        title: 'Delete Failed',
-        description: 'Failed to delete show',
-        type: 'error',
-        duration: 5000
-      })
-    }
+    showToast({
+      title: 'Show Deleted',
+      description: 'The show has been deleted successfully! (Demo mode - not saved)',
+      type: 'success',
+      duration: 4000
+    })
+    setShowDeleteDialog(false)
+    setDeletingShowId(null)
+    setDeletingShowTitle('')
   }
 
   const handleLogout = () => {
@@ -501,7 +444,7 @@ export default function Home() {
                 Logout
               </Button>
             </div>
-            
+
             {/* Mobile dropdown menu */}
             <div className="sm:hidden flex gap-2">
               <Button onClick={() => setShowAddModal(true)} size="sm">
@@ -510,9 +453,9 @@ export default function Home() {
               </Button>
               <DropdownMenu.DropdownMenu>
                 <DropdownMenu.DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="h-8 w-8 p-0"
                     aria-label="Open menu"
                   >
@@ -603,14 +546,13 @@ export default function Home() {
               </p>
             ) : (
               filteredUpcomingShows.map((show) => (
-                <ShowCard 
-                  key={show.id} 
-                  show={show} 
-                  isPast={false} 
+                <ShowCard
+                  key={show.id}
+                  show={show}
+                  isPast={false}
                   rsvps={rsvpsData[show.id] || { going: [], maybe: [], not_going: [] }}
                   onEdit={handleEditShow}
                   onDelete={handleDeleteShow}
-                  onRSVPUpdate={() => updateRSVPs(show.id)}
                   onDuplicate={handleDuplicateShow}
                 />
               ))
@@ -630,14 +572,13 @@ export default function Home() {
             ) : (
               <>
                 {pastShows.map((show) => (
-                  <ShowCard 
-                    key={show.id} 
-                    show={show} 
-                    isPast={true} 
+                  <ShowCard
+                    key={show.id}
+                    show={show}
+                    isPast={true}
                     rsvps={rsvpsData[show.id] || { going: [], maybe: [], not_going: [] }}
                     onEdit={handleEditShow}
                     onDelete={handleDeleteShow}
-                    onRSVPUpdate={() => updateRSVPs(show.id)}
                     onDuplicate={handleDuplicateShow}
                   />
                 ))}

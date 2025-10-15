@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   
   // Configure allowed image domains
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',
@@ -15,6 +18,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'i.scdn.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
         port: '',
         pathname: '/**',
       },
