@@ -45,7 +45,6 @@ export default function Home() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [editingShow, setEditingShow] = useState<Show | null>(null)
-  const [deletingShowId, setDeletingShowId] = useState<string | null>(null)
   const [deletingShowTitle, setDeletingShowTitle] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -345,26 +344,9 @@ export default function Home() {
     setEditingShow(null)
   }
 
-  const updateRSVPs = async (showId: string) => {
-    try {
-      const response = await fetch(`/api/rsvps/${showId}`, {
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setRsvpsData(prev => ({ ...prev, [showId]: data }))
-      }
-    } catch (error) {
-      console.error(`Error updating RSVPs for show ${showId}:`, error)
-    }
-  }
-
   const handleDeleteShow = (showId: string) => {
     const show = [...upcomingShows, ...pastShows].find(s => s.id === showId)
     if (show) {
-      setDeletingShowId(showId)
       setDeletingShowTitle(show.title)
       setShowDeleteDialog(true)
     }
@@ -387,7 +369,6 @@ export default function Home() {
       duration: 4000
     })
     setShowDeleteDialog(false)
-    setDeletingShowId(null)
     setDeletingShowTitle('')
   }
 

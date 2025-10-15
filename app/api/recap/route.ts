@@ -4,7 +4,6 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString())
-    const currentUser = searchParams.get('user') || null
 
     // Validate year
     if (isNaN(year) || year < 2023 || year > new Date().getFullYear()) {

@@ -1,4 +1,4 @@
-import { Show, Artist, Release, ShowArtist, RSVPSummary } from './types'
+import { Show, Artist, Release, RSVPSummary } from './types'
 
 // Mock Shows Data
 export const mockShows: Show[] = [

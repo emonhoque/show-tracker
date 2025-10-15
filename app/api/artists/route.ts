@@ -11,10 +11,10 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Demo mode - return mock success response
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Demo mode: Artist would be added in production',
       demo: true
     })
