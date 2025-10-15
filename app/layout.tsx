@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EDM Adoption Clinic Show Tracker", // change to your own title
+  title: "Show Tracker: Demo", // change to your own title
   description: "Track shows and manage RSVPs for the EDM Adoption Clinic group", // change to your own description
   keywords: ["EDM", "shows", "events", "RSVP", "music", "concerts"], // change to your own keywords
   authors: [{ name: "EDM Adoption Clinic" }], // change to your own authors
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'EDM Adoption Clinic Show Tracker' // change to your own title
+    title: 'Show Tracker: Demo' // change to your own title
   },
   other: {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
-    'apple-mobile-web-app-title': 'EDM Adoption Clinic Show Tracker', // change to your own title
-    'application-name': 'EDM Adoption Clinic Show Tracker', // change to your own title
+    'apple-mobile-web-app-title': 'Show Tracker: Demo', // change to your own title
+    'application-name': 'Show Tracker: Demo', // change to your own title
     'msapplication-TileColor': '#1f2937',
     'msapplication-config': '/browserconfig.xml'
   }

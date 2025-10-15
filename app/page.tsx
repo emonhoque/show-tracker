@@ -418,11 +418,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Demo Mode Banner */}
+      <div className="bg-blue-600 dark:bg-blue-700 text-white px-4 py-2">
+        <p className="text-sm text-center max-w-4xl mx-auto">
+          <strong>Demo Mode:</strong> You&apos;re viewing a live demonstration. All data is simulated and changes won&apos;t be saved.
+        </p>
+      </div>
+
       {/* Header */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Show Tracker</h1>
+            <h1 className="text-2xl font-bold text-foreground">Show Tracker Demo </h1>
             {userName && (
               <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
             )}

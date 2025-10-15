@@ -12,8 +12,8 @@ interface PasswordGateProps {
 }
 
 export function PasswordGate({ onSuccess }: PasswordGateProps) {
-  const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const [password, setPassword] = useState('testing2025')
+  const [name, setName] = useState('Alice Johnson')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -47,7 +47,7 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">EDM Adoption Clinic Show Tracker</CardTitle>
+          <CardTitle className="text-2xl font-bold">Show Tracker: Demo</CardTitle>
           <CardDescription>
             Demo Mode: Enter any name and password <strong className="text-foreground">testing2025</strong> to view the application
           </CardDescription>
