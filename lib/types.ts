@@ -112,3 +112,67 @@ export interface SpotifyRelease {
     name: string
   }>
 }
+
+export interface RecapData {
+  year: number
+  personalSummary: {
+    totalShows: number
+    busiestMonth: number
+    busiestMonthName: string
+    topVenue: string
+  }
+  leaderboard: Array<{
+    name: string
+    displayName: string
+    totalShows: number
+    mostActiveMonthCount: number
+  }>
+  monthlyData: Array<{
+    name: string
+    displayName: string
+    monthlyCounts: number[]
+    color: string
+  }>
+  stats: {
+    personalTotalShows: number
+    personalBusiestMonth: { month: string; count: number }
+    personalTopVenue: { venue: string; count: number }
+    personalSolos: number
+    personalFirstShow: { title: string; date: string }
+    personalLastShow: { title: string; date: string }
+    personalLongestGap: { days: number; startDate: string; endDate: string }
+    personalBackToBackNights: { count: number; examples: Array<{ dates: string[] }> }
+    personalMaxShowsInMonth: { month: string; count: number }
+    personalMostCommonDay: { day: string; count: number }
+    personalTopArtists: Array<{ artist: string; count: number; image_url?: string }>
+    personalMostSeenArtist: { artist: string; count: number }
+    personalUniqueArtists: number
+    personalArtistDiversity: number
+    personalTopArtistsByPosition: {
+      Headliner: Array<{ artist: string; count: number; image_url?: string }>
+      Support: Array<{ artist: string; count: number; image_url?: string }>
+      Local: Array<{ artist: string; count: number; image_url?: string }>
+    }
+    totalShows: number
+    groupBusiestMonth: { month: string; count: number }
+    groupTopVenue: { venue: string; count: number }
+    mostPeopleInOneShow: { showTitle: string; date: string; count: number }
+    mostSolos: { name: string; count: number }
+    mostActiveUser: { name: string; count: number }
+    groupTotal: number
+    averageShowsPerPerson: number
+    mostPopularDay: { day: string; count: number }
+    biggestStreak: { user: string; streak: number }
+    groupTopArtists: Array<{ artist: string; count: number; image_url?: string }>
+    groupMostSeenArtist: { artist: string; count: number }
+    groupUniqueArtists: number
+    groupArtistDiversity: number
+    mostDiverseUser: { name: string; diversity: number }
+    groupTopArtistsByPosition: {
+      Headliner: Array<{ artist: string; count: number; image_url?: string }>
+      Support: Array<{ artist: string; count: number; image_url?: string }>
+      Local: Array<{ artist: string; count: number; image_url?: string }>
+    }
+  }
+  demo?: boolean
+}

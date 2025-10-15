@@ -49,7 +49,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [isOffline, setIsOffline] = useState(false)
-  const [cacheVersion, setCacheVersion] = useState(0)
 
   // Check if component is mounted on client side
   useEffect(() => {
@@ -93,7 +92,7 @@ export default function Home() {
     try {
       // Fetch upcoming shows (now includes RSVPs) - only on initial load
       if (!isLoadMore) {
-        const upcomingResponse = await fetch(`/api/shows/upcoming?v=${cacheVersion}`, {
+        const upcomingResponse = await fetch('/api/shows/upcoming', {
           headers: {
             'Cache-Control': 'no-cache'
           }
@@ -131,7 +130,7 @@ export default function Home() {
       }
 
       // Fetch past shows with pagination
-      const pastResponse = await fetch(`/api/shows/past?page=${pastPage}&limit=20&v=${cacheVersion}`, {
+      const pastResponse = await fetch(`/api/shows/past?page=${pastPage}&limit=20`, {
         headers: {
           'Cache-Control': 'no-cache'
         }
@@ -181,7 +180,7 @@ export default function Home() {
         setLoading(false)
       }
     }
-  }, [cacheVersion])
+  }, [])
 
   // Fetch shows when authenticated
   useEffect(() => {

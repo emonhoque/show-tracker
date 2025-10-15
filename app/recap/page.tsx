@@ -12,7 +12,7 @@ import { LogOut, Copy, Plus, Menu } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
-import { RecapData } from '@/app/api/recap/route'
+import { RecapData } from '@/lib/types'
 
 export default function RecapPage() {
   const [mounted, setMounted] = useState(false)
