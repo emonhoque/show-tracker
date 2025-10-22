@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Show, RSVPSummary } from '@/lib/types'
-import { formatUserTime } from '@/lib/time'
+import { formatUserTime, formatDaysUntilShow } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
 import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
@@ -241,6 +241,9 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             </CardTitle>
             <CardDescription className="text-base font-medium">
               {formatUserTime(show.date_time, show.time_local)}
+              <span className="ml-2 text-sm text-muted-foreground">
+                ({formatDaysUntilShow(show.date_time)})
+              </span>
             </CardDescription>
             <div className="text-sm text-muted-foreground mt-1">
               {show.venue} • {show.city}

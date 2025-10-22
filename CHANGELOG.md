@@ -4,6 +4,20 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.6.7] - 2025-10-21
+
+### Added
+- **Days Until Show Display** - Show cards now display how many days until each show
+  - Shows "Today" for same-day events
+  - Shows "Tomorrow" for next-day events  
+  - Shows "In X days" for future events
+  - Shows "X days ago" for past events
+
+### Changed
+- Removed redundant "(Local)" text from date display
+
+---
+
 ## [1.6.6] - 2025-10-10
 
 ### Changed

@@ -59,7 +59,7 @@ export function formatUserTime(utcDate: string | Date, userTimeInput: string): s
     const ampm = hour >= 12 ? 'PM' : 'AM'
     const displayMinute = minute.toString().padStart(2, '0')
     
-    return `${dayOfWeek}, ${displayHour}:${displayMinute} ${ampm} (Local)`
+    return `${dayOfWeek}, ${displayHour}:${displayMinute} ${ampm}`
   } catch (error) {
     console.error('Error formatting user time:', error)
     return 'Invalid date'
@@ -93,4 +93,45 @@ export function isShowPast(showDateTime: string | Date): boolean {
   const nowInBoston = toZonedTime(new Date(), BOSTON_TZ)
   const showInBoston = toZonedTime(showDate, BOSTON_TZ)
   return showInBoston < nowInBoston
+}
+
+/**
+ * Calculate days until a show (negative for past shows)
+ */
+export function getDaysUntilShow(showDateTime: string | Date): number {
+  try {
+    const showDate = new Date(showDateTime)
+    const nowInBoston = toZonedTime(new Date(), BOSTON_TZ)
+    const showInBoston = toZonedTime(showDate, BOSTON_TZ)
+    
+    // Set time to start of day for both dates to compare only the date part
+    const nowStartOfDay = new Date(nowInBoston.getFullYear(), nowInBoston.getMonth(), nowInBoston.getDate())
+    const showStartOfDay = new Date(showInBoston.getFullYear(), showInBoston.getMonth(), showInBoston.getDate())
+    
+    // Calculate difference in days
+    const diffTime = showStartOfDay.getTime() - nowStartOfDay.getTime()
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+    
+    return diffDays
+  } catch (error) {
+    console.error('Error calculating days until show:', error)
+    return 0
+  }
+}
+
+/**
+ * Format days until show for display
+ */
+export function formatDaysUntilShow(showDateTime: string | Date): string {
+  const days = getDaysUntilShow(showDateTime)
+  
+  if (days < 0) {
+    return `${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} ago`
+  } else if (days === 0) {
+    return 'Today'
+  } else if (days === 1) {
+    return 'Tomorrow'
+  } else {
+    return `In ${days} days`
+  }
 }
