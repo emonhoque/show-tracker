@@ -4,6 +4,13 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.6.8] - 2025-10-31
+
+### Fixed
+- Login screen background now respects dark mode (replaced hardcoded `bg-gray-50` with theme `bg-background`).
+
+---
+
 ## [1.6.7] - 2025-10-21
 
 ### Added
