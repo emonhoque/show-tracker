@@ -303,97 +303,115 @@ function ComparisonSlideView({
 }) {
   const maxShows = Math.max(...slide.leaderboard.map(u => u.shows), 1)
 
+  // Find user's position for messaging
+  const userIndex = slide.leaderboard.findIndex(u => u.isCurrentUser)
+  const userPosition = userIndex + 1
+
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center h-full px-8',
+        'flex flex-col items-center justify-center h-full px-6',
         !reducedMotion && 'animate-in fade-in duration-300'
       )}
     >
-      <span
-        className={cn(
-          'text-5xl mb-4',
-          !reducedMotion && 'animate-in zoom-in duration-500 delay-100'
-        )}
-        role="img"
-        aria-hidden="true"
-      >
-        📊
-      </span>
-
       <h2
         className={cn(
-          'text-xl font-medium mb-6 opacity-80',
-          theme.accent,
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+          'text-2xl font-bold mb-2',
+          theme.text,
+          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-100'
         )}
       >
         {slide.title}
       </h2>
 
-      <div className="w-full max-w-sm space-y-3">
-        {slide.leaderboard.map((user, index) => (
-          <div
-            key={user.name}
-            className={cn(
-              'flex items-center gap-3',
-              !reducedMotion && 'animate-in slide-in-from-left duration-500'
-            )}
-            style={{
-              animationDelay: reducedMotion ? '0ms' : `${(index + 2) * 100}ms`,
-            }}
-          >
-            {/* Rank */}
-            <span className={cn('w-6 text-sm font-bold opacity-60', theme.text)}>
-              {index + 1}
-            </span>
+      <p
+        className={cn(
+          'text-sm mb-8 opacity-70',
+          theme.text,
+          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+        )}
+      >
+        {userPosition === 1 ? 'You led the pack this year' : 
+         userPosition <= 3 ? `You came in #${userPosition}` : 
+         `You placed #${userPosition}`}
+      </p>
 
-            {/* Name */}
-            <span
+      <div className="w-full max-w-md space-y-2.5">
+        {slide.leaderboard.map((user, index) => {
+          const isUser = user.isCurrentUser
+          const barWidth = Math.max((user.shows / maxShows) * 100, 20)
+          
+          return (
+            <div
+              key={user.name}
               className={cn(
-                'w-24 text-sm truncate',
-                theme.text,
-                user.isCurrentUser ? 'font-bold' : 'opacity-80'
+                'relative flex items-center',
+                !reducedMotion && 'animate-in slide-in-from-left duration-500',
+                isUser && 'scale-[1.02]'
               )}
+              style={{
+                animationDelay: reducedMotion ? '0ms' : `${(index + 2) * 80}ms`,
+              }}
             >
-              {user.isCurrentUser ? 'You' : user.name}
-            </span>
-
-            {/* Bar */}
-            <div className="flex-1 h-8 bg-white/10 rounded-full overflow-hidden">
-              <div
+              {/* Rank badge */}
+              <div 
                 className={cn(
-                  'h-full rounded-full flex items-center justify-end pr-3 transition-all duration-1000',
-                  user.isCurrentUser
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                    : 'bg-white/30'
+                  'w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold mr-3 flex-shrink-0',
+                  isUser 
+                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white' 
+                    : 'bg-white/10 text-white/70'
                 )}
-                style={{
-                  width: `${Math.max((user.shows / maxShows) * 100, 15)}%`,
-                }}
               >
-                <span
+                {index + 1}
+              </div>
+
+              {/* Bar container */}
+              <div className="flex-1 relative">
+                <div
                   className={cn(
-                    'text-xs font-semibold',
-                    theme.text
+                    'h-11 rounded-xl flex items-center px-4 transition-all duration-700',
+                    isUser
+                      ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/30'
+                      : 'bg-white/15'
                   )}
+                  style={{
+                    width: `${barWidth}%`,
+                  }}
                 >
-                  {user.shows}
-                </span>
+                  {/* Name inside bar */}
+                  <span
+                    className={cn(
+                      'text-sm truncate flex-1',
+                      isUser ? 'font-bold text-white' : 'text-white/90'
+                    )}
+                  >
+                    {isUser ? 'You' : user.name}
+                  </span>
+                  
+                  {/* Count */}
+                  <span
+                    className={cn(
+                      'text-sm font-bold ml-2 flex-shrink-0',
+                      isUser ? 'text-white' : 'text-white/80'
+                    )}
+                  >
+                    {user.shows}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <p
         className={cn(
-          'mt-6 text-sm opacity-60',
+          'mt-8 text-xs uppercase tracking-wider opacity-50',
           theme.text,
           !reducedMotion && 'animate-in fade-in duration-500 delay-700'
         )}
       >
-        shows attended
+        Total shows attended
       </p>
     </div>
   )
