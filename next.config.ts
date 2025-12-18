@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Optimize for mobile and PWA
   
+  // Enable Turbopack (default in Next.js 16)
+  turbopack: {},
+  
   // Configure allowed image domains
   images: {
     remotePatterns: [

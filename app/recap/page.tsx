@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -8,11 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu } from 'lucide-react'
+import { LogOut, Copy, Plus, Menu, Play } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
 import { RecapData } from '@/app/api/recap/route'
+import { RecapStoryPlayer, type RecapData as StoryRecapData } from '@/components/recap/stories'
 
 export default function RecapPage() {
   const [mounted, setMounted] = useState(false)
@@ -22,6 +23,7 @@ export default function RecapPage() {
   const [recapData, setRecapData] = useState<RecapData | null>(null)
   const [loading, setLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [showStoryPlayer, setShowStoryPlayer] = useState(false)
 
   const router = useRouter()
 
@@ -115,6 +117,48 @@ export default function RecapPage() {
     }
     return years
   }
+
+  // Transform API RecapData to Story RecapData format
+  const storyRecapData: StoryRecapData | null = useMemo(() => {
+    if (!recapData || !userName) return null
+
+    const userIndex = recapData.leaderboard.findIndex(user => user.name === userName)
+    const position = userIndex + 1
+    const totalUsers = recapData.leaderboard.length
+
+    // Build monthCounts from monthlyData if available
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const userMonthlyData = recapData.monthlyData.find(d => d.name === userName)
+    const monthCounts: Record<string, number> = {}
+    if (userMonthlyData) {
+      monthNames.forEach((month, index) => {
+        monthCounts[month] = userMonthlyData.monthlyCounts[index] || 0
+      })
+    }
+
+    // Transform top artists if available
+    const topArtists = recapData.stats?.personalTopArtists?.map(artist => ({
+      name: artist.artist,
+      shows: artist.count,
+      isHeadliner: false,
+      imageUrl: artist.image_url,
+    }))
+
+    return {
+      year: selectedYear,
+      totalShows: recapData.personalSummary.totalShows,
+      avgPerMonth: recapData.personalSummary.totalShows / 12,
+      busiestMonth: recapData.personalSummary.busiestMonthName || '',
+      busiestMonthCount: recapData.stats?.personalBusiestMonth?.count,
+      topVenue: recapData.personalSummary.topVenue || '',
+      topVenueCount: recapData.stats?.personalTopVenue?.count,
+      rank: totalUsers > 0 ? { position, total: totalUsers } : undefined,
+      monthCounts: Object.keys(monthCounts).length > 0 ? monthCounts : undefined,
+      topArtists: topArtists && topArtists.length > 0 ? topArtists : undefined,
+      userName: userName,
+      leaderboard: recapData.leaderboard,
+    }
+  }, [recapData, userName, selectedYear])
 
   // Show loading state until component is mounted
   if (!mounted) {
@@ -279,6 +323,18 @@ export default function RecapPage() {
                 )}
                 
                 <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Play Story Button */}
+                  {storyRecapData && recapData.personalSummary.totalShows > 0 && (
+                    <Button
+                      size="sm"
+                      onClick={() => setShowStoryPlayer(true)}
+                      className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0"
+                    >
+                      <Play className="w-4 h-4 mr-1" />
+                      Play Story
+                    </Button>
+                  )}
+                  
                   <Button
                     variant="outline"
                     size="sm"
@@ -991,6 +1047,14 @@ export default function RecapPage() {
           </Card>
         )}
       </main>
+
+      {/* Story Player Modal */}
+      {showStoryPlayer && storyRecapData && (
+        <RecapStoryPlayer
+          recap={storyRecapData}
+          onClose={() => setShowStoryPlayer(false)}
+        />
+      )}
     </div>
   )
 }

@@ -4,6 +4,33 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.7.0] - 2025-12-18
+
+### Added
+- **Recap Stories** - Instagram-style story experience for year-end recaps
+  - Tap-to-navigate story player with auto-advance (5 seconds per slide)
+  - 9 beautifully designed slide types: Intro, Total Shows, Monthly Average, Busiest Month, Top Venue, Monthly Chart, Top Artists, Comparison, and Outro
+  - 5 unique color themes that rotate through slides (Midnight, Neon, Sunset, Forest, Mono)
+  - Dynamic personalized copy system with contextual messaging based on stats
+  - Smooth mobile-optimized animations with reduced motion support
+  - Progress bar showing slide advancement
+  - Copy summary and share functionality
+- **Comparison Slide** - See how you stack up against others in your group
+  - Shows your rank among all attendees
+  - Compares your show count to the group average
+  - Personalized messaging based on your relative position
+
+### Changed
+- Redesigned "Your Year in Shows" chart with improved visuals
+- Optimized all recap animations for smoother mobile performance
+- Enhanced copy variety to avoid repetitive messaging across slides
+
+### Fixed
+- Names now properly capitalized in recap displays
+- Chart elements no longer interactive (prevented accidental highlighting)
+
+---
+
 ## [1.6.8] - 2025-10-31
 
 ### Fixed
