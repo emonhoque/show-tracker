@@ -97,22 +97,7 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
     })
   }
 
-  // Slide 6: Rank (optional)
-  if (recap.rank) {
-    const { position, total } = recap.rank
-    const rankingCopy = getRankingCopy(position, total)
-    slides.push({
-      id: 'rank',
-      kind: 'rank',
-      title: rankingCopy.title,
-      headline: rankingCopy.headline,
-      subtext: `${rankingCopy.subtext} · ${rankingCopy.footer}`,
-      emoji: '🏆',
-      theme: getNextTheme(),
-    })
-  }
-
-  // Slide 7: Monthly Trend Chart (optional)
+  // Slide 6: Monthly Trend Chart (optional)
   if (recap.monthCounts && Object.keys(recap.monthCounts).length > 0) {
     const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     const chartData = monthOrder.map(month => ({
