@@ -4,7 +4,7 @@
 
 **A modern Progressive Web App for groups to track concerts and manage RSVPs**
 
-[![Version](https://img.shields.io/badge/version-1.6.7-blue)](https://github.com/emonhoque/show-tracker/releases)
+[![Version](https://img.shields.io/badge/version-1.7.0-blue)](https://github.com/emonhoque/show-tracker/releases)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org)
@@ -71,6 +71,7 @@ Built for music lovers who attend lots of shows and want to stay coordinated.
 - 📊 **Performance monitoring** - Vercel Speed Insights integration
 - 📸 **Photo sharing** - Google Photos links for past shows
 - 🖼️ **Poster uploads** - Upload and display show posters with Vercel Blob storage
+- 📖 **Recap Stories** - Instagram-style story experience for year-end stats with 5 themes and auto-advance
 
 ### PWA & Performance
 - 📱 **Progressive Web App** - Installable on mobile and desktop devices
