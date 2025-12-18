@@ -29,10 +29,11 @@ export function RecapStoryPlayer({
   // Build slides from recap data
   const slides = useMemo(() => buildRecapSlides(recap), [recap])
 
-  // Initialize playback hook (manual navigation only)
+  // Initialize playback hook with auto-advance timer
   const {
     activeIndex,
     totalSlides,
+    progress,
     next,
     prev,
   } = useStoryPlayback({
@@ -133,12 +134,12 @@ export function RecapStoryPlayer({
         {/* Safe area top padding */}
         <div className="pt-safe sm:pt-0" />
 
-      {/* Progress bar - shows completed slides */}
+      {/* Progress bar - shows completed slides and auto-advance progress */}
       <div className="px-4 pt-4 pb-2">
         <StoryProgress
           totalSlides={totalSlides}
           activeIndex={activeIndex}
-          progress={1}
+          progress={progress}
           theme={currentTheme}
           reducedMotion={reducedMotion}
         />
@@ -167,24 +168,24 @@ export function RecapStoryPlayer({
 
       {/* Main slide content */}
       <div className="flex-1 relative">
-        {/* Tap zones - left half and right half */}
-        <div className="absolute inset-0 flex">
+        {/* Slide content */}
+        <StorySlideView slide={currentSlide} reducedMotion={reducedMotion} />
+
+        {/* Tap zones - left half and right half (on top of content) */}
+        <div className="absolute inset-0 flex z-10">
           {/* Left tap zone (previous) */}
           <button
-            className="w-1/2 h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-inset"
+            className="w-1/3 h-full focus:outline-none active:bg-white/5 transition-colors"
             onClick={() => handleTapZone('left')}
             aria-label="Previous slide"
           />
-          {/* Right tap zone (next) */}
+          {/* Right tap zone (next) - larger for easier tapping */}
           <button
-            className="w-1/2 h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-inset"
+            className="w-2/3 h-full focus:outline-none active:bg-white/5 transition-colors"
             onClick={() => handleTapZone('right')}
             aria-label="Next slide"
           />
         </div>
-
-        {/* Slide content */}
-        <StorySlideView slide={currentSlide} reducedMotion={reducedMotion} />
 
         {/* Navigation hints - show on first slide */}
         {activeIndex === 0 && (
