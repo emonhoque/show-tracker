@@ -1,4 +1,18 @@
 import type { StorySlide, RecapData, StoryTheme } from './types'
+import {
+  getIntroCopy,
+  getTotalShowsCopy,
+  getMonthlyAvgCopy,
+  getBusiestMonthCopy,
+  getTopVenueCopy,
+  getRankingCopy,
+  getMonthlyChartCopy,
+  getTopArtistsCopy,
+  getArtistBadge,
+  getComparisonCopy,
+  getOutroCopy,
+  generateCopySummary,
+} from './recapCopy'
 
 /**
  * Builds an array of story slides from RecapData
@@ -16,47 +30,53 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
   }
 
   // Slide 1: Intro
+  const introCopy = getIntroCopy(recap.totalShows, recap.year)
   slides.push({
     id: 'intro',
     kind: 'intro',
-    title: `Your ${recap.year} Recap`,
-    headline: 'A year of live music',
-    subtext: 'Tap to continue',
+    title: introCopy.title,
+    headline: introCopy.headline,
+    subtext: introCopy.subtext,
     emoji: '🎵',
     theme: getNextTheme(),
     durationMs: 5000,
   })
 
   // Slide 2: Total Shows
+  const totalShowsCopy = getTotalShowsCopy(recap.totalShows)
   slides.push({
     id: 'total-shows',
     kind: 'stat',
-    title: 'Total Shows',
-    headline: `${recap.totalShows}`,
-    subtext: recap.totalShows === 1 ? 'show attended' : 'shows attended',
+    title: totalShowsCopy.title,
+    headline: totalShowsCopy.headline,
+    subtext: totalShowsCopy.subtext,
     emoji: '🎤',
     theme: getNextTheme(),
   })
 
   // Slide 3: Average per Month
+  const monthlyAvgCopy = getMonthlyAvgCopy(recap.avgPerMonth)
   slides.push({
     id: 'avg-per-month',
     kind: 'stat',
-    title: 'Monthly Average',
-    headline: `${recap.avgPerMonth.toFixed(1)}`,
-    subtext: 'shows per month',
+    title: monthlyAvgCopy.title,
+    headline: monthlyAvgCopy.headline,
+    subtext: monthlyAvgCopy.subtext,
     emoji: '📅',
     theme: getNextTheme(),
   })
 
   // Slide 4: Busiest Month
   if (recap.busiestMonth) {
+    const busiestMonthCount = recap.busiestMonthCount ?? 
+      (recap.monthCounts ? Math.max(...Object.values(recap.monthCounts)) : 1)
+    const busiestMonthCopy = getBusiestMonthCopy(recap.busiestMonth, busiestMonthCount)
     slides.push({
       id: 'busiest-month',
       kind: 'stat',
-      title: 'Busiest Month',
-      headline: recap.busiestMonth,
-      subtext: 'You were in the zone!',
+      title: busiestMonthCopy.title,
+      headline: busiestMonthCopy.headline,
+      subtext: busiestMonthCopy.subtext,
       emoji: '🔥',
       theme: getNextTheme(),
     })
@@ -64,12 +84,14 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
 
   // Slide 5: Top Venue
   if (recap.topVenue) {
+    const topVenueCount = recap.topVenueCount ?? 1
+    const topVenueCopy = getTopVenueCopy(recap.topVenue, topVenueCount)
     slides.push({
       id: 'top-venue',
       kind: 'stat',
-      title: 'Top Venue',
-      headline: recap.topVenue,
-      subtext: 'Your favorite spot',
+      title: topVenueCopy.title,
+      headline: topVenueCopy.headline,
+      subtext: topVenueCopy.subtext,
       emoji: '🏟️',
       theme: getNextTheme(),
     })
@@ -78,13 +100,13 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
   // Slide 6: Rank (optional)
   if (recap.rank) {
     const { position, total } = recap.rank
-    const ordinal = getOrdinal(position)
+    const rankingCopy = getRankingCopy(position, total)
     slides.push({
       id: 'rank',
       kind: 'rank',
-      title: 'Your Ranking',
-      headline: `${ordinal}`,
-      subtext: `out of ${total} attendees`,
+      title: rankingCopy.title,
+      headline: rankingCopy.headline,
+      subtext: `${rankingCopy.subtext} · ${rankingCopy.footer}`,
       emoji: '🏆',
       theme: getNextTheme(),
     })
@@ -100,16 +122,17 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
 
     // Only add if there's at least some data
     if (chartData.some(d => d.value > 0)) {
+      const chartCopy = getMonthlyChartCopy(recap.monthCounts, recap.busiestMonth)
       slides.push({
         id: 'monthly-trend',
         kind: 'chart',
-        title: 'Your Year in Shows',
+        title: chartCopy.title,
         theme: getNextTheme(),
-        durationMs: 8000, // Give more time for chart slides
+        durationMs: 8000,
         chart: {
           type: 'bar',
           data: chartData,
-          ariaLabel: `Bar chart showing monthly show attendance for ${recap.year}`,
+          ariaLabel: `${chartCopy.subtext}. Bar chart showing monthly show attendance for ${recap.year}`,
         },
       })
     }
@@ -118,16 +141,17 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
   // Slide 8: Top Artists (optional)
   if (recap.topArtists && recap.topArtists.length > 0) {
     const topThree = recap.topArtists.slice(0, 3)
+    const artistsCopy = getTopArtistsCopy()
     slides.push({
       id: 'top-artists',
       kind: 'list',
-      title: 'Top Artists',
+      title: artistsCopy.title,
       theme: getNextTheme(),
       durationMs: 7000,
       items: topThree.map((artist, index) => ({
         label: artist.name,
         value: `${artist.shows} ${artist.shows === 1 ? 'show' : 'shows'}`,
-        badge: artist.isHeadliner ? 'Headliner' : index === 0 ? '#1' : undefined,
+        badge: getArtistBadge(artist.shows, index === 0),
         imageUrl: artist.imageUrl,
       })),
     })
@@ -173,10 +197,13 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
       }
     }
 
+    const userPosition = recap.leaderboard.findIndex(u => u.name === recap.userName) + 1
+    const comparisonCopy = getComparisonCopy(userPosition, recap.leaderboard.length)
+
     slides.push({
       id: 'comparison',
       kind: 'comparison',
-      title: 'How You Stack Up',
+      title: comparisonCopy.title,
       theme: getNextTheme(),
       durationMs: 8000,
       userShows: recap.totalShows,
@@ -186,15 +213,16 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
   }
 
   // Slide 11: Outro
+  const outroCopy = getOutroCopy(recap.year, recap.totalShows)
   slides.push({
     id: 'outro',
     kind: 'outro',
-    title: `That's a wrap!`,
-    headline: `${recap.year} was amazing`,
-    subtext: 'Share your recap',
+    title: outroCopy.title,
+    headline: outroCopy.headline,
+    subtext: outroCopy.subtext,
     emoji: '✨',
     theme: 'midnight',
-    durationMs: 10000, // Longer for sharing
+    durationMs: 10000,
   })
 
   return slides
@@ -204,35 +232,5 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
  * Format a RecapData object into a shareable text summary
  */
 export function formatRecapSummary(recap: RecapData): string {
-  const parts: string[] = []
-
-  parts.push(`${recap.year} Recap: ${recap.totalShows} shows.`)
-
-  if (recap.busiestMonth) {
-    parts.push(`Busiest month: ${recap.busiestMonth}.`)
-  }
-
-  if (recap.topVenue) {
-    parts.push(`Top venue: ${recap.topVenue}.`)
-  }
-
-  parts.push(`Avg ${recap.avgPerMonth.toFixed(1)} per month.`)
-
-  if (recap.rank) {
-    parts.push(`Ranked ${recap.rank.position} of ${recap.rank.total}.`)
-  }
-
-  return parts.join(' ')
-}
-
-/**
- * Get ordinal suffix for a number (1st, 2nd, 3rd, etc.)
- */
-function getOrdinal(n: number): string {
-  const j = n % 10
-  const k = n % 100
-  if (j === 1 && k !== 11) return n + 'st'
-  if (j === 2 && k !== 12) return n + 'nd'
-  if (j === 3 && k !== 13) return n + 'rd'
-  return n + 'th'
+  return generateCopySummary(recap)
 }

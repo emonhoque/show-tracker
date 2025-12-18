@@ -4,6 +4,21 @@ export { StoryProgress } from './StoryProgress'
 export { StorySlideView } from './StorySlideView'
 export { useStoryPlayback } from './useStoryPlayback'
 export { buildRecapSlides, formatRecapSummary } from './buildRecapSlides'
+export {
+  getIntroCopy,
+  getTotalShowsCopy,
+  getMonthlyAvgCopy,
+  getBusiestMonthCopy,
+  getTopVenueCopy,
+  getRankingCopy,
+  getMonthlyChartCopy,
+  getTopArtistsCopy,
+  getArtistBadge,
+  getComparisonCopy,
+  getOutroCopy,
+  generateCopySummary,
+  getAllRecapCopy,
+} from './recapCopy'
 export type {
   StorySlide,
   TextSlide,
@@ -15,3 +30,4 @@ export type {
   ThemeConfig,
 } from './types'
 export { THEME_CONFIGS, DEFAULT_SLIDE_DURATION } from './types'
+export type { FullRecapCopy } from './recapCopy'

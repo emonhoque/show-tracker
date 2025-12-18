@@ -63,7 +63,9 @@ export type RecapData = {
   totalShows: number
   avgPerMonth: number
   busiestMonth: string
+  busiestMonthCount?: number
   topVenue: string
+  topVenueCount?: number
   rank?: { position: number; total: number }
   monthCounts?: Record<string, number>
   topArtists?: Array<{ name: string; shows: number; isHeadliner?: boolean; imageUrl?: string }>
