@@ -175,13 +175,13 @@ export function RecapStoryPlayer({
         <div className="absolute inset-0 flex z-10">
           {/* Left tap zone (previous) */}
           <button
-            className="w-1/3 h-full focus:outline-none active:bg-white/5 transition-colors"
+            className="w-1/3 h-full focus:outline-none"
             onClick={() => handleTapZone('left')}
             aria-label="Previous slide"
           />
           {/* Right tap zone (next) - larger for easier tapping */}
           <button
-            className="w-2/3 h-full focus:outline-none active:bg-white/5 transition-colors"
+            className="w-2/3 h-full focus:outline-none"
             onClick={() => handleTapZone('right')}
             aria-label="Next slide"
           />

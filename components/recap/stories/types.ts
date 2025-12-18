@@ -132,4 +132,4 @@ export const THEME_CONFIGS: Record<StoryTheme, ThemeConfig> = {
 }
 
 // Default slide duration in milliseconds
-export const DEFAULT_SLIDE_DURATION = 6000
+export const DEFAULT_SLIDE_DURATION = 5000
