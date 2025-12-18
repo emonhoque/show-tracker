@@ -114,17 +114,24 @@ export function RecapStoryPlayer({
 
   return (
     <div
-      className={cn(
-        'fixed inset-0 z-50 flex flex-col',
-        currentTheme.background,
-        currentTheme.text
-      )}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black"
       role="dialog"
       aria-modal="true"
       aria-label={`Story slide ${activeIndex + 1} of ${totalSlides}: ${currentSlide.title}`}
     >
-      {/* Safe area top padding */}
-      <div className="pt-safe" />
+      {/* 9:16 aspect ratio container - full height on mobile, constrained on desktop */}
+      <div
+        className={cn(
+          'relative flex flex-col w-full h-full',
+          // On larger screens, constrain to 9:16 aspect ratio
+          'sm:h-[min(100vh,900px)] sm:w-[min(56.25vh,506px)] sm:max-h-[900px]',
+          'sm:rounded-2xl sm:overflow-hidden sm:shadow-2xl',
+          currentTheme.background,
+          currentTheme.text
+        )}
+      >
+        {/* Safe area top padding */}
+        <div className="pt-safe sm:pt-0" />
 
       {/* Progress bar - shows completed slides */}
       <div className="px-4 pt-4 pb-2">
@@ -236,12 +243,13 @@ export function RecapStoryPlayer({
       )}
 
       {/* Safe area bottom padding */}
-      <div className="pb-safe" />
+      <div className="pb-safe sm:pb-0" />
 
       {/* Screen reader instructions */}
       <div className="sr-only">
         Use left and right arrow keys or tap left/right to navigate between slides.
         Press Space or tap right to go forward. Press Escape to close.
+      </div>
       </div>
     </div>
   )
