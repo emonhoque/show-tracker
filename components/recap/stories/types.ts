@@ -35,6 +35,8 @@ export interface ComparisonSlide extends BaseSlide {
 export interface ChartSlide extends BaseSlide {
   kind: 'chart'
   title: string
+  subtext?: string
+  highlightMonth?: string
   chart: {
     type: 'bar'
     data: Array<{ label: string; value: number }>

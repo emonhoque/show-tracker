@@ -127,6 +127,7 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
         id: 'monthly-trend',
         kind: 'chart',
         title: chartCopy.title,
+        subtext: chartCopy.subtext,
         theme: getNextTheme(),
         durationMs: 8000,
         chart: {

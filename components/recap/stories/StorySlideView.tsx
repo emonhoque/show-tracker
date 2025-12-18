@@ -11,6 +11,7 @@ import {
   Cell,
 } from 'recharts'
 import { cn } from '@/lib/utils'
+import { formatNameForDisplay } from '@/lib/validation'
 import type { StorySlide, TextSlide, ChartSlide, ListSlide, ComparisonSlide, ThemeConfig } from './types'
 import { THEME_CONFIGS } from './types'
 
@@ -124,23 +125,18 @@ function ChartSlideView({
   reducedMotion: boolean
 }) {
   const maxValue = Math.max(...slide.chart.data.map(d => d.value), 1)
+  const totalShows = slide.chart.data.reduce((sum, d) => sum + d.value, 0)
+  const peakMonth = slide.chart.data.reduce((max, d) => d.value > max.value ? d : max, slide.chart.data[0])
+  
+  // Find months with shows for stats
+  const activeMonths = slide.chart.data.filter(d => d.value > 0).length
 
-  // Get accent color from theme for bars
-  const getBarColor = () => {
-    switch (slide.theme) {
-      case 'midnight':
-        return '#818cf8' // indigo-400
-      case 'neon':
-        return '#f472b6' // pink-400
-      case 'sunset':
-        return '#fde047' // yellow-300
-      case 'forest':
-        return '#34d399' // emerald-400
-      case 'mono':
-        return '#d4d4d8' // zinc-300
-      default:
-        return '#ffffff'
+  // Gradient colors for bars
+  const getBarColor = (isHighlight: boolean) => {
+    if (isHighlight) {
+      return 'url(#barGradientHighlight)'
     }
+    return 'url(#barGradient)'
   }
 
   return (
@@ -152,51 +148,99 @@ function ChartSlideView({
       role="figure"
       aria-label={slide.chart.ariaLabel}
     >
+      {/* Header */}
       <h2
         className={cn(
-          'text-xl font-medium mb-8 opacity-80',
-          theme.accent,
+          'text-2xl font-bold mb-1',
+          theme.text,
           !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-100'
         )}
       >
         {slide.title}
       </h2>
+      
+      {slide.subtext && (
+        <p
+          className={cn(
+            'text-sm opacity-70 mb-6',
+            theme.text,
+            !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+          )}
+        >
+          {slide.subtext}
+        </p>
+      )}
 
+      {/* Stats row */}
       <div
         className={cn(
-          'w-full max-w-md h-64',
+          'flex gap-6 mb-6',
           !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-200'
+        )}
+      >
+        <div className="text-center">
+          <div className={cn('text-3xl font-bold', theme.text)}>{totalShows}</div>
+          <div className={cn('text-xs opacity-60 uppercase tracking-wide', theme.text)}>Total</div>
+        </div>
+        <div className="text-center">
+          <div className={cn('text-3xl font-bold', theme.accent)}>{peakMonth.label}</div>
+          <div className={cn('text-xs opacity-60 uppercase tracking-wide', theme.text)}>Peak</div>
+        </div>
+        <div className="text-center">
+          <div className={cn('text-3xl font-bold', theme.text)}>{activeMonths}</div>
+          <div className={cn('text-xs opacity-60 uppercase tracking-wide', theme.text)}>Months</div>
+        </div>
+      </div>
+
+      {/* Chart */}
+      <div
+        className={cn(
+          'w-full max-w-md h-52 pointer-events-none select-none',
+          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-300'
         )}
       >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={slide.chart.data}
-            margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+            margin={{ top: 10, right: 5, left: -25, bottom: 5 }}
           >
+            <defs>
+              <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0.1)" />
+              </linearGradient>
+              <linearGradient id="barGradientHighlight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#a78bfa" />
+                <stop offset="100%" stopColor="#7c3aed" />
+              </linearGradient>
+            </defs>
             <XAxis
               dataKey="label"
-              tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 10 }}
-              axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+              tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 9 }}
+              axisLine={false}
               tickLine={false}
+              dy={5}
             />
             <YAxis
-              tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 10 }}
-              axisLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+              tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 9 }}
+              axisLine={false}
               tickLine={false}
               domain={[0, maxValue]}
               allowDecimals={false}
+              width={25}
             />
             <Bar
               dataKey="value"
-              radius={[4, 4, 0, 0]}
+              radius={[6, 6, 0, 0]}
               isAnimationActive={!reducedMotion}
-              animationDuration={800}
+              animationDuration={1000}
+              animationBegin={300}
             >
               {slide.chart.data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={getBarColor()}
-                  fillOpacity={entry.value > 0 ? 0.9 : 0.3}
+                  fill={getBarColor(entry.label === peakMonth.label && entry.value > 0)}
+                  fillOpacity={entry.value > 0 ? 1 : 0.2}
                 />
               ))}
             </Bar>
@@ -385,7 +429,7 @@ function ComparisonSlideView({
                       isUser ? 'font-bold text-white' : 'text-white/90'
                     )}
                   >
-                    {isUser ? 'You' : user.name}
+                    {isUser ? 'You' : formatNameForDisplay(user.name)}
                   </span>
                   
                   {/* Count */}
