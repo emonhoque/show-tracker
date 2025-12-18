@@ -191,6 +191,22 @@ export default function Home() {
     }
   }, [authenticated, fetchShows])
 
+  // Scroll to show if URL has a hash (e.g., #show-123)
+  useEffect(() => {
+    if (!loading && (upcomingShows.length > 0 || pastShows.length > 0)) {
+      const hash = window.location.hash
+      if (hash && hash.startsWith('#show-')) {
+        // Small delay to ensure DOM is rendered
+        setTimeout(() => {
+          const element = document.querySelector(hash)
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
+        }, 100)
+      }
+    }
+  }, [loading, upcomingShows.length, pastShows.length])
+
   // Apply filters to upcoming shows
   useEffect(() => {
     if (selectedStatusFilters.has('all') && selectedPeopleFilters.has('all')) {
