@@ -20,6 +20,24 @@ interface StorySlideViewProps {
   reducedMotion?: boolean
 }
 
+// Animation helper - uses GPU-accelerated properties and shorter durations for mobile
+const anim = {
+  fadeIn: 'animate-in fade-in duration-200',
+  slideUp: 'animate-in fade-in slide-in-from-bottom-2 duration-300',
+  slideUpSlow: 'animate-in fade-in slide-in-from-bottom-3 duration-400',
+  scaleIn: 'animate-in fade-in zoom-in-95 duration-300',
+  slideLeft: 'animate-in fade-in slide-in-from-left-2 duration-300',
+}
+
+// Stagger delays - reduced for snappier feel
+const delay = {
+  d0: 'delay-0',
+  d1: 'delay-75',
+  d2: 'delay-100',
+  d3: 'delay-150',
+  d4: 'delay-200',
+}
+
 /**
  * Renders individual story slides based on their kind
  * Supports text, chart, and list slides with themed styling
@@ -60,15 +78,16 @@ function TextSlideView({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center h-full px-8 text-center',
-        !reducedMotion && 'animate-in fade-in duration-300'
+        'flex flex-col items-center justify-center h-full px-8 text-center will-change-transform',
+        !reducedMotion && anim.fadeIn
       )}
     >
       {slide.emoji && (
         <span
           className={cn(
             'text-6xl mb-6',
-            !reducedMotion && 'animate-in zoom-in duration-500 delay-100'
+            !reducedMotion && anim.scaleIn,
+            !reducedMotion && delay.d1
           )}
           role="img"
           aria-hidden="true"
@@ -81,7 +100,8 @@ function TextSlideView({
         className={cn(
           'text-xl font-medium mb-4 opacity-80',
           theme.accent,
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+          !reducedMotion && anim.slideUp,
+          !reducedMotion && delay.d2
         )}
       >
         {slide.title}
@@ -92,7 +112,8 @@ function TextSlideView({
           className={cn(
             'text-5xl sm:text-6xl font-bold mb-4',
             theme.text,
-            !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-200'
+            !reducedMotion && anim.slideUp,
+            !reducedMotion && delay.d3
           )}
         >
           {slide.headline}
@@ -104,7 +125,8 @@ function TextSlideView({
           className={cn(
             'text-lg opacity-70',
             theme.text,
-            !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-300'
+            !reducedMotion && anim.slideUp,
+            !reducedMotion && delay.d4
           )}
         >
           {slide.subtext}
@@ -142,8 +164,8 @@ function ChartSlideView({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center h-full px-4',
-        !reducedMotion && 'animate-in fade-in duration-300'
+        'flex flex-col items-center justify-center h-full px-4 will-change-transform',
+        !reducedMotion && anim.fadeIn
       )}
       role="figure"
       aria-label={slide.chart.ariaLabel}
@@ -153,7 +175,8 @@ function ChartSlideView({
         className={cn(
           'text-2xl font-bold mb-1',
           theme.text,
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-100'
+          !reducedMotion && anim.slideUp,
+          !reducedMotion && delay.d1
         )}
       >
         {slide.title}
@@ -164,7 +187,8 @@ function ChartSlideView({
           className={cn(
             'text-sm opacity-70 mb-6',
             theme.text,
-            !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+            !reducedMotion && anim.slideUp,
+            !reducedMotion && delay.d2
           )}
         >
           {slide.subtext}
@@ -175,7 +199,8 @@ function ChartSlideView({
       <div
         className={cn(
           'flex gap-6 mb-6',
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-200'
+          !reducedMotion && anim.slideUp,
+          !reducedMotion && delay.d2
         )}
       >
         <div className="text-center">
@@ -196,7 +221,8 @@ function ChartSlideView({
       <div
         className={cn(
           'w-full max-w-md h-52 pointer-events-none select-none',
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-300'
+          !reducedMotion && anim.fadeIn,
+          !reducedMotion && delay.d3
         )}
       >
         <ResponsiveContainer width="100%" height="100%">
@@ -233,8 +259,9 @@ function ChartSlideView({
               dataKey="value"
               radius={[6, 6, 0, 0]}
               isAnimationActive={!reducedMotion}
-              animationDuration={1000}
-              animationBegin={300}
+              animationDuration={600}
+              animationBegin={150}
+              animationEasing="ease-out"
             >
               {slide.chart.data.map((entry, index) => (
                 <Cell
@@ -264,15 +291,16 @@ function ListSlideView({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center h-full px-8',
-        !reducedMotion && 'animate-in fade-in duration-300'
+        'flex flex-col items-center justify-center h-full px-8 will-change-transform',
+        !reducedMotion && anim.fadeIn
       )}
     >
       <h2
         className={cn(
           'text-xl font-medium mb-8 opacity-80',
           theme.accent,
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-100'
+          !reducedMotion && anim.slideUp,
+          !reducedMotion && delay.d1
         )}
       >
         {slide.title}
@@ -284,12 +312,10 @@ function ListSlideView({
             key={item.label}
             className={cn(
               'flex items-center gap-4 bg-white/10 rounded-xl p-4',
-              !reducedMotion &&
-                `animate-in slide-in-from-bottom-4 duration-500`,
-              !reducedMotion && `delay-${(index + 2) * 100}`
+              !reducedMotion && anim.slideUp
             )}
             style={{
-              animationDelay: reducedMotion ? '0ms' : `${(index + 2) * 100}ms`,
+              animationDelay: reducedMotion ? '0ms' : `${100 + index * 75}ms`,
             }}
           >
             {/* Rank number or image */}
@@ -354,15 +380,16 @@ function ComparisonSlideView({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center h-full px-6',
-        !reducedMotion && 'animate-in fade-in duration-300'
+        'flex flex-col items-center justify-center h-full px-6 will-change-transform',
+        !reducedMotion && anim.fadeIn
       )}
     >
       <h2
         className={cn(
           'text-2xl font-bold mb-2',
           theme.text,
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-100'
+          !reducedMotion && anim.slideUp,
+          !reducedMotion && delay.d1
         )}
       >
         {slide.title}
@@ -372,7 +399,8 @@ function ComparisonSlideView({
         className={cn(
           'text-sm mb-8 opacity-70',
           theme.text,
-          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+          !reducedMotion && anim.slideUp,
+          !reducedMotion && delay.d2
         )}
       >
         {userPosition === 1 ? 'You led the pack this year' : 
@@ -390,11 +418,11 @@ function ComparisonSlideView({
               key={user.name}
               className={cn(
                 'relative flex items-center',
-                !reducedMotion && 'animate-in slide-in-from-left duration-500',
+                !reducedMotion && anim.slideLeft,
                 isUser && 'scale-[1.02]'
               )}
               style={{
-                animationDelay: reducedMotion ? '0ms' : `${(index + 2) * 80}ms`,
+                animationDelay: reducedMotion ? '0ms' : `${150 + index * 60}ms`,
               }}
             >
               {/* Rank badge */}
@@ -413,7 +441,7 @@ function ComparisonSlideView({
               <div className="flex-1 relative">
                 <div
                   className={cn(
-                    'h-11 rounded-xl flex items-center px-4 transition-all duration-700',
+                    'h-11 rounded-xl flex items-center px-4',
                     isUser
                       ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/30'
                       : 'bg-white/15'
@@ -452,7 +480,8 @@ function ComparisonSlideView({
         className={cn(
           'mt-8 text-xs uppercase tracking-wider opacity-50',
           theme.text,
-          !reducedMotion && 'animate-in fade-in duration-500 delay-700'
+          !reducedMotion && anim.fadeIn,
+          !reducedMotion && delay.d4
         )}
       >
         Total shows attended

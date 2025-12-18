@@ -21,9 +21,9 @@ export function getIntroCopy(totalShows: number, year: number): { title: string;
   } else if (totalShows <= 4) {
     headline = 'A year of live music'
   } else if (totalShows <= 11) {
-    headline = 'You showed up for live music'
+    headline = 'You showed up this year'
   } else if (totalShows <= 19) {
-    headline = 'You stayed busy'
+    headline = 'What a year for live music'
   } else {
     headline = 'You basically lived at shows'
   }
@@ -43,7 +43,7 @@ export function getTotalShowsCopy(totalShows: number): { title: string; headline
   
   let subtext: string
   if (totalShows === 0) {
-    subtext = 'No shows this year, but next year is wide open'
+    subtext = 'Sometimes the best shows are the ones you plan for next year'
   } else if (totalShows === 1) {
     subtext = 'You made it out at least once'
   } else if (totalShows <= 4) {
@@ -51,7 +51,7 @@ export function getTotalShowsCopy(totalShows: number): { title: string; headline
   } else if (totalShows <= 11) {
     subtext = 'A strong concert year'
   } else if (totalShows <= 19) {
-    subtext = 'You stayed busy'
+    subtext = 'You kept the streak alive'
   } else {
     subtext = "That's a serious run"
   }
@@ -94,21 +94,19 @@ export function getBusiestMonthCopy(
   const title = 'Busiest Month'
   const headline = busiestMonth
   
+  // Check for peak show season (Sep/Oct)
+  const peakSeasonMonths = ['Sep', 'Oct', 'September', 'October']
+  const isPeakSeason = peakSeasonMonths.some(m => busiestMonth.includes(m))
+  
   let subtext: string
   if (busiestMonthCount === 1) {
-    subtext = 'You picked your moment'
+    subtext = isPeakSeason ? 'Right on schedule' : 'You picked your moment'
   } else if (busiestMonthCount === 2) {
-    subtext = 'A good month to go out'
+    subtext = isPeakSeason ? 'Peak season, peak you' : 'A good month to go out'
   } else if (busiestMonthCount === 3) {
-    subtext = 'You were in a groove'
+    subtext = isPeakSeason ? 'Fall show season hit different' : 'You were in a groove'
   } else {
-    subtext = 'You were everywhere'
-  }
-  
-  // Add flavor for peak show season
-  const peakSeasonMonths = ['Sep', 'Oct', 'September', 'October']
-  if (peakSeasonMonths.some(m => busiestMonth.includes(m))) {
-    subtext = 'Peak show season energy'
+    subtext = isPeakSeason ? 'You owned the fall' : 'You were everywhere'
   }
   
   return { title, headline, subtext }
