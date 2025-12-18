@@ -22,6 +22,15 @@ export interface TextSlide extends BaseSlide {
   emoji?: string
 }
 
+// Comparison slide for showing user vs others
+export interface ComparisonSlide extends BaseSlide {
+  kind: 'comparison'
+  title: string
+  userShows: number
+  userName: string
+  leaderboard: Array<{ name: string; shows: number; isCurrentUser: boolean }>
+}
+
 // Chart slide with bar chart data
 export interface ChartSlide extends BaseSlide {
   kind: 'chart'
@@ -46,7 +55,7 @@ export interface ListSlide extends BaseSlide {
 }
 
 // Union type for all slide types
-export type StorySlide = TextSlide | ChartSlide | ListSlide
+export type StorySlide = TextSlide | ChartSlide | ListSlide | ComparisonSlide
 
 // RecapData type matching the API response structure
 export type RecapData = {
@@ -59,6 +68,8 @@ export type RecapData = {
   monthCounts?: Record<string, number>
   topArtists?: Array<{ name: string; shows: number; isHeadliner?: boolean; imageUrl?: string }>
   topVenues?: Array<{ name: string; shows: number }>
+  userName?: string
+  leaderboard?: Array<{ name: string; displayName: string; totalShows: number }>
 }
 
 // Props for the main RecapStoryPlayer component

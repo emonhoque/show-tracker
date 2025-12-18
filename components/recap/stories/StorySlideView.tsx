@@ -11,7 +11,7 @@ import {
   Cell,
 } from 'recharts'
 import { cn } from '@/lib/utils'
-import type { StorySlide, TextSlide, ChartSlide, ListSlide, ThemeConfig } from './types'
+import type { StorySlide, TextSlide, ChartSlide, ListSlide, ComparisonSlide, ThemeConfig } from './types'
 import { THEME_CONFIGS } from './types'
 
 interface StorySlideViewProps {
@@ -39,6 +39,8 @@ export const StorySlideView = memo(function StorySlideView({
       return <ChartSlideView slide={slide} theme={theme} reducedMotion={reducedMotion} />
     case 'list':
       return <ListSlideView slide={slide} theme={theme} reducedMotion={reducedMotion} />
+    case 'comparison':
+      return <ComparisonSlideView slide={slide} theme={theme} reducedMotion={reducedMotion} />
     default:
       return null
   }
@@ -285,6 +287,114 @@ function ListSlideView({
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+// Comparison slide renderer for showing user vs others
+function ComparisonSlideView({
+  slide,
+  theme,
+  reducedMotion,
+}: {
+  slide: ComparisonSlide
+  theme: ThemeConfig
+  reducedMotion: boolean
+}) {
+  const maxShows = Math.max(...slide.leaderboard.map(u => u.shows), 1)
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center h-full px-8',
+        !reducedMotion && 'animate-in fade-in duration-300'
+      )}
+    >
+      <span
+        className={cn(
+          'text-5xl mb-4',
+          !reducedMotion && 'animate-in zoom-in duration-500 delay-100'
+        )}
+        role="img"
+        aria-hidden="true"
+      >
+        📊
+      </span>
+
+      <h2
+        className={cn(
+          'text-xl font-medium mb-6 opacity-80',
+          theme.accent,
+          !reducedMotion && 'animate-in slide-in-from-bottom-4 duration-500 delay-150'
+        )}
+      >
+        {slide.title}
+      </h2>
+
+      <div className="w-full max-w-sm space-y-3">
+        {slide.leaderboard.map((user, index) => (
+          <div
+            key={user.name}
+            className={cn(
+              'flex items-center gap-3',
+              !reducedMotion && 'animate-in slide-in-from-left duration-500'
+            )}
+            style={{
+              animationDelay: reducedMotion ? '0ms' : `${(index + 2) * 100}ms`,
+            }}
+          >
+            {/* Rank */}
+            <span className={cn('w-6 text-sm font-bold opacity-60', theme.text)}>
+              {index + 1}
+            </span>
+
+            {/* Name */}
+            <span
+              className={cn(
+                'w-24 text-sm truncate',
+                theme.text,
+                user.isCurrentUser ? 'font-bold' : 'opacity-80'
+              )}
+            >
+              {user.isCurrentUser ? 'You' : user.name}
+            </span>
+
+            {/* Bar */}
+            <div className="flex-1 h-8 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className={cn(
+                  'h-full rounded-full flex items-center justify-end pr-3 transition-all duration-1000',
+                  user.isCurrentUser
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
+                    : 'bg-white/30'
+                )}
+                style={{
+                  width: `${Math.max((user.shows / maxShows) * 100, 15)}%`,
+                }}
+              >
+                <span
+                  className={cn(
+                    'text-xs font-semibold',
+                    theme.text
+                  )}
+                >
+                  {user.shows}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p
+        className={cn(
+          'mt-6 text-sm opacity-60',
+          theme.text,
+          !reducedMotion && 'animate-in fade-in duration-500 delay-700'
+        )}
+      >
+        shows attended
+      </p>
     </div>
   )
 }

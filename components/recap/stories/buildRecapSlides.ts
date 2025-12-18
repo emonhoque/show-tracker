@@ -150,7 +150,42 @@ export function buildRecapSlides(recap: RecapData): StorySlide[] {
     })
   }
 
-  // Slide 10: Outro
+  // Slide 10: Comparison with others (optional)
+  if (recap.leaderboard && recap.leaderboard.length > 1 && recap.userName) {
+    // Get top 5 users for comparison
+    const topUsers = recap.leaderboard.slice(0, 5).map(user => ({
+      name: user.displayName,
+      shows: user.totalShows,
+      isCurrentUser: user.name === recap.userName,
+    }))
+    
+    // Ensure current user is in the list if not in top 5
+    const currentUserInTop = topUsers.some(u => u.isCurrentUser)
+    if (!currentUserInTop) {
+      const currentUserData = recap.leaderboard.find(u => u.name === recap.userName)
+      if (currentUserData) {
+        topUsers.pop() // Remove last one
+        topUsers.push({
+          name: currentUserData.displayName,
+          shows: currentUserData.totalShows,
+          isCurrentUser: true,
+        })
+      }
+    }
+
+    slides.push({
+      id: 'comparison',
+      kind: 'comparison',
+      title: 'How You Stack Up',
+      theme: getNextTheme(),
+      durationMs: 8000,
+      userShows: recap.totalShows,
+      userName: recap.userName,
+      leaderboard: topUsers,
+    })
+  }
+
+  // Slide 11: Outro
   slides.push({
     id: 'outro',
     kind: 'outro',

@@ -153,6 +153,8 @@ export default function RecapPage() {
       rank: totalUsers > 0 ? { position, total: totalUsers } : undefined,
       monthCounts: Object.keys(monthCounts).length > 0 ? monthCounts : undefined,
       topArtists: topArtists && topArtists.length > 0 ? topArtists : undefined,
+      userName: userName,
+      leaderboard: recapData.leaderboard,
     }
   }, [recapData, userName, selectedYear])
 
@@ -319,16 +321,30 @@ export default function RecapPage() {
                 )}
                 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  {/* Play Story Button */}
+                  {/* Play Story with Year Selector */}
                   {storyRecapData && recapData.personalSummary.totalShows > 0 && (
-                    <Button
-                      size="sm"
-                      onClick={() => setShowStoryPlayer(true)}
-                      className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0"
-                    >
-                      <Play className="w-4 h-4 mr-1" />
-                      Play Story
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Select value={selectedYear.toString()} onChange={(value) => setSelectedYear(parseInt(value))}>
+                        <SelectTrigger className="w-24 h-9">
+                          {selectedYear}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {generateYearOptions().map(year => (
+                            <SelectOption key={year} value={year.toString()}>
+                              {year}
+                            </SelectOption>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        onClick={() => setShowStoryPlayer(true)}
+                        className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0"
+                      >
+                        <Play className="w-4 h-4 mr-1" />
+                        Play Story
+                      </Button>
+                    </div>
                   )}
                   
                   <Button

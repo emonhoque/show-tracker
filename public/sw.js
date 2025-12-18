@@ -1,6 +1,6 @@
-const STATIC_CACHE = 'show-tracker-static-1766089112815';
-const DYNAMIC_CACHE = 'show-tracker-dynamic-1766089112815';
-const VERSION = 'v2025-12-18T20-18-32-14b1ddb'; // Update this when you deploy changes
+const STATIC_CACHE = 'show-tracker-static-1766089522421';
+const DYNAMIC_CACHE = 'show-tracker-dynamic-1766089522421';
+const VERSION = 'v2025-12-18T20-25-22-85dddb3'; // Update this when you deploy changes
 
 const urlsToCache = [
   '/',
