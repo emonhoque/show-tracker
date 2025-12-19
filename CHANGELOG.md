@@ -4,6 +4,16 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.7.1] - 2025-12-18
+
+### Added
+- **Shareable Show Links** - Copy a direct link to any show that scrolls to it when opened
+  - Link icon button visible in each show card header
+  - Clicking a shared link auto-scrolls to the show with a highlight animation
+  - Show links also included when copying show info
+
+---
+
 ## [1.7.0] - 2025-12-18
 
 ### Added

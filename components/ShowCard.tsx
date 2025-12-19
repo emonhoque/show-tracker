@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime, formatDaysUntilShow } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2 } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 import { useToast } from '@/components/ui/toast'
@@ -39,12 +39,27 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [isHighlighted, setIsHighlighted] = useState(false)
   const { showToast } = useToast()
 
   // Get userName from localStorage on client side
   useEffect(() => {
     setUserName(localStorage.getItem('userName'))
   }, [])
+
+  // Check if this show should be highlighted (linked from URL hash)
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === `#show-${show.id}`) {
+        setIsHighlighted(true)
+        // Remove highlight after animation
+        setTimeout(() => setIsHighlighted(false), 2000)
+      }
+    }
+    checkHash()
+    window.addEventListener('hashchange', checkHash)
+    return () => window.removeEventListener('hashchange', checkHash)
+  }, [show.id])
 
   const formatShowAsText = (show: Show): string => {
     const lines = [
@@ -96,6 +111,10 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       lines.push(`Tickets: ${show.ticket_url}`)
     }
 
+    // Add link to the show on the website
+    lines.push('')
+    lines.push(`Link: https://edmadoptionclinic.org/#show-${show.id}`)
+
     return lines.join('\n')
   }
 
@@ -110,6 +129,27 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       showToast({
         title: 'Copy Failed',
         description: 'Failed to copy show info',
+        type: 'error',
+        duration: 3000
+      })
+    }
+  }
+
+  const handleCopyLink = async () => {
+    try {
+      const url = `${window.location.origin}${window.location.pathname}#show-${show.id}`
+      await navigator.clipboard.writeText(url)
+      showToast({
+        title: 'Link Copied',
+        description: 'Show link copied to clipboard',
+        type: 'success',
+        duration: 3000
+      })
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      showToast({
+        title: 'Copy Failed',
+        description: 'Failed to copy show link',
         type: 'error',
         duration: 3000
       })
@@ -231,7 +271,10 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
     : null
 
   return (
-    <Card className="w-full mb-6 overflow-hidden gap-1">
+    <Card 
+      id={`show-${show.id}`}
+      className={`w-full mb-6 overflow-hidden gap-1 transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+    >
       {/* Header Section */}
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start gap-4">
@@ -249,7 +292,16 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
               {show.venue} • {show.city}
             </div>
           </div>
-          {(onEdit || (onDelete && !isPast) || (onDuplicate && userName === 'emon hoque')) && (
+          <div className="flex items-start gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 flex-shrink-0"
+              onClick={handleCopyLink}
+              aria-label={`Copy link to ${show.title}`}
+            >
+              <Link2 className="h-4 w-4" />
+            </Button>
             <DropdownMenu.DropdownMenu>
               <DropdownMenu.DropdownMenuTrigger asChild>
                 <Button 
@@ -288,7 +340,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
                 )}
               </DropdownMenu.DropdownMenuContent>
             </DropdownMenu.DropdownMenu>
-          )}
+          </div>
         </div>
       </CardHeader>
 
