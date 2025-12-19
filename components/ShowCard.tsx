@@ -314,10 +314,6 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
                 </Button>
               </DropdownMenu.DropdownMenuTrigger>
               <DropdownMenu.DropdownMenuContent align="end" className="w-48">
-                <DropdownMenu.DropdownMenuItem onClick={handleCopyLink}>
-                  <Link2 className="mr-2 h-4 w-4" />
-                  Copy Link
-                </DropdownMenu.DropdownMenuItem>
                 {onEdit && (
                   <DropdownMenu.DropdownMenuItem onClick={() => onEdit(show)}>
                     <Edit className="mr-2 h-4 w-4" />
