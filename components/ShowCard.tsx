@@ -111,6 +111,10 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       lines.push(`Tickets: ${show.ticket_url}`)
     }
 
+    // Add link to the show on the website
+    lines.push('')
+    lines.push(`Link: https://edmadoptionclinic.org/#show-${show.id}`)
+
     return lines.join('\n')
   }
 
@@ -288,7 +292,17 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
               {show.venue} • {show.city}
             </div>
           </div>
-                    <DropdownMenu.DropdownMenu>
+          <div className="flex items-start gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 flex-shrink-0"
+              onClick={handleCopyLink}
+              aria-label={`Copy link to ${show.title}`}
+            >
+              <Link2 className="h-4 w-4" />
+            </Button>
+            <DropdownMenu.DropdownMenu>
               <DropdownMenu.DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
@@ -330,6 +344,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
                 )}
               </DropdownMenu.DropdownMenuContent>
             </DropdownMenu.DropdownMenu>
+          </div>
         </div>
       </CardHeader>
 
