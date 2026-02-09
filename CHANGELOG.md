@@ -4,6 +4,18 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.7.5] - 2026-02-09
+
+### Added
+- **Shareable Show Images** - Export show cards as styled PNG images for social media
+  - Canvas 2D API renders show details including poster, artists with avatars, venue, date, and RSVPs
+  - Server-side image proxy for CORS-free external image loading
+  - Dark and light mode support matching the site's theme
+  - Native share sheet on iOS/Android, direct download on desktop
+  - Responsive button placement: after Calendar on mobile, after Copy Info on desktop
+
+---
+
 ## [1.7.1] - 2025-12-18
 
 ### Added
