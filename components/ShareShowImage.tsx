@@ -359,17 +359,18 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
   return (
     <Button
       variant="outline"
-      size="icon"
+      size="sm"
       onClick={handleDownload}
       disabled={isGenerating}
       aria-label="Download show image"
-      className="h-8 w-8"
+      className="h-8 w-8 sm:h-auto sm:w-auto sm:flex-none"
     >
       {isGenerating ? (
         <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
         <Download className="w-4 h-4" />
       )}
+      <span className="hidden sm:inline">Download</span>
     </Button>
   )
 }

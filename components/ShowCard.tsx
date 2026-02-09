@@ -550,7 +550,6 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             </Button>
           )}
           {!isPast && <ExportToCalendar show={show} />}
-          <ShareShowImage show={show} rsvps={rsvps} isPast={isPast} />
           <Button
             variant="outline"
             size="sm"
@@ -560,6 +559,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             <Copy className="w-4 h-4 mr-2" />
             {copySuccess ? 'Copied!' : 'Copy Info'}
           </Button>
+          <ShareShowImage show={show} rsvps={rsvps} isPast={isPast} />
           {show.google_photos_url && isPast && (
             <Button
               variant="outline"
