@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { Share2, Loader2 } from 'lucide-react'
+import { Download, Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
 interface ShareShowImageProps {
@@ -362,45 +362,29 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
     showToast({ title: 'Image Downloaded', description: 'Show image saved to downloads', type: 'success', duration: 3000 })
   }
 
-  const handleShare = async () => {
+  const handleDownload = async () => {
     const canvas = await generateImage()
     if (!canvas) {
-      showToast({ title: 'Share Failed', description: 'Failed to generate image', type: 'error', duration: 3000 })
+      showToast({ title: 'Download Failed', description: 'Failed to generate image', type: 'error', duration: 3000 })
       return
     }
-
-    try {
-      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 1.0))
-      if (!blob) throw new Error('Failed to create blob')
-
-      const file = new File([blob], `${show.title.replace(/[^a-z0-9]/gi, '-')}.png`, { type: 'image/png' })
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: show.title, text: `Check out ${show.title} at ${show.venue}!` })
-      } else {
-        downloadCanvas(canvas)
-      }
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        downloadCanvas(canvas)
-      }
-    }
+    downloadCanvas(canvas)
   }
 
   return (
     <Button
       variant="outline"
-      size="sm"
-      onClick={handleShare}
+      size="icon"
+      onClick={handleDownload}
       disabled={isGenerating}
-      className="flex-1 sm:flex-none"
+      aria-label="Download show image"
+      className="h-8 w-8"
     >
       {isGenerating ? (
-        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
-        <Share2 className="w-4 h-4 mr-2" />
+        <Download className="w-4 h-4" />
       )}
-      Share
     </Button>
   )
 }
