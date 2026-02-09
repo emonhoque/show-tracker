@@ -15,12 +15,24 @@ interface ShareShowImageProps {
 }
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
-  return new Promise((resolve) => {
-    const img = new window.Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => resolve(img)
-    img.onerror = () => resolve(null)
-    img.src = src
+  return new Promise(async (resolve) => {
+    try {
+      const response = await fetch(src)
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const img = new window.Image()
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl)
+        resolve(img)
+      }
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl)
+        resolve(null)
+      }
+      img.src = objectUrl
+    } catch {
+      resolve(null)
+    }
   })
 }
 
