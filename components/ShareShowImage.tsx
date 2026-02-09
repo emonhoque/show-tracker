@@ -83,11 +83,11 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 
 const palettes = {
   dark: {
-    gradStart: '#1a1a2e', gradMid: '#16213e', gradEnd: '#0f0f23',
-    title: '#ffffff', brandLabel: '#9ca3af', brandUrl: '#6b7280',
+    gradStart: '#1f1f1f', gradMid: '#1a1a1a', gradEnd: '#141414',
+    title: '#fafafa', brandLabel: '#adadad', brandUrl: '#737373',
     date: '#d8b4fe', venue: '#93c5fd',
-    sectionLabel: '#9ca3af',
-    headlinerPill: 'rgba(139,92,246,0.25)', headlinerText: '#ffffff',
+    sectionLabel: '#adadad',
+    headlinerPill: 'rgba(139,92,246,0.25)', headlinerText: '#fafafa',
     headlinerIconBg: 'rgba(88,28,135,0.6)', headlinerIconColor: '#c4b5fd',
     supportPill: 'rgba(59,130,246,0.25)', supportText: '#e5e7eb',
     supportIconBg: 'rgba(30,58,138,0.6)', supportIconColor: '#93c5fd',
@@ -95,7 +95,7 @@ const palettes = {
     localIconBg: 'rgba(20,83,45,0.6)', localIconColor: '#86efac',
     rsvpBox: 'rgba(255,255,255,0.05)', rsvpText: '#e5e7eb',
     posterBg: 'rgba(0,0,0,0.3)',
-    divider: 'rgba(255,255,255,0.1)', footerText: '#9ca3af',
+    divider: 'rgba(255,255,255,0.1)', footerText: '#adadad',
   },
   light: {
     gradStart: '#f8fafc', gradMid: '#eef2ff', gradEnd: '#f0f4ff',
