@@ -15,24 +15,17 @@ interface ShareShowImageProps {
 }
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
-  return new Promise(async (resolve) => {
-    try {
-      const response = await fetch(src)
-      const blob = await response.blob()
-      const objectUrl = URL.createObjectURL(blob)
-      const img = new window.Image()
-      img.onload = () => {
-        URL.revokeObjectURL(objectUrl)
-        resolve(img)
-      }
-      img.onerror = () => {
-        URL.revokeObjectURL(objectUrl)
-        resolve(null)
-      }
-      img.src = objectUrl
-    } catch {
-      resolve(null)
+  return new Promise((resolve) => {
+    const img = new window.Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => {
+      const fallback = new window.Image()
+      fallback.onload = () => resolve(fallback)
+      fallback.onerror = () => resolve(null)
+      fallback.src = src
     }
+    img.src = src
   })
 }
 
@@ -330,10 +323,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
       ctx.stroke()
       cy += 16
 
-      ctx.font = '12px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = '#6b7280'
-      ctx.textAlign = 'left'
-      ctx.fillText('Join us for live music!', pad, cy + 10)
+
 
       ctx.textAlign = 'right'
       ctx.fillStyle = '#9ca3af'
