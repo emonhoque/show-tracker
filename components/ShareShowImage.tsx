@@ -16,16 +16,11 @@ interface ShareShowImageProps {
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
+    const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(src)}`
     const img = new window.Image()
-    img.crossOrigin = 'anonymous'
     img.onload = () => resolve(img)
-    img.onerror = () => {
-      const fallback = new window.Image()
-      fallback.onload = () => resolve(fallback)
-      fallback.onerror = () => resolve(null)
-      fallback.src = src
-    }
-    img.src = src
+    img.onerror = () => resolve(null)
+    img.src = proxiedUrl
   })
 }
 
