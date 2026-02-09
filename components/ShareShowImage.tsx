@@ -378,13 +378,35 @@ export function ShareShowImage({ show, rsvps, isPast, className }: ShareShowImag
     showToast({ title: 'Image Downloaded', description: 'Show image saved to downloads', type: 'success', duration: 3000 })
   }
 
+  const shareOrDownload = async (canvas: HTMLCanvasElement) => {
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 1.0))
+    if (!blob) {
+      downloadCanvas(canvas)
+      return
+    }
+
+    const file = new File([blob], `${show.title.replace(/[^a-z0-9]/gi, '-')}.png`, { type: 'image/png' })
+
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] })
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          downloadCanvas(canvas)
+        }
+      }
+    } else {
+      downloadCanvas(canvas)
+    }
+  }
+
   const handleDownload = async () => {
     const canvas = await generateImage()
     if (!canvas) {
       showToast({ title: 'Download Failed', description: 'Failed to generate image', type: 'error', duration: 3000 })
       return
     }
-    downloadCanvas(canvas)
+    await shareOrDownload(canvas)
   }
 
   return (
