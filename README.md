@@ -4,7 +4,7 @@
 
 **A modern Progressive Web App for groups to track concerts and manage RSVPs**
 
-[![Version](https://img.shields.io/badge/version-1.7.0-blue)](https://github.com/emonhoque/show-tracker/releases)
+[![Version](https://img.shields.io/badge/version-1.7.5-blue)](https://github.com/emonhoque/show-tracker/releases)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org)
