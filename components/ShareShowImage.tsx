@@ -1,13 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import Image from 'next/image'
-import html2canvas from 'html2canvas'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { Share2, Download, Music, MapPin, Calendar, Loader2 } from 'lucide-react'
+import { Share2, Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 
 interface ShareShowImageProps {
@@ -16,345 +14,381 @@ interface ShareShowImageProps {
   isPast: boolean
 }
 
+function loadImage(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new window.Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => resolve(null)
+    img.src = src
+  })
+}
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
+}
+
+function drawCircleImage(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, size: number) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2)
+  ctx.closePath()
+  ctx.clip()
+  ctx.drawImage(img, x, y, size, size)
+  ctx.restore()
+}
+
+function drawMusicIcon(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string, bgColor: string) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2)
+  ctx.fillStyle = bgColor
+  ctx.fill()
+  ctx.fillStyle = color
+  ctx.font = `${size * 0.5}px system-ui`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('♪', x + size / 2, y + size / 2 + 1)
+  ctx.restore()
+}
+
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const words = text.split(' ')
+  const lines: string[] = []
+  let currentLine = ''
+  for (const word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word
+    if (ctx.measureText(testLine).width > maxWidth && currentLine) {
+      lines.push(currentLine)
+      currentLine = word
+    } else {
+      currentLine = testLine
+    }
+  }
+  if (currentLine) lines.push(currentLine)
+  return lines
+}
+
 export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
-  const cardRef = useRef<HTMLDivElement>(null)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [showPreview, setShowPreview] = useState(false)
   const { showToast } = useToast()
 
-  const generateImage = async (): Promise<HTMLCanvasElement | null> => {
-    if (!cardRef.current) return null
-    
-    setIsGenerating(true)
-    
-    try {
-      // Wait for images to load
-      const images = cardRef.current.querySelectorAll('img')
-      await Promise.all(
-        Array.from(images).map((img) => {
-          if (img.complete) return Promise.resolve()
-          return new Promise((resolve) => {
-            img.onload = resolve
-            img.onerror = resolve
-          })
-        })
-      )
+  const headliners = show.show_artists?.filter(a => a.position === 'Headliner') || []
+  const supportActs = show.show_artists?.filter(a => a.position === 'Support') || []
+  const localActs = show.show_artists?.filter(a => a.position === 'Local') || []
 
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#0a0a0a',
-        scale: 2, // Higher quality
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-      } as Parameters<typeof html2canvas>[1])
-      
+  const generateImage = async (): Promise<HTMLCanvasElement | null> => {
+    setIsGenerating(true)
+
+    try {
+      const scale = 2
+      const W = 540
+      const pad = 36
+      const contentW = W - pad * 2
+
+      const posterImg = show.poster_url ? await loadImage(show.poster_url) : null
+
+      const artistGroups = [
+        { label: 'Headliner', artists: headliners, pill: 'rgba(139,92,246,0.25)', iconBg: 'rgba(88,28,135,0.6)', iconColor: '#c4b5fd' },
+        { label: 'Support', artists: supportActs, pill: 'rgba(59,130,246,0.25)', iconBg: 'rgba(30,58,138,0.6)', iconColor: '#93c5fd' },
+        { label: 'Local Support', artists: localActs, pill: 'rgba(34,197,94,0.25)', iconBg: 'rgba(20,83,45,0.6)', iconColor: '#86efac' },
+      ]
+
+      const artistImages = new Map<string, HTMLImageElement | null>()
+      for (const group of artistGroups) {
+        for (const artist of group.artists) {
+          if (artist.image_url) {
+            artistImages.set(artist.image_url, await loadImage(artist.image_url))
+          }
+        }
+      }
+
+      const tmpCanvas = document.createElement('canvas')
+      const tmpCtx = tmpCanvas.getContext('2d')!
+
+      // Pre-calculate total height
+      let y = pad
+      y += 16 + 24
+
+      tmpCtx.font = 'bold 28px system-ui, -apple-system, sans-serif'
+      const titleLines = wrapText(tmpCtx, show.title, contentW)
+      y += titleLines.length * 34 + 8
+      y += 20 + 6
+      y += 20 + 24
+
+      if (posterImg) {
+        const posterH = Math.min(300, (posterImg.height / posterImg.width) * contentW)
+        y += posterH + 24
+      }
+
+      for (const group of artistGroups) {
+        if (group.artists.length === 0) continue
+        y += 16 + 10
+        tmpCtx.font = '500 14px system-ui, -apple-system, sans-serif'
+        const pillH = 32
+        const pillGap = 8
+        const iconSize = group.label === 'Headliner' ? 24 : 20
+        let rowX = 0
+        let rows = 1
+        for (const artist of group.artists) {
+          const tw = tmpCtx.measureText(artist.artist).width
+          const pillW = 12 + iconSize + 8 + tw + 12
+          if (rowX + pillW > contentW && rowX > 0) {
+            rows++
+            rowX = 0
+          }
+          rowX += pillW + pillGap
+        }
+        y += rows * (pillH + pillGap) + 8
+      }
+
+      if (rsvps?.going?.length > 0) {
+        y += 16 + 8
+        tmpCtx.font = '14px system-ui, -apple-system, sans-serif'
+        const goingText = rsvps.going.map(formatNameForDisplay).join(', ')
+        const goingLines = wrapText(tmpCtx, goingText, contentW - 24)
+        y += goingLines.length * 20 + 24 + 8
+      }
+
+      y += 16 + 20 + pad
+      const H = y
+
+      const canvas = document.createElement('canvas')
+      canvas.width = W * scale
+      canvas.height = H * scale
+      const ctx = canvas.getContext('2d')!
+      ctx.scale(scale, scale)
+
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, W, H)
+      grad.addColorStop(0, '#1a1a2e')
+      grad.addColorStop(0.5, '#16213e')
+      grad.addColorStop(1, '#0f0f23')
+      roundRect(ctx, 0, 0, W, H, 20)
+      ctx.fillStyle = grad
+      ctx.fill()
+
+      // Draw content
+      let cy = pad
+
+      // Branding
+      ctx.font = '600 11px system-ui, -apple-system, sans-serif'
+      ctx.fillStyle = '#9ca3af'
+      ctx.textAlign = 'left'
+      ctx.fillText('SHOW TRACKER', pad, cy + 11)
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#6b7280'
+      ctx.fillText('edmadoptionclinic.org', W - pad, cy + 11)
+      ctx.textAlign = 'left'
+      cy += 16 + 24
+
+      // Title
+      ctx.font = 'bold 28px system-ui, -apple-system, sans-serif'
+      ctx.fillStyle = '#ffffff'
+      for (const line of titleLines) {
+        ctx.fillText(line, pad, cy + 24)
+        cy += 34
+      }
+      cy += 8
+
+      // Date
+      ctx.font = '500 14px system-ui, -apple-system, sans-serif'
+      ctx.fillStyle = '#d8b4fe'
+      ctx.fillText(`📅  ${formatUserTime(show.date_time, show.time_local)}`, pad, cy + 14)
+      cy += 20 + 6
+
+      // Venue
+      ctx.fillStyle = '#93c5fd'
+      ctx.fillText(`📍  ${show.venue} • ${show.city}`, pad, cy + 14)
+      cy += 20 + 24
+
+      // Poster
+      if (posterImg) {
+        const posterH = Math.min(300, (posterImg.height / posterImg.width) * contentW)
+        ctx.save()
+        roundRect(ctx, pad, cy, contentW, posterH, 12)
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'
+        ctx.fill()
+        ctx.clip()
+        const imgAspect = posterImg.width / posterImg.height
+        const boxAspect = contentW / posterH
+        let dx = pad, dy = cy, dw = contentW, dh = posterH
+        if (imgAspect > boxAspect) {
+          dw = contentW
+          dh = contentW / imgAspect
+          dy = cy + (posterH - dh) / 2
+        } else {
+          dh = posterH
+          dw = posterH * imgAspect
+          dx = pad + (contentW - dw) / 2
+        }
+        ctx.drawImage(posterImg, dx, dy, dw, dh)
+        ctx.restore()
+        cy += posterH + 24
+      }
+
+      // Artist groups
+      for (const group of artistGroups) {
+        if (group.artists.length === 0) continue
+
+        ctx.font = '600 11px system-ui, -apple-system, sans-serif'
+        ctx.fillStyle = '#9ca3af'
+        ctx.textAlign = 'left'
+        ctx.fillText(group.label.toUpperCase(), pad, cy + 11)
+        cy += 16 + 10
+
+        const pillH = 32
+        const pillGap = 8
+        const iconSize = group.label === 'Headliner' ? 24 : 20
+        let rowX = 0
+
+        for (const artist of group.artists) {
+          ctx.font = `${group.label === 'Headliner' ? '600' : '500'} 14px system-ui, -apple-system, sans-serif`
+          const tw = ctx.measureText(artist.artist).width
+          const pillW = 12 + iconSize + 8 + tw + 12
+
+          if (rowX + pillW > contentW && rowX > 0) {
+            cy += pillH + pillGap
+            rowX = 0
+          }
+
+          const px = pad + rowX
+          roundRect(ctx, px, cy, pillW, pillH, 8)
+          ctx.fillStyle = group.pill
+          ctx.fill()
+
+          const iconY = cy + (pillH - iconSize) / 2
+          const aImg = artist.image_url ? artistImages.get(artist.image_url) : null
+          if (aImg) {
+            drawCircleImage(ctx, aImg, px + 12, iconY, iconSize)
+          } else {
+            drawMusicIcon(ctx, px + 12, iconY, iconSize, group.iconColor, group.iconBg)
+          }
+
+          ctx.fillStyle = group.label === 'Headliner' ? '#ffffff' : '#e5e7eb'
+          ctx.textAlign = 'left'
+          ctx.fillText(artist.artist, px + 12 + iconSize + 8, cy + pillH / 2 + 5)
+
+          rowX += pillW + pillGap
+        }
+        cy += pillH + pillGap + 8
+      }
+
+      // RSVPs
+      if (rsvps?.going?.length > 0) {
+        ctx.font = '600 11px system-ui, -apple-system, sans-serif'
+        ctx.fillStyle = '#9ca3af'
+        ctx.textAlign = 'left'
+        ctx.fillText(isPast ? 'WHO WENT' : "WHO'S GOING", pad, cy + 11)
+        cy += 16 + 8
+
+        const goingText = rsvps.going.map(formatNameForDisplay).join(', ')
+        ctx.font = '14px system-ui, -apple-system, sans-serif'
+        const goingLines = wrapText(ctx, goingText, contentW - 24)
+        const boxH = goingLines.length * 20 + 16
+
+        roundRect(ctx, pad, cy, contentW, boxH, 10)
+        ctx.fillStyle = 'rgba(255,255,255,0.05)'
+        ctx.fill()
+
+        ctx.fillStyle = '#e5e7eb'
+        for (let i = 0; i < goingLines.length; i++) {
+          ctx.fillText(goingLines[i], pad + 12, cy + 8 + 14 + i * 20)
+        }
+        cy += boxH + 8
+      }
+
+      // Footer
+      cy += 8
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(pad, cy)
+      ctx.lineTo(W - pad, cy)
+      ctx.stroke()
+      cy += 16
+
+      ctx.font = '12px system-ui, -apple-system, sans-serif'
+      ctx.fillStyle = '#6b7280'
+      ctx.textAlign = 'left'
+      ctx.fillText('Join us for live music!', pad, cy + 10)
+
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#9ca3af'
+      const statusText = isPast ? 'Past Event' : 'Upcoming'
+      ctx.fillText(statusText, W - pad, cy + 10)
+
+      ctx.beginPath()
+      ctx.arc(W - pad - ctx.measureText(statusText).width - 12, cy + 6, 4, 0, Math.PI * 2)
+      ctx.fillStyle = isPast ? '#6b7280' : '#22c55e'
+      ctx.fill()
+
       return canvas
     } catch (error) {
-      console.error('Error generating image:', error)
+      console.error('Error generating share image:', error)
       return null
     } finally {
       setIsGenerating(false)
     }
   }
 
-  const handleShare = async () => {
-    setShowPreview(true)
-    
-    // Small delay to ensure the preview is rendered
-    await new Promise(resolve => setTimeout(resolve, 100))
-    
-    const canvas = await generateImage()
-    if (!canvas) {
-      showToast({
-        title: 'Share Failed',
-        description: 'Failed to generate image',
-        type: 'error',
-        duration: 3000
-      })
-      setShowPreview(false)
-      return
-    }
-
-    try {
-      const blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, 'image/png', 1.0)
-      })
-
-      if (!blob) throw new Error('Failed to create blob')
-
-      const file = new File([blob], `${show.title.replace(/[^a-z0-9]/gi, '-')}.png`, {
-        type: 'image/png'
-      })
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: show.title,
-          text: `Check out ${show.title} at ${show.venue}!`
-        })
-      } else {
-        // Fallback: download the image
-        handleDownload(canvas)
-      }
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        console.error('Error sharing:', error)
-        // Fallback to download
-        handleDownload(canvas)
-      }
-    }
-    
-    setShowPreview(false)
-  }
-
-  const handleDownload = async (existingCanvas?: HTMLCanvasElement) => {
-    if (!existingCanvas) {
-      setShowPreview(true)
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
-    
-    const canvas = existingCanvas || await generateImage()
-    if (!canvas) {
-      showToast({
-        title: 'Download Failed',
-        description: 'Failed to generate image',
-        type: 'error',
-        duration: 3000
-      })
-      setShowPreview(false)
-      return
-    }
-
+  const downloadCanvas = (canvas: HTMLCanvasElement) => {
     const link = document.createElement('a')
     link.download = `${show.title.replace(/[^a-z0-9]/gi, '-')}.png`
     link.href = canvas.toDataURL('image/png', 1.0)
     link.click()
+    showToast({ title: 'Image Downloaded', description: 'Show image saved to downloads', type: 'success', duration: 3000 })
+  }
 
-    showToast({
-      title: 'Image Downloaded',
-      description: 'Show image saved to downloads',
-      type: 'success',
-      duration: 3000
-    })
-    
-    if (!existingCanvas) {
-      setShowPreview(false)
+  const handleShare = async () => {
+    const canvas = await generateImage()
+    if (!canvas) {
+      showToast({ title: 'Share Failed', description: 'Failed to generate image', type: 'error', duration: 3000 })
+      return
+    }
+
+    try {
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 1.0))
+      if (!blob) throw new Error('Failed to create blob')
+
+      const file = new File([blob], `${show.title.replace(/[^a-z0-9]/gi, '-')}.png`, { type: 'image/png' })
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: show.title, text: `Check out ${show.title} at ${show.venue}!` })
+      } else {
+        downloadCanvas(canvas)
+      }
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        downloadCanvas(canvas)
+      }
     }
   }
 
-  const headliners = show.show_artists?.filter(artist => artist.position === 'Headliner') || []
-  const supportActs = show.show_artists?.filter(artist => artist.position === 'Support') || []
-  const localActs = show.show_artists?.filter(artist => artist.position === 'Local') || []
-
   return (
-    <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleShare}
-        disabled={isGenerating}
-        className="flex-1 sm:flex-none"
-      >
-        {isGenerating ? (
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-        ) : (
-          <Share2 className="w-4 h-4 mr-2" />
-        )}
-        Share
-      </Button>
-
-      {/* Hidden shareable card - rendered off-screen for capture */}
-      {showPreview && (
-        <div className="fixed -left-[9999px] top-0">
-          <div
-            ref={cardRef}
-            className="w-[500px] p-6 rounded-2xl"
-            style={{
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%)',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-            }}
-          >
-            {/* Header with branding */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-xs text-gray-400 tracking-wider uppercase">
-                Show Tracker
-              </div>
-              <div className="text-xs text-gray-500">
-                edmadoptionclinic.org
-              </div>
-            </div>
-
-            {/* Show Title */}
-            <h1 className="text-2xl font-bold text-white mb-3 leading-tight">
-              {show.title}
-            </h1>
-
-            {/* Date & Time */}
-            <div className="flex items-center gap-2 text-purple-300 mb-2">
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                {formatUserTime(show.date_time, show.time_local)}
-              </span>
-            </div>
-
-            {/* Venue & Location */}
-            <div className="flex items-center gap-2 text-blue-300 mb-5">
-              <MapPin className="w-4 h-4" />
-              <span className="text-sm">
-                {show.venue} • {show.city}
-              </span>
-            </div>
-
-            {/* Poster Image */}
-            {show.poster_url && (
-              <div className="mb-5 rounded-xl overflow-hidden bg-black/30">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={show.poster_url}
-                  alt={show.title}
-                  className="w-full h-auto max-h-[280px] object-contain"
-                  crossOrigin="anonymous"
-                />
-              </div>
-            )}
-
-            {/* Artists Section */}
-            {(headliners.length > 0 || supportActs.length > 0 || localActs.length > 0) && (
-              <div className="space-y-4 mb-5">
-                {/* Headliners */}
-                {headliners.length > 0 && (
-                  <div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-                      Headliner{headliners.length > 1 ? 's' : ''}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {headliners.map((artist, index) => (
-                        <div
-                          key={`h-${index}`}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                          style={{ backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
-                        >
-                          {artist.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={artist.image_url}
-                              alt={artist.artist}
-                              className="w-6 h-6 rounded-full object-cover"
-                              crossOrigin="anonymous"
-                            />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-purple-900/50 flex items-center justify-center">
-                              <Music className="w-3 h-3 text-purple-300" />
-                            </div>
-                          )}
-                          <span className="text-sm font-medium text-white">{artist.artist}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Support */}
-                {supportActs.length > 0 && (
-                  <div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-                      Support
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {supportActs.map((artist, index) => (
-                        <div
-                          key={`s-${index}`}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-                          style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)' }}
-                        >
-                          {artist.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={artist.image_url}
-                              alt={artist.artist}
-                              className="w-5 h-5 rounded-full object-cover"
-                              crossOrigin="anonymous"
-                            />
-                          ) : (
-                            <div className="w-5 h-5 rounded-full bg-blue-900/50 flex items-center justify-center">
-                              <Music className="w-3 h-3 text-blue-300" />
-                            </div>
-                          )}
-                          <span className="text-sm text-gray-200">{artist.artist}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Local */}
-                {localActs.length > 0 && (
-                  <div>
-                    <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-                      Local Support
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {localActs.map((artist, index) => (
-                        <div
-                          key={`l-${index}`}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-                          style={{ backgroundColor: 'rgba(34, 197, 94, 0.2)' }}
-                        >
-                          {artist.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={artist.image_url}
-                              alt={artist.artist}
-                              className="w-5 h-5 rounded-full object-cover"
-                              crossOrigin="anonymous"
-                            />
-                          ) : (
-                            <div className="w-5 h-5 rounded-full bg-green-900/50 flex items-center justify-center">
-                              <Music className="w-3 h-3 text-green-300" />
-                            </div>
-                          )}
-                          <span className="text-sm text-gray-200">{artist.artist}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* RSVPs Section */}
-            {rsvps?.going?.length > 0 && (
-              <div 
-                className="rounded-xl p-4 mb-4"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">
-                  {isPast ? 'Who Went' : 'Who\'s Going'}
-                </div>
-                <div className="text-sm text-gray-200">
-                  {rsvps.going.map(formatNameForDisplay).join(', ')}
-                </div>
-              </div>
-            )}
-
-            {/* Footer */}
-            <div 
-              className="pt-4 border-t flex items-center justify-between"
-              style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
-            >
-              <div className="text-xs text-gray-500">
-                Join us for live music!
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <span className="text-xs text-gray-400">
-                  {isPast ? 'Past Event' : 'Upcoming'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleShare}
+      disabled={isGenerating}
+      className="flex-1 sm:flex-none"
+    >
+      {isGenerating ? (
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+      ) : (
+        <Share2 className="w-4 h-4 mr-2" />
       )}
-    </>
+      Share
+    </Button>
   )
 }
