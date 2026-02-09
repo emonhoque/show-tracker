@@ -7,11 +7,13 @@ import { formatUserTime } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
 import { Download, Loader2 } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface ShareShowImageProps {
   show: Show
   rsvps: RSVPSummary
   isPast: boolean
+  className?: string
 }
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
@@ -79,9 +81,43 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   return lines
 }
 
-export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
+const palettes = {
+  dark: {
+    gradStart: '#1a1a2e', gradMid: '#16213e', gradEnd: '#0f0f23',
+    title: '#ffffff', brandLabel: '#9ca3af', brandUrl: '#6b7280',
+    date: '#d8b4fe', venue: '#93c5fd',
+    sectionLabel: '#9ca3af',
+    headlinerPill: 'rgba(139,92,246,0.25)', headlinerText: '#ffffff',
+    headlinerIconBg: 'rgba(88,28,135,0.6)', headlinerIconColor: '#c4b5fd',
+    supportPill: 'rgba(59,130,246,0.25)', supportText: '#e5e7eb',
+    supportIconBg: 'rgba(30,58,138,0.6)', supportIconColor: '#93c5fd',
+    localPill: 'rgba(34,197,94,0.25)', localText: '#e5e7eb',
+    localIconBg: 'rgba(20,83,45,0.6)', localIconColor: '#86efac',
+    rsvpBox: 'rgba(255,255,255,0.05)', rsvpText: '#e5e7eb',
+    posterBg: 'rgba(0,0,0,0.3)',
+    divider: 'rgba(255,255,255,0.1)', footerText: '#9ca3af',
+  },
+  light: {
+    gradStart: '#f8fafc', gradMid: '#eef2ff', gradEnd: '#f0f4ff',
+    title: '#1e293b', brandLabel: '#64748b', brandUrl: '#94a3b8',
+    date: '#7c3aed', venue: '#2563eb',
+    sectionLabel: '#64748b',
+    headlinerPill: 'rgba(139,92,246,0.12)', headlinerText: '#1e293b',
+    headlinerIconBg: 'rgba(139,92,246,0.2)', headlinerIconColor: '#7c3aed',
+    supportPill: 'rgba(59,130,246,0.12)', supportText: '#334155',
+    supportIconBg: 'rgba(59,130,246,0.2)', supportIconColor: '#2563eb',
+    localPill: 'rgba(34,197,94,0.12)', localText: '#334155',
+    localIconBg: 'rgba(34,197,94,0.2)', localIconColor: '#16a34a',
+    rsvpBox: 'rgba(0,0,0,0.04)', rsvpText: '#334155',
+    posterBg: 'rgba(0,0,0,0.05)',
+    divider: 'rgba(0,0,0,0.1)', footerText: '#64748b',
+  },
+}
+
+export function ShareShowImage({ show, rsvps, isPast, className }: ShareShowImageProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const { showToast } = useToast()
+  const { theme } = useTheme()
 
   const headliners = show.show_artists?.filter(a => a.position === 'Headliner') || []
   const supportActs = show.show_artists?.filter(a => a.position === 'Support') || []
@@ -95,13 +131,14 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
       const W = 540
       const pad = 36
       const contentW = W - pad * 2
+      const c = palettes[theme]
 
       const posterImg = show.poster_url ? await loadImage(show.poster_url) : null
 
       const artistGroups = [
-        { label: 'Headliner', artists: headliners, pill: 'rgba(139,92,246,0.25)', iconBg: 'rgba(88,28,135,0.6)', iconColor: '#c4b5fd' },
-        { label: 'Support', artists: supportActs, pill: 'rgba(59,130,246,0.25)', iconBg: 'rgba(30,58,138,0.6)', iconColor: '#93c5fd' },
-        { label: 'Local Support', artists: localActs, pill: 'rgba(34,197,94,0.25)', iconBg: 'rgba(20,83,45,0.6)', iconColor: '#86efac' },
+        { label: 'Headliner', artists: headliners, pill: c.headlinerPill, iconBg: c.headlinerIconBg, iconColor: c.headlinerIconColor, textColor: c.headlinerText },
+        { label: 'Support', artists: supportActs, pill: c.supportPill, iconBg: c.supportIconBg, iconColor: c.supportIconColor, textColor: c.supportText },
+        { label: 'Local Support', artists: localActs, pill: c.localPill, iconBg: c.localIconBg, iconColor: c.localIconColor, textColor: c.localText },
       ]
 
       const artistImages = new Map<string, HTMLImageElement | null>()
@@ -169,11 +206,10 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
       const ctx = canvas.getContext('2d')!
       ctx.scale(scale, scale)
 
-      // Background gradient
       const grad = ctx.createLinearGradient(0, 0, W, H)
-      grad.addColorStop(0, '#1a1a2e')
-      grad.addColorStop(0.5, '#16213e')
-      grad.addColorStop(1, '#0f0f23')
+      grad.addColorStop(0, c.gradStart)
+      grad.addColorStop(0.5, c.gradMid)
+      grad.addColorStop(1, c.gradEnd)
       roundRect(ctx, 0, 0, W, H, 20)
       ctx.fillStyle = grad
       ctx.fill()
@@ -183,32 +219,29 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
 
       // Branding
       ctx.font = '600 11px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = '#9ca3af'
+      ctx.fillStyle = c.brandLabel
       ctx.textAlign = 'left'
       ctx.fillText('SHOW TRACKER', pad, cy + 11)
       ctx.textAlign = 'right'
-      ctx.fillStyle = '#6b7280'
+      ctx.fillStyle = c.brandUrl
       ctx.fillText('edmadoptionclinic.org', W - pad, cy + 11)
       ctx.textAlign = 'left'
       cy += 16 + 24
 
-      // Title
       ctx.font = 'bold 28px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = '#ffffff'
+      ctx.fillStyle = c.title
       for (const line of titleLines) {
         ctx.fillText(line, pad, cy + 24)
         cy += 34
       }
       cy += 8
 
-      // Date
       ctx.font = '500 14px system-ui, -apple-system, sans-serif'
-      ctx.fillStyle = '#d8b4fe'
+      ctx.fillStyle = c.date
       ctx.fillText(`📅  ${formatUserTime(show.date_time, show.time_local)}`, pad, cy + 14)
       cy += 20 + 6
 
-      // Venue
-      ctx.fillStyle = '#93c5fd'
+      ctx.fillStyle = c.venue
       ctx.fillText(`📍  ${show.venue} • ${show.city}`, pad, cy + 14)
       cy += 20 + 24
 
@@ -217,7 +250,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
         const posterH = Math.min(300, (posterImg.height / posterImg.width) * contentW)
         ctx.save()
         roundRect(ctx, pad, cy, contentW, posterH, 12)
-        ctx.fillStyle = 'rgba(0,0,0,0.3)'
+        ctx.fillStyle = c.posterBg
         ctx.fill()
         ctx.clip()
         const imgAspect = posterImg.width / posterImg.height
@@ -242,7 +275,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
         if (group.artists.length === 0) continue
 
         ctx.font = '600 11px system-ui, -apple-system, sans-serif'
-        ctx.fillStyle = '#9ca3af'
+        ctx.fillStyle = c.sectionLabel
         ctx.textAlign = 'left'
         ctx.fillText(group.label.toUpperCase(), pad, cy + 11)
         cy += 16 + 10
@@ -275,7 +308,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
             drawMusicIcon(ctx, px + 12, iconY, iconSize, group.iconColor, group.iconBg)
           }
 
-          ctx.fillStyle = group.label === 'Headliner' ? '#ffffff' : '#e5e7eb'
+          ctx.fillStyle = group.textColor
           ctx.textAlign = 'left'
           ctx.fillText(artist.artist, px + 12 + iconSize + 8, cy + pillH / 2 + 5)
 
@@ -287,7 +320,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
       // RSVPs
       if (rsvps?.going?.length > 0) {
         ctx.font = '600 11px system-ui, -apple-system, sans-serif'
-        ctx.fillStyle = '#9ca3af'
+        ctx.fillStyle = c.sectionLabel
         ctx.textAlign = 'left'
         ctx.fillText(isPast ? 'WHO WENT' : "WHO'S GOING", pad, cy + 11)
         cy += 16 + 8
@@ -298,10 +331,10 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
         const boxH = goingLines.length * 20 + 16
 
         roundRect(ctx, pad, cy, contentW, boxH, 10)
-        ctx.fillStyle = 'rgba(255,255,255,0.05)'
+        ctx.fillStyle = c.rsvpBox
         ctx.fill()
 
-        ctx.fillStyle = '#e5e7eb'
+        ctx.fillStyle = c.rsvpText
         for (let i = 0; i < goingLines.length; i++) {
           ctx.fillText(goingLines[i], pad + 12, cy + 8 + 14 + i * 20)
         }
@@ -310,7 +343,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
 
       // Footer
       cy += 8
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)'
+      ctx.strokeStyle = c.divider
       ctx.lineWidth = 1
       ctx.beginPath()
       ctx.moveTo(pad, cy)
@@ -318,10 +351,8 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
       ctx.stroke()
       cy += 16
 
-
-
       ctx.textAlign = 'right'
-      ctx.fillStyle = '#9ca3af'
+      ctx.fillStyle = c.footerText
       const statusText = isPast ? 'Past Event' : 'Upcoming'
       ctx.fillText(statusText, W - pad, cy + 10)
 
@@ -363,7 +394,7 @@ export function ShareShowImage({ show, rsvps, isPast }: ShareShowImageProps) {
       onClick={handleDownload}
       disabled={isGenerating}
       aria-label="Download show image"
-      className="h-8 w-8 sm:h-auto sm:w-auto sm:flex-none"
+      className={`h-8 w-8 sm:h-auto sm:w-auto sm:flex-none ${className ?? ''}`}
     >
       {isGenerating ? (
         <Loader2 className="w-4 h-4 animate-spin" />
