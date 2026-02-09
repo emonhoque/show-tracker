@@ -387,7 +387,9 @@ export function ShareShowImage({ show, rsvps, isPast, className }: ShareShowImag
 
     const file = new File([blob], `${show.title.replace(/[^a-z0-9]/gi, '-')}.png`, { type: 'image/png' })
 
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+    if (isMobile && navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ files: [file] })
       } catch (error) {
