@@ -10,6 +10,7 @@ import { formatNameForDisplay } from '@/lib/validation'
 import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2 } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
+import { ShareShowImage } from '@/components/ShareShowImage'
 import { useToast } from '@/components/ui/toast'
 
 // Apple Music icon as SVG component
@@ -549,6 +550,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             </Button>
           )}
           {!isPast && <ExportToCalendar show={show} />}
+          <ShareShowImage show={show} rsvps={rsvps} isPast={isPast} />
           <Button
             variant="outline"
             size="sm"
