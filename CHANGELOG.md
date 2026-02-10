@@ -4,6 +4,13 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.7.6] - 2026-02-09
+
+### Fixed
+- **City Validation** - Allow commas and periods in city field so values like "Boston, Mass" are accepted
+
+---
+
 ## [1.7.5] - 2026-02-09
 
 ### Added
