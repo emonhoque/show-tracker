@@ -80,9 +80,9 @@ export function validateCity(city: string): ValidationResult {
     return { isValid: false, error: 'City must be at least 2 characters' }
   }
   
-  // Only allow letters, spaces, hyphens, and apostrophes
-  if (!/^[a-zA-Z\s\-']+$/.test(sanitized)) {
-    return { isValid: false, error: 'City can only contain letters, spaces, hyphens, and apostrophes' }
+  // Only allow letters, spaces, hyphens, apostrophes, commas, and periods
+  if (!/^[a-zA-Z\s\-',\.]+$/.test(sanitized)) {
+    return { isValid: false, error: 'City can only contain letters, spaces, hyphens, apostrophes, commas, and periods' }
   }
   
   return { isValid: true, sanitizedValue: sanitized }
