@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
@@ -27,6 +27,7 @@ export default function CostsPage() {
   const [summary, setSummary] = useState<CostsSummary | null>(null)
   const [shows, setShows] = useState<ShowWithCosts[]>([])
   const [loading, setLoading] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
 
   const router = useRouter()
   const { showToast } = useToast()
@@ -253,54 +254,63 @@ export default function CostsPage() {
                         </div>
                       </div>
 
-                      {/* Most Expensive Show */}
-                      {summary.most_expensive_show && (
-                        <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-800/30 rounded-lg p-3">
-                          <div className="text-xs text-muted-foreground mb-1">Most Expensive Show</div>
-                          <div className="font-semibold text-foreground">
-                            {summary.most_expensive_show.title}
-                          </div>
-                          <div className="text-sm text-red-600 dark:text-red-400 font-medium">
-                            {fmtUSD(summary.most_expensive_show.total)}
-                          </div>
-                        </div>
-                      )}
+                      <button
+                        onClick={() => setDetailsOpen(o => !o)}
+                        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${detailsOpen ? 'rotate-180' : ''}`} />
+                        {detailsOpen ? 'Hide details' : 'Show details'}
+                      </button>
 
-                      {/* Cost per artist */}
-                      {summary.cost_per_artist !== null && (
-                        <div className="bg-purple-50/50 dark:bg-purple-950/10 border border-purple-200 dark:border-purple-800/30 rounded-lg p-3">
-                          <div className="text-xs text-muted-foreground mb-1">Cost per Artist Seen</div>
-                          <div className="text-xl font-bold text-foreground">
-                            {fmtUSD(summary.cost_per_artist)}
-                          </div>
-                        </div>
-                      )}
+                      {detailsOpen && (
+                        <div className="space-y-4">
+                          {summary.most_expensive_show && (
+                            <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-800/30 rounded-lg p-3">
+                              <div className="text-xs text-muted-foreground mb-1">Most Expensive Show</div>
+                              <div className="font-semibold text-foreground">
+                                {summary.most_expensive_show.title}
+                              </div>
+                              <div className="text-sm text-red-600 dark:text-red-400 font-medium">
+                                {fmtUSD(summary.most_expensive_show.total)}
+                              </div>
+                            </div>
+                          )}
 
-                      {/* Spend by category */}
-                      {summary.spend_by_category.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-foreground mb-3">Spend by Category</h4>
-                          <div className="space-y-2">
-                            {summary.spend_by_category.map(cat => {
-                              const maxTotal = summary.spend_by_category[0]?.total || 1
-                              const percentage = (cat.total / maxTotal) * 100
-                              return (
-                                <div key={cat.category} className="flex items-center gap-2">
-                                  <span className="text-base w-6 text-center">{cat.emoji}</span>
-                                  <span className="text-sm text-muted-foreground w-24">{cat.label}</span>
-                                  <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
-                                    <div
-                                      className="h-full bg-primary/70 rounded-full transition-all duration-300"
-                                      style={{ width: `${Math.max(percentage, 2)}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-sm font-medium text-foreground min-w-[80px] text-right">
-                                    {fmtUSD(cat.total)}
-                                  </span>
-                                </div>
-                              )
-                            })}
-                          </div>
+                          {summary.cost_per_artist !== null && (
+                            <div className="bg-purple-50/50 dark:bg-purple-950/10 border border-purple-200 dark:border-purple-800/30 rounded-lg p-3">
+                              <div className="text-xs text-muted-foreground mb-1">Cost per Artist Seen</div>
+                              <div className="text-xl font-bold text-foreground">
+                                {fmtUSD(summary.cost_per_artist)}
+                              </div>
+                            </div>
+                          )}
+
+                          {summary.spend_by_category.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Spend by Category</h4>
+                              <div className="space-y-2">
+                                {summary.spend_by_category.map(cat => {
+                                  const maxTotal = summary.spend_by_category[0]?.total || 1
+                                  const percentage = (cat.total / maxTotal) * 100
+                                  return (
+                                    <div key={cat.category} className="flex items-center gap-2">
+                                      <span className="text-base w-6 text-center">{cat.emoji}</span>
+                                      <span className="text-sm text-muted-foreground w-24">{cat.label}</span>
+                                      <div className="flex-1 h-6 bg-muted rounded-full overflow-hidden">
+                                        <div
+                                          className="h-full bg-primary/70 rounded-full transition-all duration-300"
+                                          style={{ width: `${Math.max(percentage, 2)}%` }}
+                                        />
+                                      </div>
+                                      <span className="text-sm font-medium text-foreground min-w-[80px] text-right">
+                                        {fmtUSD(cat.total)}
+                                      </span>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </>

@@ -418,7 +418,7 @@ export function CostItemRow({ cost, userName, onUpdated, onDelete }: CostItemRow
           {cost.note}
         </span>
       )}
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => setEditing(true)}
           className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
