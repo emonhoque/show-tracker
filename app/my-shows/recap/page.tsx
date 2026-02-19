@@ -252,7 +252,7 @@ export default function RecapPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/my-shows')}
             className="text-muted-foreground hover:text-foreground"
           >
             ← Back to My Shows
