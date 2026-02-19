@@ -296,7 +296,9 @@ export default function MyShowsPage() {
                         </div>
                       </div>
                       <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
-                        <div className="text-xs text-muted-foreground">Shows Attended</div>
+                        <div className="text-xs text-muted-foreground">
+                          {selectedYear < new Date().getFullYear() ? 'Shows Attended' : 'Total Shows'}
+                        </div>
                         <div className="text-xl font-bold text-foreground">
                           {summary.total_attended_shows}
                         </div>
