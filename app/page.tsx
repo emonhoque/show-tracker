@@ -507,11 +507,11 @@ export default function Home() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add
               </Button>
-              <Button onClick={() => window.location.href = '/recap'} variant="outline" size="sm">
+              <Button onClick={() => window.location.href = '/my-shows/recap'} variant="outline" size="sm">
                 <BarChart3 className="w-4 h-4 mr-1" />
                 Recap
               </Button>
-              <Button onClick={() => window.location.href = '/shows'} variant="outline" size="sm">
+              <Button onClick={() => window.location.href = '/my-shows'} variant="outline" size="sm">
                 <CalendarDays className="w-4 h-4 mr-1" />
                 My Shows
               </Button>
@@ -540,11 +540,11 @@ export default function Home() {
                   </Button>
                 </DropdownMenu.DropdownMenuTrigger>
                 <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
-                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/recap'} className="py-3">
+                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/my-shows/recap'} className="py-3">
                     <BarChart3 className="mr-3 h-4 w-4" />
                     Recap
                   </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/shows'} className="py-3">
+                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/my-shows'} className="py-3">
                     <CalendarDays className="mr-3 h-4 w-4" />
                     My Shows
                   </DropdownMenu.DropdownMenuItem>

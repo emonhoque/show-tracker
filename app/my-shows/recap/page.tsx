@@ -197,7 +197,7 @@ export default function RecapPage() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add Show
               </Button>
-              <Button onClick={() => router.push('/shows')} variant="outline" size="sm">
+              <Button onClick={() => router.push('/my-shows')} variant="outline" size="sm">
                 <CalendarDays className="w-4 h-4 mr-1" />
                 My Shows
               </Button>
@@ -230,7 +230,7 @@ export default function RecapPage() {
                     <Plus className="mr-3 h-4 w-4" />
                     Add Show
                   </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/shows')}>
+                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows')}>
                     <CalendarDays className="mr-3 h-4 w-4" />
                     My Shows
                   </DropdownMenu.DropdownMenuItem>
@@ -255,7 +255,7 @@ export default function RecapPage() {
             onClick={() => router.push('/')}
             className="text-muted-foreground hover:text-foreground"
           >
-            ← Back to Shows
+            ← Back to My Shows
           </Button>
           <label htmlFor="year-select" className="text-sm font-medium text-foreground">
             Year:

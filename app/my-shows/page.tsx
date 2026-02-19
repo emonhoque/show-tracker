@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3 } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
@@ -126,6 +126,10 @@ export default function MyShowsPage() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add Show
               </Button>
+              <Button onClick={() => router.push('/my-shows/recap')} variant="outline" size="sm">
+                <BarChart3 className="w-4 h-4 mr-1" />
+                Recap
+              </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="w-4 h-4 mr-1" />
@@ -148,6 +152,10 @@ export default function MyShowsPage() {
                   <DropdownMenu.DropdownMenuItem onClick={() => router.push('/')}>
                     <Plus className="mr-3 h-4 w-4" />
                     Add Show
+                  </DropdownMenu.DropdownMenuItem>
+                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows/recap')}>
+                    <BarChart3 className="mr-3 h-4 w-4" />
+                    Recap
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-3 h-4 w-4" />
