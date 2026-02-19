@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { AlertTriangle, Pencil, Trash2, Plus, X, Check, ChevronDown, Music, DollarSign, Users, MapPin, Calendar } from 'lucide-react'
+import { AlertTriangle, Pencil, Trash2, Plus, X, Check, ChevronDown, Music, DollarSign, Users } from 'lucide-react'
+import { ImageModal } from '@/components/ImageModal'
 import {
   COST_CATEGORIES,
   getCategoryLabel,
@@ -466,6 +467,7 @@ export function ShowCostsCard({ show, isPast, userName, onCostsChanged }: ShowCo
   const [expanded, setExpanded] = useState(false)
   const [costs, setCosts] = useState<ShowCost[]>(show.costs)
   const [deletingCost, setDeletingCost] = useState<ShowCost | null>(null)
+  const [posterOpen, setPosterOpen] = useState(false)
 
   useEffect(() => {
     setCosts(show.costs)
@@ -513,13 +515,18 @@ export function ShowCostsCard({ show, isPast, userName, onCostsChanged }: ShowCo
           className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
         >
           {show.poster_url ? (
-            <Image
-              src={show.poster_url}
-              alt={show.title}
-              width={56}
-              height={56}
-              className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
-            />
+            <div
+              onClick={(e) => { e.stopPropagation(); setPosterOpen(true) }}
+              className="flex-shrink-0 cursor-pointer"
+            >
+              <Image
+                src={show.poster_url}
+                alt={show.title}
+                width={56}
+                height={56}
+                className="w-14 h-14 rounded-lg object-cover hover:opacity-80 transition-opacity"
+              />
+            </div>
           ) : (
             <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
               <Music className="w-6 h-6 text-muted-foreground" />
@@ -651,6 +658,15 @@ export function ShowCostsCard({ show, isPast, userName, onCostsChanged }: ShowCo
         userName={userName}
         onDeleted={handleCostDeleted}
       />
+
+      {show.poster_url && (
+        <ImageModal
+          open={posterOpen}
+          onOpenChange={setPosterOpen}
+          src={show.poster_url}
+          alt={`${show.title} poster`}
+        />
+      )}
     </>
   )
 }
