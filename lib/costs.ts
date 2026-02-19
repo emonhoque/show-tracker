@@ -70,9 +70,15 @@ export interface ShowWithCosts {
   date_time: string
   venue: string
   city: string
+  poster_url?: string | null
   show_artists?: Array<{ artist: string; position: string; image_url?: string }>
   costs: ShowCost[]
   total_cents: number
+  rsvps: {
+    going: string[]
+    maybe: string[]
+    not_going: string[]
+  }
 }
 
 export interface CostsSummary {

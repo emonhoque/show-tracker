@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/toast'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { AlertTriangle, Pencil, Trash2, Plus, X, Check } from 'lucide-react'
+import { AlertTriangle, Pencil, Trash2, Plus, X, Check, ChevronDown, Music, DollarSign, Users, MapPin, Calendar } from 'lucide-react'
 import {
   COST_CATEGORIES,
   getCategoryLabel,
@@ -16,6 +17,7 @@ import {
   type ShowCost,
   type CostCategory,
 } from '@/lib/costs'
+import { formatNameForDisplay } from '@/lib/validation'
 
 interface AddCostRowProps {
   showId: string
@@ -445,15 +447,22 @@ interface ShowCostsCardProps {
     date_time: string
     venue: string
     city: string
+    poster_url?: string | null
     show_artists?: Array<{ artist: string; position: string; image_url?: string }>
     costs: ShowCost[]
     total_cents: number
+    rsvps: {
+      going: string[]
+      maybe: string[]
+      not_going: string[]
+    }
   }
+  isPast: boolean
   userName: string
   onCostsChanged: () => void
 }
 
-export function ShowCostsCard({ show, userName, onCostsChanged }: ShowCostsCardProps) {
+export function ShowCostsCard({ show, isPast, userName, onCostsChanged }: ShowCostsCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [costs, setCosts] = useState<ShowCost[]>(show.costs)
   const [deletingCost, setDeletingCost] = useState<ShowCost | null>(null)
@@ -464,9 +473,15 @@ export function ShowCostsCard({ show, userName, onCostsChanged }: ShowCostsCardP
 
   const showDate = new Date(show.date_time)
   const dateStr = showDate.toLocaleDateString('en-US', {
+    weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
+  })
+  const timeStr = showDate.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
   })
 
   const totalCents = costs.reduce((acc, cost) => acc + cost.amount_minor, 0)
@@ -486,63 +501,145 @@ export function ShowCostsCard({ show, userName, onCostsChanged }: ShowCostsCardP
     onCostsChanged()
   }
 
+  const headliners = show.show_artists?.filter(a => a.position === 'Headliner') || []
+  const supports = show.show_artists?.filter(a => a.position !== 'Headliner') || []
+  const attendees = show.rsvps?.going || []
+
   return (
     <>
       <div className="bg-card rounded-lg border border-border overflow-hidden">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/30 transition-colors"
+          className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
         >
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-medium text-foreground truncate">{show.title}</h3>
-              {costs.length > 0 && (
-                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full whitespace-nowrap">
-                  {costs.length} cost{costs.length !== 1 ? 's' : ''}
-                </span>
-              )}
+          {show.poster_url ? (
+            <Image
+              src={show.poster_url}
+              alt={show.title}
+              width={56}
+              height={56}
+              className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <Music className="w-6 h-6 text-muted-foreground" />
             </div>
+          )}
+
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-foreground truncate">{show.title}</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {dateStr} · {show.venue}, {show.city}
+              {dateStr} · {timeStr}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {show.venue}, {show.city}
             </p>
           </div>
-          <div className="text-right ml-4">
-            {totalCents > 0 ? (
-              <span className="font-semibold text-foreground">
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {totalCents > 0 && (
+              <span className="text-sm font-medium text-muted-foreground">
                 {formatMinorUnits(totalCents)}
               </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">—</span>
             )}
-            <div className="text-xs text-muted-foreground">
-              {expanded ? '▲' : '▼'}
-            </div>
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
           </div>
         </button>
 
         {expanded && (
-          <div className="border-t border-border p-4 space-y-2">
-            {costs.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-2">
-                No costs recorded yet
-              </p>
+          <div className="border-t border-border">
+            {/* Artists */}
+            {show.show_artists && show.show_artists.length > 0 && (
+              <div className="px-4 py-3 border-b border-border">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-2">
+                  <Music className="w-3.5 h-3.5" />
+                  Artists
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {headliners.map(a => (
+                    <div key={a.artist} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
+                      {a.image_url ? (
+                        <Image src={a.image_url} alt={a.artist} width={20} height={20} className="w-5 h-5 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                          <Music className="w-2.5 h-2.5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <span className="text-sm font-medium">{a.artist}</span>
+                    </div>
+                  ))}
+                  {supports.map(a => (
+                    <div key={a.artist} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 border border-border">
+                      {a.image_url ? (
+                        <Image src={a.image_url} alt={a.artist} width={20} height={20} className="w-5 h-5 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                          <Music className="w-2.5 h-2.5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <span className="text-sm text-muted-foreground">{a.artist}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
-            {costs.map(cost => (
-              <CostItemRow
-                key={cost.id}
-                cost={cost}
-                userName={userName}
-                onUpdated={handleCostUpdated}
-                onDelete={setDeletingCost}
-              />
-            ))}
+            {/* Attendees */}
+            {attendees.length > 0 && (
+              <div className="px-4 py-3 border-b border-border">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-2">
+                  <Users className="w-3.5 h-3.5" />
+                  {isPast ? 'Who Went' : 'Who\'s Going'}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {attendees.map(name => (
+                    <span
+                      key={name}
+                      className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/30"
+                    >
+                      {formatNameForDisplay(name)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            <AddCostRow
-              showId={show.id}
-              userName={userName}
-              onCostAdded={handleCostAdded}
-            />
+            {/* Costs */}
+            <div className="px-4 py-3">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-2">
+                <DollarSign className="w-3.5 h-3.5" />
+                Costs
+                {totalCents > 0 && (
+                  <span className="ml-auto text-sm font-semibold text-foreground">
+                    {formatMinorUnits(totalCents)}
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                {costs.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-1">
+                    No costs recorded
+                  </p>
+                )}
+
+                {costs.map(cost => (
+                  <CostItemRow
+                    key={cost.id}
+                    cost={cost}
+                    userName={userName}
+                    onUpdated={handleCostUpdated}
+                    onDelete={setDeletingCost}
+                  />
+                ))}
+
+                <AddCostRow
+                  showId={show.id}
+                  userName={userName}
+                  onCostAdded={handleCostAdded}
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>

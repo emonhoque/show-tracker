@@ -16,7 +16,7 @@ import { ReleasesFeed } from '@/components/ReleasesFeed'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
-import { Plus, LogOut, Menu, BarChart3, DollarSign } from 'lucide-react'
+import { Plus, LogOut, Menu, BarChart3, CalendarDays } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
 import { useToast } from '@/components/ui/toast'
@@ -512,8 +512,8 @@ export default function Home() {
                 Recap
               </Button>
               <Button onClick={() => window.location.href = '/costs'} variant="outline" size="sm">
-                <DollarSign className="w-4 h-4 mr-1" />
-                Costs
+                <CalendarDays className="w-4 h-4 mr-1" />
+                My Shows
               </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
@@ -545,8 +545,8 @@ export default function Home() {
                     Recap
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/costs'} className="py-3">
-                    <DollarSign className="mr-3 h-4 w-4" />
-                    Costs
+                    <CalendarDays className="mr-3 h-4 w-4" />
+                    My Shows
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="py-3">
                     <div className="flex items-center gap-3">

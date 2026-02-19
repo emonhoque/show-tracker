@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const startDate = `${year}-01-01T00:00:00Z`
     const endDate = `${year + 1}-01-01T00:00:00Z`
 
-    const { data: rsvps, error: rsvpError } = await supabase
+    const { data: userRsvps, error: rsvpError } = await supabase
       .from('rsvps')
       .select('show_id')
       .eq('name', userName)
@@ -38,15 +38,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch RSVPs' }, { status: 500 })
     }
 
-    if (!rsvps || rsvps.length === 0) {
-      return NextResponse.json({ shows: [] })
+    if (!userRsvps || userRsvps.length === 0) {
+      return NextResponse.json({ upcoming: [], past: [] })
     }
 
-    const showIds = rsvps.map(r => r.show_id)
+    const showIds = userRsvps.map(r => r.show_id)
 
     const { data: shows, error: showsError } = await supabase
       .from('shows')
-      .select('id, title, date_time, venue, city, show_artists')
+      .select('id, title, date_time, venue, city, poster_url, show_artists')
       .in('id', showIds)
       .gte('date_time', startDate)
       .lt('date_time', endDate)
@@ -58,32 +58,50 @@ export async function GET(request: NextRequest) {
     }
 
     if (!shows || shows.length === 0) {
-      return NextResponse.json({ shows: [] })
+      return NextResponse.json({ upcoming: [], past: [] })
     }
 
     const attendedShowIds = shows.map(s => s.id)
 
-    const { data: costs, error: costsError } = await supabase
-      .from('show_costs')
-      .select('*')
-      .eq('user_id', userName)
-      .in('show_id', attendedShowIds)
-      .order('created_at', { ascending: true })
+    const [costsResult, allRsvpsResult] = await Promise.all([
+      supabase
+        .from('show_costs')
+        .select('*')
+        .eq('user_id', userName)
+        .in('show_id', attendedShowIds)
+        .order('created_at', { ascending: true }),
+      supabase
+        .from('rsvps')
+        .select('show_id, name, status')
+        .in('show_id', attendedShowIds),
+    ])
 
-    if (costsError) {
-      console.error('Error fetching costs:', costsError)
+    if (costsResult.error) {
+      console.error('Error fetching costs:', costsResult.error)
       return NextResponse.json({ error: 'Failed to fetch costs' }, { status: 500 })
     }
 
-    const costsByShow: Record<string, typeof costs> = {}
-    for (const cost of (costs || [])) {
+    const costsByShow: Record<string, typeof costsResult.data> = {}
+    for (const cost of (costsResult.data || [])) {
       if (!costsByShow[cost.show_id]) {
         costsByShow[cost.show_id] = []
       }
       costsByShow[cost.show_id].push(cost)
     }
 
-    const showsWithCosts: ShowWithCosts[] = shows.map(show => {
+    const rsvpsByShow: Record<string, { going: string[]; maybe: string[]; not_going: string[] }> = {}
+    for (const rsvp of (allRsvpsResult.data || [])) {
+      if (!rsvpsByShow[rsvp.show_id]) {
+        rsvpsByShow[rsvp.show_id] = { going: [], maybe: [], not_going: [] }
+      }
+      if (rsvp.status === 'going') rsvpsByShow[rsvp.show_id].going.push(rsvp.name)
+      else if (rsvp.status === 'maybe') rsvpsByShow[rsvp.show_id].maybe.push(rsvp.name)
+      else if (rsvp.status === 'not_going') rsvpsByShow[rsvp.show_id].not_going.push(rsvp.name)
+    }
+
+    const now = new Date().toISOString()
+
+    const allShows: ShowWithCosts[] = shows.map(show => {
       const showCosts = costsByShow[show.id] || []
       const totalCents = showCosts.reduce((sum, c) => sum + c.amount_minor, 0)
 
@@ -93,13 +111,18 @@ export async function GET(request: NextRequest) {
         date_time: show.date_time,
         venue: show.venue,
         city: show.city,
+        poster_url: show.poster_url,
         show_artists: show.show_artists || [],
         costs: showCosts,
         total_cents: totalCents,
+        rsvps: rsvpsByShow[show.id] || { going: [], maybe: [], not_going: [] },
       }
     })
 
-    return NextResponse.json({ shows: showsWithCosts })
+    const upcoming = allShows.filter(s => s.date_time >= now)
+    const past = allShows.filter(s => s.date_time < now).reverse()
+
+    return NextResponse.json({ upcoming, past })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
