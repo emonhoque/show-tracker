@@ -29,7 +29,6 @@ export default function MyShowsPage() {
   const [past, setPast] = useState<ShowWithCosts[]>([])
   const [loading, setLoading] = useState(false)
   const [spendingOpen, setSpendingOpen] = useState(false)
-  const [detailsOpen, setDetailsOpen] = useState(false)
 
   const router = useRouter()
   const { showToast } = useToast()
@@ -311,16 +310,7 @@ export default function MyShowsPage() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => setDetailsOpen(o => !o)}
-                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${detailsOpen ? 'rotate-180' : ''}`} />
-                      {detailsOpen ? 'Hide details' : 'Show details'}
-                    </button>
-
-                    {detailsOpen && (
-                      <div className="space-y-4">
+                    <div className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {summary.most_expensive_show && (
                           <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-800/30 rounded-lg p-3">
@@ -383,7 +373,6 @@ export default function MyShowsPage() {
                           </div>
                         )}
                       </div>
-                    )}
                   </CardContent>
                 )}
               </Card>

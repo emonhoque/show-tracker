@@ -4,6 +4,15 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.8.1] - 2026-02-19
+
+### Fixed
+- **Cost notes no longer truncated** - Notes on cost items now display on their own line with full text wrapping instead of being cut off
+- **Cheapest Show stat** - Added Cheapest Show tile alongside Most Expensive Show and Cost per Artist Seen in the Spending Summary details section (3-column grid on desktop, stacked on mobile)
+- **"Shows Attended" label** - Tile now reads "Total Shows" for the current/future year and "Shows Attended" for past years
+- **Removed redundant \"Show details\" toggle** - Spending Summary details (Most Expensive, Cheapest Show, Cost per Artist, Spend by Category) now always visible when the summary is expanded
+---
+
 ## [1.8.0] - 2026-02-18
 
 ### Added
