@@ -241,7 +241,7 @@ export default function MyShowsPage() {
                   />
                 ))}
               </div>
-            )}
+            )} 
 
             {/* Past Shows */}
             {past.length > 0 && (
