@@ -511,7 +511,7 @@ export default function Home() {
                 <BarChart3 className="w-4 h-4 mr-1" />
                 Recap
               </Button>
-              <Button onClick={() => window.location.href = '/costs'} variant="outline" size="sm">
+              <Button onClick={() => window.location.href = '/shows'} variant="outline" size="sm">
                 <CalendarDays className="w-4 h-4 mr-1" />
                 My Shows
               </Button>
@@ -544,7 +544,7 @@ export default function Home() {
                     <BarChart3 className="mr-3 h-4 w-4" />
                     Recap
                   </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/costs'} className="py-3">
+                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/shows'} className="py-3">
                     <CalendarDays className="mr-3 h-4 w-4" />
                     My Shows
                   </DropdownMenu.DropdownMenuItem>

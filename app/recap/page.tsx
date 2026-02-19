@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu, Play, DollarSign } from 'lucide-react'
+import { LogOut, Copy, Plus, Menu, Play, CalendarDays } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
@@ -197,9 +197,9 @@ export default function RecapPage() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add Show
               </Button>
-              <Button onClick={() => router.push('/costs')} variant="outline" size="sm">
-                <DollarSign className="w-4 h-4 mr-1" />
-                Costs
+              <Button onClick={() => router.push('/shows')} variant="outline" size="sm">
+                <CalendarDays className="w-4 h-4 mr-1" />
+                My Shows
               </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
@@ -230,9 +230,9 @@ export default function RecapPage() {
                     <Plus className="mr-3 h-4 w-4" />
                     Add Show
                   </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/costs')}>
-                    <DollarSign className="mr-3 h-4 w-4" />
-                    Costs
+                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/shows')}>
+                    <CalendarDays className="mr-3 h-4 w-4" />
+                    My Shows
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-3 h-4 w-4" />
