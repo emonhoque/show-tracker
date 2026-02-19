@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { toZonedTime } from 'date-fns-tz'
+import { evaluateAndUnlockBadges } from '@/lib/badges'
 
 // Partial RSVP type for recap queries that only select name and status
 interface PartialRSVP {
@@ -1294,6 +1295,13 @@ export async function GET(request: NextRequest) {
       leaderboard,
       monthlyData,
       stats
+    }
+
+    // Fire-and-forget badge evaluation when a user views their recap
+    if (currentUser) {
+      evaluateAndUnlockBadges(currentUser).catch((err) =>
+        console.error('[badges] async eval in recap failed:', err),
+      )
     }
 
     return NextResponse.json(recapData)

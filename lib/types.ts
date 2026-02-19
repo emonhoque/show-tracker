@@ -75,6 +75,13 @@ export interface UserArtist {
   added_at: string
 }
 
+export interface UserBadge {
+  user_id: string
+  badge_key: string
+  unlocked_at: string
+  metadata: Record<string, unknown> | null
+}
+
 export interface SpotifyArtist {
   id: string
   name: string

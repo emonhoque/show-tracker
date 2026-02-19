@@ -109,6 +109,15 @@ CREATE TABLE IF NOT EXISTS show_costs (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Create user_badges table
+CREATE TABLE IF NOT EXISTS user_badges (
+    user_id    TEXT        NOT NULL,   -- matches rsvps.name / show_costs.user_id
+    badge_key  TEXT        NOT NULL,   -- stable identifier, e.g. 'first_show'
+    unlocked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    metadata   JSONB       DEFAULT NULL, -- optional context snapshot
+    PRIMARY KEY (user_id, badge_key)
+);
+
 -- =====================================================
 -- 3. PERFORMANCE INDEXES
 -- =====================================================
@@ -134,6 +143,9 @@ CREATE INDEX IF NOT EXISTS idx_show_costs_show_id ON show_costs(show_id);
 CREATE INDEX IF NOT EXISTS idx_show_costs_user_id ON show_costs(user_id);
 CREATE INDEX IF NOT EXISTS idx_show_costs_user_show ON show_costs(user_id, show_id);
 CREATE INDEX IF NOT EXISTS idx_show_costs_category ON show_costs(category);
+CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON user_badges(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_badges_badge_key ON user_badges(badge_key);
+CREATE INDEX IF NOT EXISTS idx_user_badges_unlocked_at ON user_badges(unlocked_at DESC);
 
 -- Optional indexes for future features (uncomment if needed)
 -- CREATE INDEX IF NOT EXISTS idx_rsvps_name_lower ON rsvps(LOWER(name));
@@ -170,6 +182,7 @@ ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE releases ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE show_costs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
 
 -- Drop any existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Allow public read access to shows" ON shows;
@@ -284,6 +297,19 @@ CREATE POLICY "show_costs_update_policy" ON show_costs
 CREATE POLICY "show_costs_delete_policy" ON show_costs
     FOR DELETE USING (true);
 
+-- Create RLS policies for user_badges table
+CREATE POLICY "user_badges_select_policy" ON user_badges
+    FOR SELECT USING (true);
+
+CREATE POLICY "user_badges_insert_policy" ON user_badges
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "user_badges_update_policy" ON user_badges
+    FOR UPDATE USING (true);
+
+CREATE POLICY "user_badges_delete_policy" ON user_badges
+    FOR DELETE USING (true);
+
 -- =====================================================
 -- 6. DATABASE STATISTICS UPDATE
 -- =====================================================
@@ -295,6 +321,7 @@ ANALYZE artists;
 ANALYZE releases;
 ANALYZE user_artists;
 ANALYZE show_costs;
+ANALYZE user_badges;
 
 -- =====================================================
 -- 7. VERIFICATION QUERIES (OPTIONAL)
