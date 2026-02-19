@@ -126,10 +126,6 @@ export default function MyShowsPage() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add Show
               </Button>
-              <Button onClick={() => router.push('/my-shows/recap')} variant="outline" size="sm">
-                <BarChart3 className="w-4 h-4 mr-1" />
-                Recap
-              </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="w-4 h-4 mr-1" />
@@ -152,10 +148,6 @@ export default function MyShowsPage() {
                   <DropdownMenu.DropdownMenuItem onClick={() => router.push('/')}>
                     <Plus className="mr-3 h-4 w-4" />
                     Add Show
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows/recap')}>
-                    <BarChart3 className="mr-3 h-4 w-4" />
-                    Recap
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-3 h-4 w-4" />
@@ -195,6 +187,15 @@ export default function MyShowsPage() {
               </SelectContent>
             </Select>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push('/my-shows/recap')}
+            className="sm:ml-auto"
+          >
+            <BarChart3 className="w-4 h-4 mr-1" />
+            View Recap
+          </Button>
         </div>
 
         {loading ? (
