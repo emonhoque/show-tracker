@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
       average_per_show: 0,
       spend_by_category: [],
       most_expensive_show: null,
+      cheapest_show: null,
       cost_per_artist: null,
     }
 
@@ -120,15 +121,25 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.total - a.total)
 
     let mostExpensiveShow: CostsSummary['most_expensive_show'] = null
+    let cheapestShow: CostsSummary['cheapest_show'] = null
     if (Object.keys(showTotalsCents).length > 0) {
-      const [maxShowId, maxCents] = Object.entries(showTotalsCents)
-        .sort(([, a], [, b]) => b - a)[0]
-      const show = shows.find(s => s.id === maxShowId)
-      if (show) {
+      const sorted = Object.entries(showTotalsCents).sort(([, a], [, b]) => b - a)
+      const [maxShowId, maxCents] = sorted[0]
+      const maxShow = shows.find(s => s.id === maxShowId)
+      if (maxShow) {
         mostExpensiveShow = {
           show_id: maxShowId,
-          title: show.title,
+          title: maxShow.title,
           total: minorToDollars(maxCents),
+        }
+      }
+      const [minShowId, minCents] = sorted[sorted.length - 1]
+      const minShow = shows.find(s => s.id === minShowId)
+      if (minShow) {
+        cheapestShow = {
+          show_id: minShowId,
+          title: minShow.title,
+          total: minorToDollars(minCents),
         }
       }
     }
@@ -158,6 +169,7 @@ export async function GET(request: NextRequest) {
         : 0,
       spend_by_category: spendByCategory,
       most_expensive_show: mostExpensiveShow,
+      cheapest_show: cheapestShow,
       cost_per_artist: costPerArtist,
     }
 

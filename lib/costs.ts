@@ -98,5 +98,10 @@ export interface CostsSummary {
     title: string
     total: number // dollars
   } | null
+  cheapest_show: {
+    show_id: string
+    title: string
+    total: number // dollars
+  } | null
   cost_per_artist: number | null // dollars, only if show_artists data exists
 }

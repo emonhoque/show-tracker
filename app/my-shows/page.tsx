@@ -321,6 +321,7 @@ export default function MyShowsPage() {
 
                     {detailsOpen && (
                       <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {summary.most_expensive_show && (
                           <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-800/30 rounded-lg p-3">
                             <div className="text-xs text-muted-foreground mb-1">Most Expensive Show</div>
@@ -333,6 +334,18 @@ export default function MyShowsPage() {
                           </div>
                         )}
 
+                        {summary.cheapest_show && (
+                          <div className="bg-green-50/50 dark:bg-green-950/10 border border-green-200 dark:border-green-800/30 rounded-lg p-3">
+                            <div className="text-xs text-muted-foreground mb-1">Cheapest Show</div>
+                            <div className="font-semibold text-foreground">
+                              {summary.cheapest_show.title}
+                            </div>
+                            <div className="text-sm text-green-600 dark:text-green-400 font-medium">
+                              {fmtUSD(summary.cheapest_show.total)}
+                            </div>
+                          </div>
+                        )}
+
                         {summary.cost_per_artist !== null && (
                           <div className="bg-purple-50/50 dark:bg-purple-950/10 border border-purple-200 dark:border-purple-800/30 rounded-lg p-3">
                             <div className="text-xs text-muted-foreground mb-1">Cost per Artist Seen</div>
@@ -341,6 +354,7 @@ export default function MyShowsPage() {
                             </div>
                           </div>
                         )}
+                      </div>
 
                         {summary.spend_by_category.length > 0 && (
                           <div>

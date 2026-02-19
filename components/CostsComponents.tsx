@@ -406,37 +406,39 @@ export function CostItemRow({ cost, userName, onUpdated, onDelete }: CostItemRow
   }
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/30 rounded-md group">
-      <span className="text-base" title={getCategoryLabel(cost.category)}>
-        {getCategoryEmoji(cost.category)}
-      </span>
-      <span className="text-muted-foreground min-w-[80px]">
-        {getCategoryLabel(cost.category)}
-      </span>
-      <span className="font-medium flex-1">
-        {formatMinorUnits(cost.amount_minor)}
-      </span>
-      {cost.note && (
-        <span className="text-xs text-muted-foreground truncate max-w-[150px]" title={cost.note}>
-          {cost.note}
+    <div className="px-3 py-2 text-sm hover:bg-muted/30 rounded-md group">
+      <div className="flex items-center gap-2">
+        <span className="text-base" title={getCategoryLabel(cost.category)}>
+          {getCategoryEmoji(cost.category)}
         </span>
-      )}
-      <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => setEditing(true)}
-          className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-          title="Edit"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={() => onDelete(cost)}
-          className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-950/30 text-muted-foreground hover:text-red-600"
-          title="Delete"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        <span className="text-muted-foreground min-w-[80px]">
+          {getCategoryLabel(cost.category)}
+        </span>
+        <span className="font-medium flex-1">
+          {formatMinorUnits(cost.amount_minor)}
+        </span>
+        <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => setEditing(true)}
+            className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+            title="Edit"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => onDelete(cost)}
+            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-950/30 text-muted-foreground hover:text-red-600"
+            title="Delete"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
+      {cost.note && (
+        <p className="text-xs text-muted-foreground mt-0.5 pl-1 break-words">
+          {cost.note}
+        </p>
+      )}
     </div>
   )
 }
