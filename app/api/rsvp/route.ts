@@ -70,9 +70,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Fire-and-forget badge evaluation so it does not delay the response
+    // Pass the show year so only that year's badges are re-evaluated
     if (nameValidation.sanitizedValue) {
-      evaluateAndUnlockBadges(nameValidation.sanitizedValue).catch((err) =>
-        console.error('[badges] async eval failed:', err),
+      const showYear = new Date(show.date_time).getUTCFullYear()
+      evaluateAndUnlockBadges(nameValidation.sanitizedValue, [showYear]).catch(
+        (err) => console.error('[badges] async eval failed:', err),
       )
     }
 

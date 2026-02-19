@@ -9,6 +9,7 @@
 # testing
 /coverage
 /docs
+/migrations
 
 # next.js
 /.next/

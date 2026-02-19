@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateUserName } from '@/lib/validation'
 import {
-  getUserBadges,
+  getUserBadgesGrouped,
   evaluateAndUnlockBadges,
   BADGE_DEFINITIONS,
+  LIFETIME_BADGES,
+  YEAR_BADGES,
   getBadgeImageUrl,
 } from '@/lib/badges'
 
 /**
  * GET /api/badges?user=<name>
- * Returns unlocked + locked badges for the user.
- * Also triggers a lightweight evaluation so the response is always fresh.
+ * Returns badges grouped by scope (lifetime + per-year).
+ * Also triggers a fresh evaluation so the response is always up-to-date.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -35,20 +37,43 @@ export async function GET(request: NextRequest) {
     // Evaluate first so the response includes any newly unlocked badges
     const newBadges = await evaluateAndUnlockBadges(userId)
 
-    // Fetch the full badge list with status
-    const badges = await getUserBadges(userId)
+    // Fetch grouped badge data
+    const grouped = await getUserBadgesGrouped(userId)
 
     // Attach image URLs
-    const withImages = badges.map((b) => ({
+    const lifetime = grouped.lifetime.map((b) => ({
       ...b,
       image_url: getBadgeImageUrl(b.key),
     }))
+    const years = grouped.years.map((y) => ({
+      year: y.year,
+      badges: y.badges.map((b) => ({
+        ...b,
+        image_url: getBadgeImageUrl(b.key),
+      })),
+    }))
+
+    // Total / unlocked counts across all scopes
+    const totalLifetime = LIFETIME_BADGES.length
+    const totalYearPerYear = YEAR_BADGES.length
+    const unlockedLifetime = lifetime.filter((b) => b.unlocked).length
+    const unlockedByYear = years.map((y) => ({
+      year: y.year,
+      unlocked: y.badges.filter((b) => b.unlocked).length,
+      total: totalYearPerYear,
+    }))
 
     return NextResponse.json({
-      badges: withImages,
+      lifetime,
+      years,
+      attendedYears: grouped.attendedYears,
       newlyUnlocked: newBadges,
-      total: BADGE_DEFINITIONS.length,
-      unlocked: withImages.filter((b) => b.unlocked).length,
+      summary: {
+        totalDefinitions: BADGE_DEFINITIONS.length,
+        lifetimeUnlocked: unlockedLifetime,
+        lifetimeTotal: totalLifetime,
+        unlockedByYear,
+      },
     })
   } catch (error) {
     console.error('Badges API error:', error)

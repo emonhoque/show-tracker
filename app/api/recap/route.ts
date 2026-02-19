@@ -1297,9 +1297,9 @@ export async function GET(request: NextRequest) {
       stats
     }
 
-    // Fire-and-forget badge evaluation when a user views their recap
+    // Fire-and-forget badge evaluation scoped to the recap year
     if (currentUser) {
-      evaluateAndUnlockBadges(currentUser).catch((err) =>
+      evaluateAndUnlockBadges(currentUser, [year]).catch((err) =>
         console.error('[badges] async eval in recap failed:', err),
       )
     }

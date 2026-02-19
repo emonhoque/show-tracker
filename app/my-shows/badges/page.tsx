@@ -3,33 +3,46 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Plus, Menu, Trophy, Lock } from 'lucide-react'
+import { LogOut, Plus, Menu, Trophy, Lock, ChevronDown } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
 
-// ---- Types matching the API response ----
+// ---- Types matching the new grouped API response ----
 
 interface BadgeResponse {
   key: string
   name: string
   description: string
   category: BadgeCategory
+  scope: 'lifetime' | 'year'
   criteria: string
   threshold?: number
   unlocked: boolean
   unlocked_at: string | null
+  scope_year: number | null
   metadata: Record<string, unknown> | null
   image_url: string | null
 }
 
-interface BadgesPayload {
+interface YearGroup {
+  year: number
   badges: BadgeResponse[]
+}
+
+interface BadgesPayload {
+  lifetime: BadgeResponse[]
+  years: YearGroup[]
+  attendedYears: number[]
   newlyUnlocked: string[]
-  total: number
-  unlocked: number
+  summary: {
+    totalDefinitions: number
+    lifetimeUnlocked: number
+    lifetimeTotal: number
+    unlockedByYear: Array<{ year: number; unlocked: number; total: number }>
+  }
 }
 
 // ---- Category display helpers ----
@@ -70,6 +83,21 @@ function formatDate(iso: string): string {
     day: 'numeric',
     year: 'numeric',
   })
+}
+
+/** Group badges by category, preserving category order */
+function groupByCategory(
+  badges: BadgeResponse[],
+): Array<{ category: BadgeCategory; badges: BadgeResponse[] }> {
+  const map = new Map<BadgeCategory, BadgeResponse[]>()
+  for (const b of badges) {
+    if (!map.has(b.category)) map.set(b.category, [])
+    map.get(b.category)!.push(b)
+  }
+  return CATEGORY_ORDER.filter((c) => map.has(c)).map((c) => ({
+    category: c,
+    badges: map.get(c)!,
+  }))
 }
 
 // ---- Page component ----
@@ -141,22 +169,15 @@ export default function BadgesPage() {
     return null
   }
 
-  // ---- Group badges by category ----
-
-  const grouped: Record<BadgeCategory, BadgeResponse[]> = {
-    attendance: [],
-    streaks: [],
-    venues: [],
-    artists: [],
-    social: [],
-    power_user: [],
-  }
-
-  if (data) {
-    for (const b of data.badges) {
-      grouped[b.category].push(b)
-    }
-  }
+  // Compute totals across all scopes
+  const totalUnlocked = data
+    ? data.summary.lifetimeUnlocked +
+      data.summary.unlockedByYear.reduce((s, y) => s + y.unlocked, 0)
+    : 0
+  const totalBadges = data
+    ? data.summary.lifetimeTotal +
+      data.summary.unlockedByYear.reduce((s, y) => s + y.total, 0)
+    : 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -240,23 +261,20 @@ export default function BadgesPage() {
         </Button>
 
         {/* ---- Progress overview ---- */}
-        {data && (
+        {data && totalBadges > 0 && (
           <Card>
             <CardContent className="py-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-semibold text-foreground">
-                    {data.unlocked} / {data.total} unlocked
+                    {totalUnlocked} / {totalBadges} unlocked
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Keep going to shows to earn more badges!
                   </p>
                 </div>
                 <div className="relative h-14 w-14">
-                  <svg
-                    className="h-14 w-14 -rotate-90"
-                    viewBox="0 0 36 36"
-                  >
+                  <svg className="h-14 w-14 -rotate-90" viewBox="0 0 36 36">
                     <circle
                       cx="18"
                       cy="18"
@@ -272,12 +290,12 @@ export default function BadgesPage() {
                       fill="none"
                       className="stroke-primary"
                       strokeWidth="3"
-                      strokeDasharray={`${(data.unlocked / data.total) * 97.4} 97.4`}
+                      strokeDasharray={`${(totalUnlocked / totalBadges) * 97.4} 97.4`}
                       strokeLinecap="round"
                     />
                   </svg>
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
-                    {Math.round((data.unlocked / data.total) * 100)}%
+                    {Math.round((totalUnlocked / totalBadges) * 100)}%
                   </span>
                 </div>
               </div>
@@ -301,35 +319,110 @@ export default function BadgesPage() {
           </div>
         )}
 
-        {/* ---- Badge categories ---- */}
-        {data &&
-          CATEGORY_ORDER.map((cat) => {
-            const badges = grouped[cat]
-            if (badges.length === 0) return null
-            const meta = CATEGORY_META[cat]
-            const unlockedInCat = badges.filter((b) => b.unlocked).length
+        {/* ---- Collapsible sections ---- */}
+        {data && (
+          <div className="space-y-4">
+            {/* 1) Lifetime section — always open */}
+            <CollapsibleBadgeSection
+              title="Lifetime"
+              subtitle={`${data.summary.lifetimeUnlocked} / ${data.summary.lifetimeTotal}`}
+              badges={data.lifetime}
+              defaultOpen
+            />
+
+            {/* 2-N) Year sections — newest open, rest collapsed */}
+            {data.years.map((yg, idx) => {
+              const yearStats = data.summary.unlockedByYear.find(
+                (u) => u.year === yg.year,
+              )
+              return (
+                <CollapsibleBadgeSection
+                  key={yg.year}
+                  title={String(yg.year)}
+                  subtitle={
+                    yearStats
+                      ? `${yearStats.unlocked} / ${yearStats.total}`
+                      : undefined
+                  }
+                  badges={yg.badges}
+                  defaultOpen={idx === 0}
+                />
+              )
+            })}
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
+
+// ---- Collapsible section ----
+
+function CollapsibleBadgeSection({
+  title,
+  subtitle,
+  badges,
+  defaultOpen = false,
+}: {
+  title: string
+  subtitle?: string
+  badges: BadgeResponse[]
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  const grouped = groupByCategory(badges)
+
+  return (
+    <div className="border border-border rounded-lg overflow-hidden bg-card">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          {subtitle && (
+            <span className="text-xs text-muted-foreground">{subtitle}</span>
+          )}
+        </div>
+        <ChevronDown
+          className={`w-5 h-5 text-muted-foreground transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-5">
+          {grouped.map(({ category, badges: catBadges }) => {
+            const meta = CATEGORY_META[category]
+            const unlockedInCat = catBadges.filter((b) => b.unlocked).length
 
             return (
-              <div key={cat} className="space-y-3">
+              <div key={category} className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{meta.icon}</span>
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <span className="text-base">{meta.icon}</span>
+                  <h3 className="text-sm font-medium text-foreground">
                     {meta.label}
-                  </h2>
+                  </h3>
                   <span className="text-xs text-muted-foreground ml-auto">
-                    {unlockedInCat}/{badges.length}
+                    {unlockedInCat}/{catBadges.length}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {badges.map((badge) => (
-                    <BadgeCard key={badge.key} badge={badge} />
+                  {catBadges.map((badge) => (
+                    <BadgeCard
+                      key={`${badge.key}-${badge.scope_year ?? 'lt'}`}
+                      badge={badge}
+                    />
                   ))}
                 </div>
               </div>
             )
           })}
-      </main>
+        </div>
+      )}
     </div>
   )
 }
@@ -349,11 +442,7 @@ function BadgeCard({ badge }: { badge: BadgeResponse }) {
     >
       <CardContent className="py-4 px-3 flex flex-col items-center text-center gap-2">
         {/* Badge icon / image */}
-        <div
-          className={`text-3xl ${
-            badge.unlocked ? '' : 'opacity-40'
-          }`}
-        >
+        <div className={`text-3xl ${badge.unlocked ? '' : 'opacity-40'}`}>
           {badge.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img

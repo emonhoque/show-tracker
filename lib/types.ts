@@ -78,6 +78,7 @@ export interface UserArtist {
 export interface UserBadge {
   user_id: string
   badge_key: string
+  scope_year: number | null
   unlocked_at: string
   metadata: Record<string, unknown> | null
 }

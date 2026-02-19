@@ -111,12 +111,17 @@ CREATE TABLE IF NOT EXISTS show_costs (
 
 -- Create user_badges table
 CREATE TABLE IF NOT EXISTS user_badges (
-    user_id    TEXT        NOT NULL,   -- matches rsvps.name / show_costs.user_id
-    badge_key  TEXT        NOT NULL,   -- stable identifier, e.g. 'first_show'
+    user_id     TEXT        NOT NULL,   -- matches rsvps.name / show_costs.user_id
+    badge_key   TEXT        NOT NULL,   -- stable identifier, e.g. 'first_show'
+    scope_year  INTEGER     DEFAULT NULL, -- NULL = lifetime, integer = year-scoped
     unlocked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    metadata   JSONB       DEFAULT NULL, -- optional context snapshot
-    PRIMARY KEY (user_id, badge_key)
+    metadata    JSONB       DEFAULT NULL  -- optional context snapshot
 );
+
+-- Unique constraint: one unlock per (user, badge, scope).
+-- COALESCE maps NULL scope_year to 0 so NULL is treated as equal.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_badges_scoped
+    ON user_badges (user_id, badge_key, COALESCE(scope_year, 0));
 
 -- =====================================================
 -- 3. PERFORMANCE INDEXES
@@ -146,6 +151,7 @@ CREATE INDEX IF NOT EXISTS idx_show_costs_category ON show_costs(category);
 CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON user_badges(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_badges_badge_key ON user_badges(badge_key);
 CREATE INDEX IF NOT EXISTS idx_user_badges_unlocked_at ON user_badges(unlocked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_badges_user_scope ON user_badges(user_id, scope_year);
 
 -- Optional indexes for future features (uncomment if needed)
 -- CREATE INDEX IF NOT EXISTS idx_rsvps_name_lower ON rsvps(LOWER(name));

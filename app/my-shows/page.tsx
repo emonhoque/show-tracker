@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3 } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
@@ -183,7 +183,6 @@ export default function MyShowsPage() {
               size="sm"
               onClick={() => router.push('/my-shows/badges')}
             >
-              <Trophy className="w-4 h-4 mr-1" />
               Badges
             </Button>
           </div>
