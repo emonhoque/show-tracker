@@ -4,10 +4,34 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.8.0] - 2026-02-18
+
+### Added
+- **My Shows page** (`/my-shows`) - Personal show dashboard with upcoming and past shows split into separate sections
+  - Expandable show cards with poster, artists (headliners vs supports), attendees, and costs
+  - Tap poster to open full-size image modal
+  - Year selector to filter shows by year
+  - View Recap button for quick access to recap stories
+- **Cost Tracking** - Log and manage personal spending per show
+  - Add costs by category (Ticket, Transport, Food/Drink, Merch, Accommodation, Other)
+  - Edit and delete individual cost entries
+  - Per-show cost total displayed on card
+- **Spending Summary** - Collapsible yearly spending breakdown in My Shows
+  - Total spend, average per show, most expensive show
+  - Cost per artist seen and spend breakdown by category
+- **My Shows nav button** - Added to main navigation and recap page header
+
+### Changed
+- Recap page moved to `/my-shows/recap` and nested under My Shows
+- Recap button removed from main navigation; accessible via My Shows page
+- Back navigation on Recap page routes to `/my-shows`
+
+---
+
 ## [1.7.6] - 2026-02-09
 
 ### Fixed
-- **City Validation** - Allow commas and periods in city field so values like "Boston, Mass" are accepted
+- **City Validation** - Allow commas and periods in city field so values like "Boston, Massachusetts" are accepted
 
 ---
 

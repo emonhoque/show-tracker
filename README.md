@@ -4,7 +4,7 @@
 
 **A modern Progressive Web App for groups to track concerts and manage RSVPs**
 
-[![Version](https://img.shields.io/badge/version-1.7.6-blue)](https://github.com/emonhoque/show-tracker/releases)
+[![Version](https://img.shields.io/badge/version-1.8.0-blue)](https://github.com/emonhoque/show-tracker/releases)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org)
@@ -65,8 +65,15 @@ Built for music lovers who attend lots of shows and want to stay coordinated.
 - 🎯 **Headliner tracking** - Mark and track headliners in your year-end recap
 - 🖼️ **Artist images** - Automatic artist photos from Spotify
 
+### My Shows & Cost Tracking
+- 🎟️ **My Shows** - Personal dashboard at `/my-shows` with upcoming and past shows split by date
+  - Expandable cards showing poster, artists, attendees, and costs
+  - Year selector and direct link to Recap stories
+- 💰 **Cost Tracking** - Log spending per show by category (Ticket, Transport, Food/Drink, Merch, Accommodation, Other)
+- 📊 **Spending Summary** - Yearly breakdown with total spend, average per show, cost per artist, and category breakdown
+
 ### Data & Analytics
-- 📈 **Year-end Recap** - Comprehensive analytics with leaderboards, monthly trends, and personal stats
+- 📈 **Year-end Recap** - Comprehensive analytics with leaderboards, monthly trends, and personal stats (now at `/my-shows/recap`)
 - 📅 **Calendar Export** - Export shows to Google Calendar or download .ics files with custom duration
 - 📊 **Performance monitoring** - Vercel Speed Insights integration
 - 📸 **Photo sharing** - Google Photos links for past shows

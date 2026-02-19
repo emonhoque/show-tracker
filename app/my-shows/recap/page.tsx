@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu, Play } from 'lucide-react'
+import { LogOut, Copy, Plus, Menu, Play, CalendarDays } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
@@ -197,6 +197,10 @@ export default function RecapPage() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add Show
               </Button>
+              <Button onClick={() => router.push('/my-shows')} variant="outline" size="sm">
+                <CalendarDays className="w-4 h-4 mr-1" />
+                My Shows
+              </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
                 <LogOut className="w-4 h-4 mr-1" />
@@ -226,6 +230,10 @@ export default function RecapPage() {
                     <Plus className="mr-3 h-4 w-4" />
                     Add Show
                   </DropdownMenu.DropdownMenuItem>
+                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows')}>
+                    <CalendarDays className="mr-3 h-4 w-4" />
+                    My Shows
+                  </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-3 h-4 w-4" />
                     Logout
@@ -244,10 +252,10 @@ export default function RecapPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/my-shows')}
             className="text-muted-foreground hover:text-foreground"
           >
-            ← Back to Shows
+            ← Back to My Shows
           </Button>
           <label htmlFor="year-select" className="text-sm font-medium text-foreground">
             Year:

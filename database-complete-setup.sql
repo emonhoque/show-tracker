@@ -6,7 +6,27 @@
 -- Run this entire file in your Supabase SQL editor.
 
 -- =====================================================
--- 1. TABLE CREATION
+-- 1. ENUM TYPES
+-- =====================================================
+
+-- Create cost category enum
+DO $$ BEGIN
+    CREATE TYPE cost_category AS ENUM (
+        'ticket',
+        'travel',
+        'merch',
+        'food_drink',
+        'lodging',
+        'parking',
+        'rideshare',
+        'other'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- =====================================================
+-- 2. TABLE CREATION
 -- =====================================================
 
 -- Create shows table
@@ -76,8 +96,21 @@ CREATE TABLE IF NOT EXISTS user_artists (
     PRIMARY KEY (user_id, artist_id)
 );
 
+-- Create show_costs table
+CREATE TABLE IF NOT EXISTS show_costs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    show_id UUID NOT NULL REFERENCES shows(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,  -- matches rsvps.name pattern (lowercase username)
+    category cost_category NOT NULL,
+    amount_minor INTEGER NOT NULL CHECK (amount_minor > 0),
+    currency CHAR(3) NOT NULL DEFAULT 'USD',
+    note TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- =====================================================
--- 2. PERFORMANCE INDEXES
+-- 3. PERFORMANCE INDEXES
 -- =====================================================
 
 -- Drop any existing duplicate indexes first
@@ -97,6 +130,10 @@ CREATE INDEX IF NOT EXISTS idx_releases_spotify_id ON releases(spotify_id);
 CREATE INDEX IF NOT EXISTS idx_user_artists_user_id ON user_artists(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_artists_artist_id ON user_artists(artist_id);
 CREATE INDEX IF NOT EXISTS idx_shows_artists_gin ON shows USING gin(show_artists);
+CREATE INDEX IF NOT EXISTS idx_show_costs_show_id ON show_costs(show_id);
+CREATE INDEX IF NOT EXISTS idx_show_costs_user_id ON show_costs(user_id);
+CREATE INDEX IF NOT EXISTS idx_show_costs_user_show ON show_costs(user_id, show_id);
+CREATE INDEX IF NOT EXISTS idx_show_costs_category ON show_costs(category);
 
 -- Optional indexes for future features (uncomment if needed)
 -- CREATE INDEX IF NOT EXISTS idx_rsvps_name_lower ON rsvps(LOWER(name));
@@ -105,7 +142,25 @@ CREATE INDEX IF NOT EXISTS idx_shows_artists_gin ON shows USING gin(show_artists
 -- CREATE INDEX IF NOT EXISTS idx_shows_venue_gin ON shows USING gin(to_tsvector('english', venue));
 
 -- =====================================================
--- 3. ROW LEVEL SECURITY (RLS) SETUP
+-- 4. AUTO-UPDATE TRIGGER FOR show_costs.updated_at
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_show_costs_updated_at ON show_costs;
+CREATE TRIGGER update_show_costs_updated_at
+    BEFORE UPDATE ON show_costs
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- =====================================================
+-- 5. ROW LEVEL SECURITY (RLS) SETUP
 -- =====================================================
 
 -- Enable RLS on all tables
@@ -114,6 +169,7 @@ ALTER TABLE rsvps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE releases ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_artists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE show_costs ENABLE ROW LEVEL SECURITY;
 
 -- Drop any existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Allow public read access to shows" ON shows;
@@ -146,6 +202,10 @@ DROP POLICY IF EXISTS "user_artists_select_policy" ON user_artists;
 DROP POLICY IF EXISTS "user_artists_insert_policy" ON user_artists;
 DROP POLICY IF EXISTS "user_artists_update_policy" ON user_artists;
 DROP POLICY IF EXISTS "user_artists_delete_policy" ON user_artists;
+DROP POLICY IF EXISTS "show_costs_select_policy" ON show_costs;
+DROP POLICY IF EXISTS "show_costs_insert_policy" ON show_costs;
+DROP POLICY IF EXISTS "show_costs_update_policy" ON show_costs;
+DROP POLICY IF EXISTS "show_costs_delete_policy" ON show_costs;
 
 -- Create optimized RLS policies for shows table
 CREATE POLICY "shows_select_policy" ON shows
@@ -211,8 +271,21 @@ CREATE POLICY "user_artists_update_policy" ON user_artists
 CREATE POLICY "user_artists_delete_policy" ON user_artists
     FOR DELETE USING (true);
 
+-- Create RLS policies for show_costs table
+CREATE POLICY "show_costs_select_policy" ON show_costs
+    FOR SELECT USING (true);
+
+CREATE POLICY "show_costs_insert_policy" ON show_costs
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "show_costs_update_policy" ON show_costs
+    FOR UPDATE USING (true);
+
+CREATE POLICY "show_costs_delete_policy" ON show_costs
+    FOR DELETE USING (true);
+
 -- =====================================================
--- 4. DATABASE STATISTICS UPDATE
+-- 6. DATABASE STATISTICS UPDATE
 -- =====================================================
 
 -- Update table statistics for optimal query planning
@@ -221,9 +294,10 @@ ANALYZE rsvps;
 ANALYZE artists;
 ANALYZE releases;
 ANALYZE user_artists;
+ANALYZE show_costs;
 
 -- =====================================================
--- 5. VERIFICATION QUERIES (OPTIONAL)
+-- 7. VERIFICATION QUERIES (OPTIONAL)
 -- =====================================================
 
 -- Uncomment these to verify the setup:
@@ -236,8 +310,10 @@ ANALYZE user_artists;
 -- SETUP COMPLETE
 -- =====================================================
 -- Your show-tracker database is now fully configured with:
--- ✅ Tables: shows, rsvps, artists, releases, user_artists
+-- ✅ Enum types: cost_category
+-- ✅ Tables: shows, rsvps, artists, releases, user_artists, show_costs
 -- ✅ Performance indexes for fast queries
+-- ✅ Auto-update trigger for show_costs.updated_at
 -- ✅ Optimized RLS policies for security
 -- ✅ Database statistics updated
 -- 
