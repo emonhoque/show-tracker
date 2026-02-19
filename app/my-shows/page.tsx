@@ -161,15 +161,25 @@ export default function MyShowsPage() {
       </header>
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            ← Back to Shows
-          </Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              ← Back to Shows
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/my-shows/recap')}
+            >
+              <BarChart3 className="w-4 h-4 mr-1" />
+              View Recap
+            </Button>
+          </div>
           <div className="flex items-center gap-2">
             <label htmlFor="year-select" className="text-sm font-medium text-foreground">
               Year:
@@ -187,15 +197,6 @@ export default function MyShowsPage() {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/my-shows/recap')}
-            className="sm:ml-auto"
-          >
-            <BarChart3 className="w-4 h-4 mr-1" />
-            View Recap
-          </Button>
         </div>
 
         {loading ? (
