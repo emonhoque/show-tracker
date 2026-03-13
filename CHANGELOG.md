@@ -4,6 +4,19 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.8.2] - 2026-03-13
+
+### Fixed
+- **Spotify API February 2026 migration** - Updated all Spotify API calls to comply with the [February 2026 Web API changes](https://developer.spotify.com/documentation/web-api/references/changes/february-2026)
+  - Removed `include_groups` parameter from artist albums endpoint; now filters by `album_type` client-side
+  - Capped search limit to 10 (new Spotify max) with client-side clamping
+  - Deprecated `getNewReleases()` — `GET /browse/new-releases` was removed by Spotify
+  - Made `popularity` and `followers` optional in `SpotifyArtist` type (fields removed from API responses)
+  - Updated `mapSpotifyArtistToArtist` to gracefully handle missing `popularity` and `followers` fields
+  - Added detailed error logging with response body on all Spotify API failures
+
+---
+
 ## [1.8.1] - 2026-02-19
 
 ### Fixed
