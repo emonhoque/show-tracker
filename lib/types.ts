@@ -75,6 +75,14 @@ export interface UserArtist {
   added_at: string
 }
 
+export interface UserBadge {
+  user_id: string
+  badge_key: string
+  scope_year: number | null
+  unlocked_at: string
+  metadata: Record<string, unknown> | null
+}
+
 export interface SpotifyArtist {
   id: string
   name: string
@@ -87,8 +95,9 @@ export interface SpotifyArtist {
     width: number
   }>
   genres: string[]
-  popularity: number
-  followers: {
+  // Feb 2026: popularity and followers removed from Spotify API responses
+  popularity?: number
+  followers?: {
     total: number
   }
 }
