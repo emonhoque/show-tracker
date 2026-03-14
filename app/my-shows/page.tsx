@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/toast'
 import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3 } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
+import { useDemoMode } from '@/lib/demo-context'
 import {
   type CostsSummary,
   type ShowWithCosts,
@@ -32,6 +33,7 @@ export default function MyShowsPage() {
 
   const router = useRouter()
   const { showToast } = useToast()
+  const { apiFetch, isDemo } = useDemoMode()
 
   useEffect(() => {
     setMounted(true)
@@ -47,8 +49,8 @@ export default function MyShowsPage() {
     setLoading(true)
     try {
       const [summaryRes, showsRes] = await Promise.all([
-        fetch(`/api/costs/summary?year=${selectedYear}&user=${encodeURIComponent(userName)}`),
-        fetch(`/api/costs/shows?year=${selectedYear}&user=${encodeURIComponent(userName)}`),
+        apiFetch(`/api/costs/summary?year=${selectedYear}&user=${encodeURIComponent(userName)}`),
+        apiFetch(`/api/costs/shows?year=${selectedYear}&user=${encodeURIComponent(userName)}`),
       ])
 
       if (summaryRes.ok) {
@@ -109,6 +111,11 @@ export default function MyShowsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {isDemo && (
+        <div className="bg-amber-500/90 text-black text-center text-sm font-medium py-1.5 px-4">
+          Demo Mode — All data is fictional. Changes reset on page refresh. Password: <code className="bg-amber-600/30 px-1 rounded">demo</code>
+        </div>
+      )}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">

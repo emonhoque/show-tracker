@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent } from '@/components/ui/card'
 import { Artist } from '@/lib/types'
 import { useToast } from '@/components/ui/toast'
+import { useDemoMode } from '@/lib/demo-context'
 
 // Spotify Icon Component
 const SpotifyIcon = ({ className }: { className?: string }) => (
@@ -31,13 +32,14 @@ export function ArtistsListModal({ onArtistRemoved }: ArtistsListModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const fetchArtists = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     
     try {
-      const response = await fetch('/api/artists')
+      const response = await apiFetch('/api/artists')
       if (response.ok) {
         const data = await response.json()
         setArtists(data)
@@ -77,7 +79,7 @@ export function ArtistsListModal({ onArtistRemoved }: ArtistsListModalProps) {
     const artistName = artistToRemove?.artist_name || 'Artist'
     
     try {
-      const response = await fetch(`/api/artists/${artistId}`, {
+      const response = await apiFetch(`/api/artists/${artistId}`, {
         method: 'DELETE'
       })
       

@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { validateUserName } from '@/lib/validation'
+import { useDemoMode } from '@/lib/demo-context'
+import { DEMO_PASSWORD, DEMO_USERS } from '@/lib/demo-data'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,8 +14,9 @@ interface PasswordGateProps {
 }
 
 export function PasswordGate({ onSuccess }: PasswordGateProps) {
-  const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const { isDemo } = useDemoMode()
+  const [password, setPassword] = useState(isDemo ? DEMO_PASSWORD : '')
+  const [name, setName] = useState(isDemo ? DEMO_USERS[0] : '')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -26,7 +29,8 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
       return
     }
 
-    if (password !== process.env.NEXT_PUBLIC_APP_PASSWORD) {
+    const validPassword = isDemo ? DEMO_PASSWORD : process.env.NEXT_PUBLIC_APP_PASSWORD
+    if (password !== validPassword) {
       setError('Incorrect password')
       return
     }

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/ui/toast";
+import { DemoProvider } from "@/lib/demo-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -219,7 +220,9 @@ export default function RootLayout({
           storageKey="show-tracker-theme" 
         >
           <ToastProvider>
-            {children}
+            <DemoProvider>
+              {children}
+            </DemoProvider>
           </ToastProvider>
         </ThemeProvider>
         <SpeedInsights />

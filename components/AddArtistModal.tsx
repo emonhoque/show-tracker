@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { SpotifyArtist, Artist } from '@/lib/types'
 import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
 import { useToast } from '@/components/ui/toast'
+import { useDemoMode } from '@/lib/demo-context'
 
 interface AddArtistModalProps {
   onArtistAdded?: (artist: Artist) => void
@@ -24,6 +25,7 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
   const [isAdding, setIsAdding] = useState(false)
   const [spotifyError, setSpotifyError] = useState<string | null>(null)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return
@@ -31,7 +33,7 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
     setIsSearching(true)
     setSpotifyError(null)
     try {
-      const response = await fetch(`/api/artists/search?q=${encodeURIComponent(searchQuery)}&limit=10`)
+      const response = await apiFetch(`/api/artists/search?q=${encodeURIComponent(searchQuery)}&limit=10`)
       if (response.ok) {
         const data = await response.json()
         setSearchResults(data.artists || [])
@@ -72,7 +74,7 @@ export function AddArtistModal({ onArtistAdded, userName }: AddArtistModalProps)
     setIsAdding(true)
     setSpotifyError(null)
     try {
-      const response = await fetch('/api/artists', {
+      const response = await apiFetch('/api/artists', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

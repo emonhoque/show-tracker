@@ -16,6 +16,7 @@ import { ReleasesFeed } from '@/components/ReleasesFeed'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
+import { useDemoMode } from '@/lib/demo-context'
 import { Plus, LogOut, Menu, CalendarDays } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
@@ -66,6 +67,7 @@ export default function Home() {
   // Get theme - this will be handled by ThemeToggle component
   const { theme, setTheme } = useTheme()
   const { showToast } = useToast()
+  const { apiFetch, isDemo } = useDemoMode()
 
   // Monitor online/offline status
   useEffect(() => {
@@ -94,7 +96,7 @@ export default function Home() {
     try {
       // Fetch upcoming shows (now includes RSVPs) - only on initial load
       if (!isLoadMore) {
-        const upcomingResponse = await fetch(`/api/shows/upcoming?v=${cacheVersion}`, {
+        const upcomingResponse = await apiFetch(`/api/shows/upcoming?v=${cacheVersion}`, {
           headers: {
             'Cache-Control': 'no-cache'
           }
@@ -132,7 +134,7 @@ export default function Home() {
       }
 
       // Fetch past shows with pagination
-      const pastResponse = await fetch(`/api/shows/past?page=${pastPage}&limit=20&v=${cacheVersion}`, {
+      const pastResponse = await apiFetch(`/api/shows/past?page=${pastPage}&limit=20&v=${cacheVersion}`, {
         headers: {
           'Cache-Control': 'no-cache'
         }
@@ -379,7 +381,7 @@ export default function Home() {
 
   const updateRSVPs = async (showId: string) => {
     try {
-      const response = await fetch(`/api/rsvps/${showId}`, {
+      const response = await apiFetch(`/api/rsvps/${showId}`, {
         headers: {
           'Cache-Control': 'no-cache'
         }
@@ -424,7 +426,7 @@ export default function Home() {
     if (!deletingShowId) return
 
     try {
-      const response = await fetch(`/api/shows/${deletingShowId}`, {
+      const response = await apiFetch(`/api/shows/${deletingShowId}`, {
         method: 'DELETE'
       })
 
@@ -491,6 +493,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Demo mode banner */}
+      {isDemo && (
+        <div className="bg-amber-500/90 text-black text-center text-sm font-medium py-1.5 px-4">
+          Demo Mode — All data is fictional. Changes reset on page refresh. Password: <code className="bg-amber-600/30 px-1 rounded">demo</code>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">

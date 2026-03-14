@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectTrigger, SelectContent, SelectOption } from '@/components/ui/select'
 import { ShowArtist } from '@/lib/types'
 import { ShowArtistsManager } from '@/components/ShowArtistsManager'
+import { useDemoMode } from '@/lib/demo-context'
 
 interface AddShowModalProps {
   open: boolean
@@ -41,6 +42,7 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
   const [uploading, setUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const { apiFetch } = useDemoMode()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,7 +100,7 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
         const uploadFormData = new FormData()
         uploadFormData.append('file', selectedFile)
         
-        const uploadResponse = await fetch('/api/upload-poster', {
+        const uploadResponse = await apiFetch('/api/upload-poster', {
           method: 'POST',
           body: uploadFormData
         })
@@ -113,7 +115,7 @@ export function AddShowModal({ open, onOpenChange, onShowAdded }: AddShowModalPr
         setUploading(false)
       }
 
-      const response = await fetch('/api/shows', {
+      const response = await apiFetch('/api/shows', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, poster_url: posterUrl, show_artists: showArtists })

@@ -9,6 +9,7 @@ import { Select, SelectTrigger, SelectContent, SelectOption } from '@/components
 import { Show, ShowArtist } from '@/lib/types'
 import { formatInTimeZone } from 'date-fns-tz'
 import { ShowArtistsManager } from '@/components/ShowArtistsManager'
+import { useDemoMode } from '@/lib/demo-context'
 
 interface EditShowModalProps {
   open: boolean
@@ -36,6 +37,7 @@ export function EditShowModal({ open, onOpenChange, show, onShowUpdated, isPast 
   const [uploading, setUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const { apiFetch } = useDemoMode()
 
   // Populate form when show changes
   useEffect(() => {
@@ -80,7 +82,7 @@ export function EditShowModal({ open, onOpenChange, show, onShowUpdated, isPast 
         const uploadFormData = new FormData()
         uploadFormData.append('file', selectedFile)
         
-        const uploadResponse = await fetch('/api/upload-poster', {
+        const uploadResponse = await apiFetch('/api/upload-poster', {
           method: 'POST',
           body: uploadFormData
         })
@@ -95,7 +97,7 @@ export function EditShowModal({ open, onOpenChange, show, onShowUpdated, isPast 
         setUploading(false)
       }
 
-      const response = await fetch(`/api/shows/${show.id}`, {
+      const response = await apiFetch(`/api/shows/${show.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, poster_url: posterUrl, show_artists: showArtists })

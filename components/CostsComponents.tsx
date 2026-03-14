@@ -19,6 +19,7 @@ import {
   type CostCategory,
 } from '@/lib/costs'
 import { formatNameForDisplay } from '@/lib/validation'
+import { useDemoMode } from '@/lib/demo-context'
 
 interface AddCostRowProps {
   showId: string
@@ -35,6 +36,7 @@ export function AddCostRow({ showId, userName, onCostAdded }: AddCostRowProps) {
   const [expanded, setExpanded] = useState(false)
   const amountRef = useRef<HTMLInputElement>(null)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const handleSubmit = useCallback(async () => {
     setError(null)
@@ -47,7 +49,7 @@ export function AddCostRow({ showId, userName, onCostAdded }: AddCostRowProps) {
 
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/shows/${showId}/costs`, {
+      const res = await apiFetch(`/api/shows/${showId}/costs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -202,6 +204,7 @@ export function EditCostRow({ cost, userName, onCostUpdated, onCancel }: EditCos
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const handleSubmit = useCallback(async () => {
     setError(null)
@@ -214,7 +217,7 @@ export function EditCostRow({ cost, userName, onCostUpdated, onCancel }: EditCos
 
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/costs/${cost.id}`, {
+      const res = await apiFetch(`/api/costs/${cost.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -325,12 +328,13 @@ interface DeleteCostDialogProps {
 export function DeleteCostDialog({ open, onOpenChange, cost, userName, onDeleted }: DeleteCostDialogProps) {
   const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const handleConfirm = async () => {
     if (!cost) return
     setLoading(true)
     try {
-      const res = await fetch(`/api/costs/${cost.id}?user=${encodeURIComponent(userName)}`, {
+      const res = await apiFetch(`/api/costs/${cost.id}?user=${encodeURIComponent(userName)}`, {
         method: 'DELETE',
       })
 

@@ -11,6 +11,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { LogOut, Copy, Plus, Menu, Play, CalendarDays } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
+import { useDemoMode } from '@/lib/demo-context'
 import { RecapChart } from '@/components/RecapChart'
 import { RecapData } from '@/app/api/recap/route'
 import { RecapStoryPlayer, type RecapData as StoryRecapData } from '@/components/recap/stories'
@@ -26,12 +27,13 @@ export default function RecapPage() {
   const [showStoryPlayer, setShowStoryPlayer] = useState(false)
 
   const router = useRouter()
+  const { apiFetch, isDemo } = useDemoMode()
 
   const fetchRecapData = useCallback(async () => {
     setLoading(true)
     try {
       const userParam = userName ? `&user=${encodeURIComponent(userName)}` : ''
-      const response = await fetch(`/api/recap?year=${selectedYear}${userParam}`)
+      const response = await apiFetch(`/api/recap?year=${selectedYear}${userParam}`)
       if (response.ok) {
         const data = await response.json()
         setRecapData(data)
@@ -179,6 +181,11 @@ export default function RecapPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {isDemo && (
+        <div className="bg-amber-500/90 text-black text-center text-sm font-medium py-1.5 px-4">
+          Demo Mode — All data is fictional. Changes reset on page refresh. Password: <code className="bg-amber-600/30 px-1 rounded">demo</code>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">

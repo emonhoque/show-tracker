@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { ShowArtist } from '@/lib/types'
 import { Plus, Trash2, Search, Music } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+import { useDemoMode } from '@/lib/demo-context'
 
 interface ShowArtistsManagerProps {
   showArtists: ShowArtist[]
@@ -32,6 +33,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
   const [searching, setSearching] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const searchSpotify = async (query: string) => {
     if (!query.trim()) {
@@ -41,7 +43,7 @@ export function ShowArtistsManager({ showArtists, onArtistsChange }: ShowArtists
 
     setSearching(true)
     try {
-      const response = await fetch(`/api/artists/search?q=${encodeURIComponent(query)}`)
+      const response = await apiFetch(`/api/artists/search?q=${encodeURIComponent(query)}`)
       if (response.ok) {
         const data = await response.json()
         setSearchResults(data.artists || [])

@@ -12,6 +12,7 @@ import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 import { ShareShowImage } from '@/components/ShareShowImage'
 import { useToast } from '@/components/ui/toast'
+import { useDemoMode } from '@/lib/demo-context'
 
 // Apple Music icon as SVG component
 
@@ -42,6 +43,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   const [copySuccess, setCopySuccess] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   // Get userName from localStorage on client side
   useEffect(() => {
@@ -162,7 +164,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
     
     setLoading(true)
     try {
-      const response = await fetch(`/api/shows/${show.id}/duplicate`, {
+      const response = await apiFetch(`/api/shows/${show.id}/duplicate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       })
@@ -201,7 +203,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
     try {
       if (status) {
         // Add or update RSVP
-        const response = await fetch('/api/rsvp', {
+        const response = await apiFetch('/api/rsvp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -223,7 +225,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
         }
       } else {
         // Remove RSVP completely
-        const response = await fetch('/api/rsvp/remove', {
+        const response = await apiFetch('/api/rsvp/remove', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

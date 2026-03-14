@@ -12,6 +12,7 @@ import { ReleaseErrorState } from '@/components/ReleaseErrorState'
 import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { useToast } from '@/components/ui/toast'
+import { useDemoMode } from '@/lib/demo-context'
 
 interface ReleaseWithArtist extends Release {
   artists: Array<{ id: string; name: string }> | null
@@ -50,6 +51,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
     hasPrev: false
   })
   const { showToast } = useToast()
+  const { apiFetch } = useDemoMode()
 
   const fetchReleases = useCallback(async (isRefresh = false, page = 1, append = false) => {
     if (isRefresh) {
@@ -67,7 +69,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
         ? `/api/releases?limit=${limit}&weeks=${weeks}&page=${page}`
         : `/api/releases?limit=${limit}&days=${days}&page=${page}`
       
-      const response = await fetch(url)
+      const response = await apiFetch(url)
       if (response.ok) {
         const data = await response.json()
         
@@ -123,7 +125,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
 
     try {
       // First, fetch releases for all artists from Spotify
-      const response = await fetch('/api/releases', {
+      const response = await apiFetch('/api/releases', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,7 +184,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
 
     try {
       // First, fetch releases for all artists from Spotify (including the newly added one)
-      const response = await fetch('/api/releases', {
+      const response = await apiFetch('/api/releases', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
