@@ -2,8 +2,7 @@
  * DEMO MODE — React context.
  *
  * Provides `isDemo` flag and a `demoFetch` wrapper to every component.
- * The DemoProvider detects demo mode from the environment variable
- * NEXT_PUBLIC_DEMO_MODE=true.
+ * This branch is always in demo mode.
  */
 
 'use client'
@@ -31,7 +30,7 @@ export function useDemoMode() {
 }
 
 export function DemoProvider({ children }: { children: React.ReactNode }) {
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+  const isDemo = true
 
   // Keep a stable reference to the real fetch so we never recurse
   const realFetch = useRef(globalThis.fetch)
