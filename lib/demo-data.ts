@@ -81,12 +81,19 @@ export const DEMO_USERS = [
 export const DEMO_PASSWORD = 'demo'
 
 // ──────────────────────────────────────────────
-// Image helpers
+// Image helpers — inline SVG data URIs (no external fetch needed)
 // ──────────────────────────────────────────────
-const aImg = (color: string, name: string) =>
-  `https://placehold.co/300x300/${color}/white?text=${name.replace(/ /g, '+')}`
-const pImg = (color: string, name: string) =>
-  `https://placehold.co/600x900/${color}/white?text=${name.replace(/ /g, '+')}`
+function svgDataUri(w: number, h: number, color: string, label: string) {
+  const escaped = label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">` +
+    `<rect width="100%" height="100%" fill="#${color}"/>` +
+    `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" ` +
+    `fill="white" font-family="sans-serif" font-size="${Math.round(w / 10)}px" font-weight="bold">` +
+    `${escaped}</text></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+const aImg = (color: string, name: string) => svgDataUri(300, 300, color, name)
+const pImg = (color: string, name: string) => svgDataUri(600, 900, color, name)
 
 // Artist → color mapping
 const C = {
