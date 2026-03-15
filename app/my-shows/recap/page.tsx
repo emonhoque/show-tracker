@@ -183,7 +183,7 @@ export default function RecapPage() {
     <div className="min-h-screen bg-background">
       {isDemo && (
         <div className="bg-amber-500/90 text-black text-center text-sm font-medium py-1.5 px-4">
-          Demo Mode — All data is fictional. Changes reset on page refresh. Password: <code className="bg-amber-600/30 px-1 rounded">demo</code>
+          Demo Mode: You&apos;re viewing a live demonstration. All data is simulated and changes won&apos;t be saved.
         </div>
       )}
       {/* Header */}

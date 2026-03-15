@@ -496,14 +496,14 @@ export default function Home() {
       {/* Demo mode banner */}
       {isDemo && (
         <div className="bg-amber-500/90 text-black text-center text-sm font-medium py-1.5 px-4">
-          Demo Mode — All data is fictional. Changes reset on page refresh. Password: <code className="bg-amber-600/30 px-1 rounded">demo</code>
+          Demo Mode: You&apos;re viewing a live demonstration. All data is simulated and changes won&apos;t be saved.
         </div>
       )}
       {/* Header */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Show Tracker</h1>
+            <h1 className="text-2xl font-bold text-foreground">Show Tracker Demo</h1>
             {userName && (
               <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
             )}
