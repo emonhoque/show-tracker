@@ -78,9 +78,9 @@ export const DEMO_PASSWORD = 'demo'
 // Image helpers
 // ──────────────────────────────────────────────
 const aImg = (color: string, name: string) =>
-  `/api/image-proxy?url=https://placehold.co/300x300/${color}/white?text=${name.replace(/ /g, '+')}`
+  `https://placehold.co/300x300/${color}/white?text=${name.replace(/ /g, '+')}`
 const pImg = (color: string, name: string) =>
-  `/api/image-proxy?url=https://placehold.co/600x900/${color}/white?text=${name.replace(/ /g, '+')}`
+  `https://placehold.co/600x900/${color}/white?text=${name.replace(/ /g, '+')}`
 
 // Artist → color mapping
 const C = {
