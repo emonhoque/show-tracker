@@ -17,6 +17,7 @@ import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { useDemoMode } from '@/lib/demo-context'
+import { DEMO_NOW } from '@/lib/demo-data'
 import { Plus, LogOut, Menu, CalendarDays } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
@@ -701,7 +702,7 @@ export default function Home() {
         onOpenChange={setShowEditModal}
         show={editingShow}
         onShowUpdated={handleShowUpdated}
-        isPast={editingShow ? new Date(editingShow.date_time) < new Date() : false}
+        isPast={editingShow ? new Date(editingShow.date_time) < DEMO_NOW : false}
       />
 
       {/* Delete Confirmation Dialog */}

@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { toZonedTime, fromZonedTime } from 'date-fns-tz'
+import { DEMO_NOW } from './demo-data'
 
 const BOSTON_TZ = 'America/New_York'
 
@@ -10,7 +11,7 @@ export function formatBostonTime(utcDate: string | Date): string {
   try {
     const date = new Date(utcDate)
     const bostonDate = toZonedTime(date, BOSTON_TZ)
-    const currentYear = new Date().getFullYear()
+    const currentYear = DEMO_NOW.getFullYear()
     const showYear = bostonDate.getFullYear()
     
     // Include year if it's different from current year
@@ -32,7 +33,7 @@ export function formatUserTime(utcDate: string | Date, userTimeInput: string): s
   try {
     const date = new Date(utcDate)
     const bostonDate = toZonedTime(date, BOSTON_TZ)
-    const currentYear = new Date().getFullYear()
+    const currentYear = DEMO_NOW.getFullYear()
     const showYear = bostonDate.getFullYear()
     
     // Include year if it's different from current year
@@ -70,7 +71,7 @@ export function formatUserTime(utcDate: string | Date, userTimeInput: string): s
  * Get the current time in Boston as a UTC timestamp
  */
 export function getBostonNow(): Date {
-  return new Date()
+  return new Date(DEMO_NOW)
 }
 
 /**
@@ -90,7 +91,7 @@ export function bostonToUTC(dateLocal: string, timeLocal: string): Date {
  */
 export function isShowPast(showDateTime: string | Date): boolean {
   const showDate = new Date(showDateTime)
-  const nowInBoston = toZonedTime(new Date(), BOSTON_TZ)
+  const nowInBoston = toZonedTime(DEMO_NOW, BOSTON_TZ)
   const showInBoston = toZonedTime(showDate, BOSTON_TZ)
   return showInBoston < nowInBoston
 }
@@ -101,7 +102,7 @@ export function isShowPast(showDateTime: string | Date): boolean {
 export function getDaysUntilShow(showDateTime: string | Date): number {
   try {
     const showDate = new Date(showDateTime)
-    const nowInBoston = toZonedTime(new Date(), BOSTON_TZ)
+    const nowInBoston = toZonedTime(DEMO_NOW, BOSTON_TZ)
     const showInBoston = toZonedTime(showDate, BOSTON_TZ)
     
     // Set time to start of day for both dates to compare only the date part

@@ -12,6 +12,12 @@
 import { Show, Artist, Release, RSVP, ShowArtist } from './types'
 import { ShowCost } from './costs'
 
+// Fixed demo clock — the demo always behaves as if it is this date,
+// regardless of when the user actually views it.
+export const DEMO_NOW = new Date('2026-03-15T12:00:00Z')
+export const DEMO_NOW_ISO = DEMO_NOW.toISOString()
+export const DEMO_YEAR = DEMO_NOW.getFullYear()
+
 // ──────────────────────────────────────────────
 // Stable IDs
 // ──────────────────────────────────────────────

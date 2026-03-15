@@ -13,6 +13,7 @@ import { SpotifyDisclaimer } from '@/components/SpotifyDisclaimer'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
 import { useToast } from '@/components/ui/toast'
 import { useDemoMode } from '@/lib/demo-context'
+import { DEMO_NOW } from '@/lib/demo-data'
 
 interface ReleaseWithArtist extends Release {
   artists: Array<{ id: string; name: string }> | null
@@ -247,7 +248,7 @@ export function ReleasesFeed({ limit = 50, days = 30, weeks = 0, userName }: Rel
   const formatWeekLabel = (weekStart: string, weekEnd: string) => {
     const start = new Date(weekStart)
     const end = new Date(weekEnd)
-    const now = new Date()
+    const now = new Date(DEMO_NOW)
     
     // Check if it's this week
     const thisWeekStart = new Date(now)

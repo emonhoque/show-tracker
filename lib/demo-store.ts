@@ -13,7 +13,15 @@ import {
   DEMO_ARTISTS,
   DEMO_RELEASES,
   DEMO_COSTS,
+  DEMO_NOW,
+  DEMO_NOW_ISO,
+  DEMO_YEAR,
 } from './demo-data'
+
+/** Return the fixed demo timestamp (for "now" comparisons). */
+function now() { return DEMO_NOW_ISO }
+/** Return a fresh Date pinned to the demo clock (for mutations). */
+function nowDate() { return new Date(DEMO_NOW) }
 
 // Deep-clone helper so mutations don't touch the originals
 function clone<T>(obj: T): T {
@@ -41,17 +49,15 @@ export function resetDemoStore() {
 // ═══════════════════════════════════════════════
 
 export function getUpcomingShows(): (Show & { rsvps: RSVPSummary })[] {
-  const now = new Date().toISOString()
   return shows
-    .filter(s => s.date_time >= now)
+    .filter(s => s.date_time >= now())
     .sort((a, b) => a.date_time.localeCompare(b.date_time))
     .map(s => ({ ...s, rsvps: getRsvpSummary(s.id) }))
 }
 
 export function getPastShows(page: number, limit: number) {
-  const now = new Date().toISOString()
   const past = shows
-    .filter(s => s.date_time < now)
+    .filter(s => s.date_time < now())
     .sort((a, b) => b.date_time.localeCompare(a.date_time))
   const total = past.length
   const totalPages = Math.ceil(total / limit)
@@ -81,7 +87,7 @@ export function addShow(data: Omit<Show, 'id' | 'created_at'>): Show {
   const newShow: Show = {
     ...data,
     id: crypto.randomUUID(),
-    created_at: new Date().toISOString(),
+    created_at: now(),
   }
   shows.push(newShow)
   return newShow
@@ -109,7 +115,7 @@ export function duplicateShow(id: string): Show | null {
   const dup: Show = {
     ...clone(source),
     id: crypto.randomUUID(),
-    created_at: new Date().toISOString(),
+    created_at: now(),
   }
   shows.push(dup)
   return dup
@@ -132,14 +138,14 @@ export function setRsvp(showId: string, name: string, status: 'going' | 'maybe' 
   const existing = rsvps.find(r => r.show_id === showId && r.name === name)
   if (existing) {
     existing.status = status
-    existing.updated_at = new Date().toISOString()
+    existing.updated_at = now()
     return existing
   }
   const newRsvp: RSVP = {
     show_id: showId,
     name,
     status,
-    updated_at: new Date().toISOString(),
+    updated_at: now(),
   }
   rsvps.push(newRsvp)
   return newRsvp
@@ -165,8 +171,8 @@ export function addArtist(data: Omit<Artist, 'id' | 'created_at' | 'last_checked
   const newArtist: Artist = {
     ...data,
     id: crypto.randomUUID(),
-    last_checked: new Date().toISOString(),
-    created_at: new Date().toISOString(),
+    last_checked: now(),
+    created_at: now(),
   }
   artists.push(newArtist)
   return newArtist
@@ -201,7 +207,7 @@ export function searchArtistsDemo(query: string) {
 // ═══════════════════════════════════════════════
 
 export function getReleases(page: number, limit: number, days: number) {
-  const cutoff = new Date()
+  const cutoff = nowDate()
   cutoff.setDate(cutoff.getDate() - days)
   const cutoffStr = cutoff.toISOString().split('T')[0]
 
@@ -236,8 +242,8 @@ export function addCost(data: Omit<ShowCost, 'id' | 'created_at' | 'updated_at'>
   const newCost: ShowCost = {
     ...data,
     id: crypto.randomUUID(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: now(),
+    updated_at: now(),
   }
   costs.push(newCost)
   return newCost
@@ -249,7 +255,7 @@ export function updateCost(costId: string, userId: string, data: Partial<Pick<Sh
   if (data.category !== undefined) cost.category = data.category
   if (data.amount_minor !== undefined) cost.amount_minor = data.amount_minor
   if (data.note !== undefined) cost.note = data.note
-  cost.updated_at = new Date().toISOString()
+  cost.updated_at = now()
   return cost
 }
 
@@ -264,7 +270,6 @@ export function deleteCost(costId: string, userId: string): boolean {
  * Returns upcoming + past shows where the user RSVP'd "going", with their costs.
  */
 export function getCostShows(userId: string, year?: number) {
-  const now = new Date().toISOString()
   const userGoingIds = new Set(
     rsvps.filter(r => r.name === userId && r.status === 'going').map(r => r.show_id)
   )
@@ -295,12 +300,12 @@ export function getCostShows(userId: string, year?: number) {
   }
 
   const upcoming = relevantShows
-    .filter(s => s.date_time >= now)
+    .filter(s => s.date_time >= now())
     .sort((a, b) => a.date_time.localeCompare(b.date_time))
     .map(buildShowWithCosts)
 
   const past = relevantShows
-    .filter(s => s.date_time < now)
+    .filter(s => s.date_time < now())
     .sort((a, b) => b.date_time.localeCompare(a.date_time))
     .map(buildShowWithCosts)
 
@@ -353,7 +358,7 @@ export function getCostSummary(userId: string, year?: number) {
   }
 
   return {
-    year: year || new Date().getFullYear(),
+    year: year || DEMO_YEAR,
     total_spend: totalDollars,
     total_shows_with_costs: showsWithCosts.length,
     total_attended_shows: allShows.length,

@@ -12,6 +12,7 @@ import { LogOut, Copy, Plus, Menu, Play, CalendarDays } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useDemoMode } from '@/lib/demo-context'
+import { DEMO_YEAR } from '@/lib/demo-data'
 import { RecapChart } from '@/components/RecapChart'
 import { RecapData } from '@/app/api/recap/route'
 import { RecapStoryPlayer, type RecapData as StoryRecapData } from '@/components/recap/stories'
@@ -20,7 +21,7 @@ export default function RecapPage() {
   const [mounted, setMounted] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedYear, setSelectedYear] = useState(DEMO_YEAR)
   const [recapData, setRecapData] = useState<RecapData | null>(null)
   const [loading, setLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
@@ -112,7 +113,7 @@ export default function RecapPage() {
   }
 
   const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear()
+    const currentYear = DEMO_YEAR
     const years = []
     for (let year = 2023; year <= currentYear; year++) {
       years.push(year)

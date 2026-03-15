@@ -8,6 +8,7 @@
 
 import * as store from './demo-store'
 import { bostonToUTC } from './time'
+import { DEMO_YEAR } from './demo-data'
 
 // Helper to build a JSON Response that looks like NextResponse.json()
 function json(data: unknown, status = 200): Response {
@@ -235,7 +236,7 @@ export async function demoFetch(input: RequestInfo | URL, init?: RequestInit): P
 
   if (path === '/recap' && method === 'GET') {
     const user = params.get('user') || ''
-    const year = parseInt(params.get('year') || String(new Date().getFullYear()))
+    const year = parseInt(params.get('year') || String(DEMO_YEAR))
     return json(store.getRecap(user, year))
   }
 

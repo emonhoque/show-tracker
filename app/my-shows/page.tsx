@@ -11,6 +11,7 @@ import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, Bar
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useDemoMode } from '@/lib/demo-context'
+import { DEMO_YEAR } from '@/lib/demo-data'
 import {
   type CostsSummary,
   type ShowWithCosts,
@@ -24,7 +25,7 @@ export default function MyShowsPage() {
   const [mounted, setMounted] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedYear, setSelectedYear] = useState(DEMO_YEAR)
   const [summary, setSummary] = useState<CostsSummary | null>(null)
   const [upcoming, setUpcoming] = useState<ShowWithCosts[]>([])
   const [past, setPast] = useState<ShowWithCosts[]>([])
@@ -85,7 +86,7 @@ export default function MyShowsPage() {
   }
 
   const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear()
+    const currentYear = DEMO_YEAR
     const years = []
     for (let year = 2023; year <= currentYear; year++) {
       years.push(year)
@@ -303,7 +304,7 @@ export default function MyShowsPage() {
                       </div>
                       <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
                         <div className="text-xs text-muted-foreground">
-                          {selectedYear < new Date().getFullYear() ? 'Shows Attended' : 'Total Shows'}
+                          {selectedYear < DEMO_YEAR ? 'Shows Attended' : 'Total Shows'}
                         </div>
                         <div className="text-xl font-bold text-foreground">
                           {summary.total_attended_shows}
