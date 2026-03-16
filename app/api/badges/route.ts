@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
         ...b,
         image_url: getBadgeImageUrl(b.key),
       })),
+      artistBadges: y.artistBadges,
     }))
 
     // Total / unlocked counts across all scopes

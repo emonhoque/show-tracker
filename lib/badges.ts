@@ -21,7 +21,6 @@ export type BadgeCategory =
   | 'venues'
   | 'artists'
   | 'social'
-  | 'power_user'
 
 export type BadgeScope = 'lifetime' | 'year'
 
@@ -76,8 +75,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ---- Attendance Milestones (lifetime) ----
   {
     key: 'first_show',
-    name: 'First Timer',
-    description: 'Attended your very first show.',
+    name: 'Debut',
+    description: 'You made it to your first show.',
     category: 'attendance',
     scope: 'lifetime',
     criteria: 'RSVP "going" to at least 1 past show.',
@@ -85,8 +84,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'shows_5',
-    name: 'Regular',
-    description: 'Attended 5 shows. You are officially a regular.',
+    name: 'Getting Hooked',
+    description: '5 shows deep — no turning back now.',
     category: 'attendance',
     scope: 'lifetime',
     criteria: 'Attend 5 past shows.',
@@ -94,8 +93,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'shows_10',
-    name: 'Dedicated Fan',
-    description: 'Attended 10 shows. True dedication.',
+    name: 'Double Digits',
+    description: '10 shows in the books.',
     category: 'attendance',
     scope: 'lifetime',
     criteria: 'Attend 10 past shows.',
@@ -104,7 +103,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'shows_25',
     name: 'Veteran',
-    description: 'Attended 25 shows. A seasoned veteran.',
+    description: '25 shows — you\'ve earned your stripes.',
     category: 'attendance',
     scope: 'lifetime',
     criteria: 'Attend 25 past shows.',
@@ -112,8 +111,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'shows_50',
-    name: 'Hall of Fame',
-    description: 'Attended 50 shows. Hall of Fame material.',
+    name: 'Fifty Club',
+    description: '50 shows. Legend status.',
     category: 'attendance',
     scope: 'lifetime',
     criteria: 'Attend 50 past shows.',
@@ -121,8 +120,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'shows_100',
-    name: 'Century Club',
-    description: 'Attended 100 shows. Welcome to the Century Club.',
+    name: 'Century',
+    description: '100 shows. That\'s commitment.',
     category: 'attendance',
     scope: 'lifetime',
     criteria: 'Attend 100 past shows.',
@@ -132,8 +131,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ---- Venues & Cities (lifetime) ----
   {
     key: 'venue_explorer',
-    name: 'Venue Explorer',
-    description: 'Visited 10 different venues.',
+    name: '10 Venues',
+    description: 'You\'ve been to 10 different spots.',
     category: 'venues',
     scope: 'lifetime',
     criteria: '10+ distinct venues across all attended shows.',
@@ -141,8 +140,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'venue_collector',
-    name: 'Venue Collector',
-    description: 'Visited 20 different venues. Quite the explorer.',
+    name: '20 Venues',
+    description: '20 venues and counting.',
     category: 'venues',
     scope: 'lifetime',
     criteria: '20+ distinct venues across all attended shows.',
@@ -152,7 +151,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ---- Artists (lifetime) ----
   {
     key: 'artist_devotee',
-    name: 'Devoted',
+    name: 'Ride or Die',
     description: 'Seen the same artist at 5 different shows.',
     category: 'artists',
     scope: 'lifetime',
@@ -161,8 +160,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'diverse_taste',
-    name: 'Diverse Taste',
-    description: 'Seen 25 unique artists across all your shows.',
+    name: 'All Over the Map',
+    description: '25 unique artists across all your shows.',
     category: 'artists',
     scope: 'lifetime',
     criteria: '25+ distinct artist names across all attended shows.',
@@ -173,21 +172,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'dynamic_duo',
     name: 'Dynamic Duo',
-    description: 'Attended 5 shows with the same friend.',
+    description: '5 shows with the same person.',
     category: 'social',
     scope: 'lifetime',
     criteria: 'Any other user co-attended 5+ of the same shows.',
-    threshold: 5,
-  },
-
-  // ---- Power User (lifetime) ----
-  {
-    key: 'release_watcher',
-    name: 'Release Watcher',
-    description: 'Following 5 or more artists for new releases.',
-    category: 'power_user',
-    scope: 'lifetime',
-    criteria: '5+ rows in user_artists for this user.',
     threshold: 5,
   },
 
@@ -197,7 +185,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'yearly_warrior',
     name: 'Year Warrior',
-    description: 'Attended 12 or more shows this year.',
+    description: '12+ shows this year. One a month.',
     category: 'attendance',
     scope: 'year',
     criteria: '12+ attended shows in the target year.',
@@ -208,15 +196,15 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'back_to_back',
     name: 'Back to Back',
-    description: 'Attended shows on two consecutive calendar days.',
+    description: 'Shows on consecutive nights.',
     category: 'streaks',
     scope: 'year',
     criteria: 'Two attended shows in the same year whose dates are exactly 1 day apart.',
   },
   {
     key: 'three_in_a_week',
-    name: 'Triple Threat',
-    description: 'Attended 3 shows within 7 days.',
+    name: 'Three-Peat',
+    description: '3 shows in a single week.',
     category: 'streaks',
     scope: 'year',
     criteria: 'Sliding 7-day window within the year containing 3+ attended shows.',
@@ -224,7 +212,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'weekend_warrior',
     name: 'Weekend Warrior',
-    description: 'Attended 5 shows on a Friday, Saturday, or Sunday.',
+    description: '5 weekend shows this year.',
     category: 'streaks',
     scope: 'year',
     criteria: '5+ attended shows in the year falling on Fri/Sat/Sun.',
@@ -232,8 +220,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'monthly_streak_3',
-    name: 'Three Peat',
-    description: 'Attended at least one show per month for 3 months straight.',
+    name: 'On a Roll',
+    description: 'A show every month for 3 months straight.',
     category: 'streaks',
     scope: 'year',
     criteria: '3 consecutive calendar months within the year each containing 1+ attended show.',
@@ -241,7 +229,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'night_owl',
     name: 'Night Owl',
-    description: 'Attended a show starting at 10 PM or later.',
+    description: 'Caught a show starting at 10 PM or later.',
     category: 'streaks',
     scope: 'year',
     criteria: 'An attended show in the year with time_local >= "22:00".',
@@ -250,8 +238,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ---- Venues & Cities (year) ----
   {
     key: 'venue_regular',
-    name: 'Venue Regular',
-    description: 'Visited the same venue at 5 different shows.',
+    name: 'Regular',
+    description: 'Same venue 5 times this year.',
     category: 'venues',
     scope: 'year',
     criteria: 'Any single venue appears 5+ times in attended shows within the year.',
@@ -260,7 +248,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'city_hopper',
     name: 'City Hopper',
-    description: 'Attended shows in 3 or more cities.',
+    description: 'Shows in 3+ different cities.',
     category: 'venues',
     scope: 'year',
     criteria: '3+ distinct cities across attended shows within the year.',
@@ -269,7 +257,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'home_turf',
     name: 'Home Turf',
-    description: 'Attended 10 shows in a single city.',
+    description: '10 shows in one city.',
     category: 'venues',
     scope: 'year',
     criteria: 'Any single city appears 10+ times in attended shows within the year.',
@@ -280,7 +268,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'artist_fan',
     name: 'Super Fan',
-    description: 'Seen the same artist at 3 different shows.',
+    description: 'Same artist at 3 different shows.',
     category: 'artists',
     scope: 'year',
     criteria: 'Any artist appears on 3+ distinct attended shows within the year.',
@@ -288,8 +276,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'headliner_collector',
-    name: 'Headliner Collector',
-    description: 'Seen 10 unique headliners.',
+    name: 'Headliner Hunter',
+    description: '10 unique headliners this year.',
     category: 'artists',
     scope: 'year',
     criteria: '10+ distinct "Headliner" artist names across attended shows within the year.',
@@ -297,8 +285,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'local_champion',
-    name: 'Local Champion',
-    description: 'Attended 10 shows featuring a local act.',
+    name: 'Local Supporter',
+    description: '10 shows with a local act on the bill.',
     category: 'artists',
     scope: 'year',
     criteria: '10+ attended shows within the year that include a "Local" artist.',
@@ -308,16 +296,16 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   // ---- Social (year) ----
   {
     key: 'solo_adventurer',
-    name: 'Solo Adventurer',
-    description: 'Attended a show as the only person going.',
+    name: 'Lone Wolf',
+    description: 'Went to a show solo.',
     category: 'social',
     scope: 'year',
     criteria: 'At least 1 attended show within the year where the user is the only "going" RSVP.',
   },
   {
     key: 'squad_goals',
-    name: 'Squad Goals',
-    description: 'Attended a show with 5 or more other people.',
+    name: 'Squad Up',
+    description: 'Rolled up with 5+ other people.',
     category: 'social',
     scope: 'year',
     criteria: 'An attended show within the year with 6+ total "going" RSVPs.',
@@ -325,31 +313,13 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     key: 'social_butterfly',
     name: 'Social Butterfly',
-    description: 'Attended shows alongside 10 unique people.',
+    description: 'Shared shows with 10 different people.',
     category: 'social',
     scope: 'year',
     criteria: '10+ distinct co-attendees across attended shows within the year.',
     threshold: 10,
   },
 
-  // ---- Power User (year) ----
-  {
-    key: 'cost_tracker',
-    name: 'Budget Tracker',
-    description: 'Tracked costs for 3 or more shows.',
-    category: 'power_user',
-    scope: 'year',
-    criteria: '3+ distinct shows with cost entries within the year.',
-    threshold: 3,
-  },
-  {
-    key: 'big_spender',
-    name: 'Big Spender',
-    description: 'Tracked over $500 in total spending.',
-    category: 'power_user',
-    scope: 'year',
-    criteria: 'SUM of amount_minor in show_costs >= 50000 ($500) within the year.',
-  },
 ]
 
 /** Quick lookup map */
@@ -374,17 +344,13 @@ interface AttendedShow {
     artist: string
     position: 'Headliner' | 'Support' | 'Local'
     spotify_id?: string
+    image_url?: string
   }>
 }
 
 interface CoAttendance {
   show_id: string
   name: string
-}
-
-interface YearCostSummary {
-  shows_with_costs: number
-  total_spend: number
 }
 
 /**
@@ -431,64 +397,6 @@ async function fetchCoAttendance(showIds: string[]): Promise<CoAttendance[]> {
 }
 
 /**
- * Fetch cost data, partitioned by show year via a join on shows.date_time.
- */
-async function fetchCostsByYear(
-  userId: string,
-): Promise<Map<number, YearCostSummary>> {
-  const { data: costs, error } = await supabase
-    .from('show_costs')
-    .select('show_id, amount_minor')
-    .eq('user_id', userId)
-
-  const result = new Map<number, YearCostSummary>()
-  if (error || !costs || costs.length === 0) return result
-
-  // Get show dates for these cost entries
-  const costShowIds = [...new Set(costs.map((c) => c.show_id))]
-  const { data: shows } = await supabase
-    .from('shows')
-    .select('id, date_time')
-    .in('id', costShowIds)
-
-  if (!shows) return result
-
-  const showYearMap = new Map<string, number>()
-  for (const s of shows) {
-    showYearMap.set(s.id, new Date(s.date_time).getUTCFullYear())
-  }
-
-  const yearShowSets = new Map<number, Set<string>>()
-  for (const c of costs) {
-    const year = showYearMap.get(c.show_id)
-    if (year == null) continue
-    const entry = result.get(year) ?? { shows_with_costs: 0, total_spend: 0 }
-    entry.total_spend += c.amount_minor
-    result.set(year, entry)
-
-    if (!yearShowSets.has(year)) yearShowSets.set(year, new Set())
-    yearShowSets.get(year)!.add(c.show_id)
-  }
-
-  for (const [year, ids] of yearShowSets) {
-    const entry = result.get(year)
-    if (entry) entry.shows_with_costs = ids.size
-  }
-
-  return result
-}
-
-async function fetchUserArtistsCount(userId: string): Promise<number> {
-  const { count, error } = await supabase
-    .from('user_artists')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-
-  if (error) return 0
-  return count ?? 0
-}
-
-/**
  * Fetch all unlocked badges for a user, keyed by "badge_key|scope_year"
  */
 async function fetchUnlockedBadges(
@@ -522,8 +430,6 @@ interface EvalContext {
   userId: string
   allShows: AttendedShow[]
   coAttendance: CoAttendance[]
-  costsByYear: Map<number, YearCostSummary>
-  userArtistsCount: number
   alreadyUnlocked: Map<string, UnlockedBadge>
 }
 
@@ -531,6 +437,15 @@ interface EvalContext {
 interface BadgeGrant {
   key: string
   scope_year: number | null
+  metadata?: Record<string, unknown>
+}
+
+/** Info stored in metadata for artist-specific badges */
+export interface ArtistBadgeInfo {
+  artist_name: string
+  spotify_id: string
+  image_url?: string | null
+  position: string
 }
 
 /**
@@ -611,9 +526,6 @@ function computeLifetimeBadges(ctx: EvalContext): BadgeGrant[] {
     ? Math.max(...friendCounts.values())
     : 0
   if (maxFriendCount >= 5) grant('dynamic_duo')
-
-  // ---- Power User (lifetime) ----
-  if (ctx.userArtistsCount >= 5) grant('release_watcher')
 
   return grants
 }
@@ -777,11 +689,52 @@ function computeYearBadges(ctx: EvalContext, year: number): BadgeGrant[] {
   if (hasSquad) grant('squad_goals')
   if (allFriends.size >= 10) grant('social_butterfly')
 
-  // ---- Power User (year) ----
-  const yearCosts = ctx.costsByYear.get(year)
-  if (yearCosts) {
-    if (yearCosts.shows_with_costs >= 3) grant('cost_tracker')
-    if (yearCosts.total_spend >= 50000) grant('big_spender')
+  return grants
+}
+
+/**
+ * Compute artist-specific badges for a given year.
+ * One badge per unique artist the user saw that year.
+ * Key: "artist_seen:{spotify_id}"
+ */
+function computeArtistBadges(ctx: EvalContext, year: number): BadgeGrant[] {
+  const grants: BadgeGrant[] = []
+  const shows = showsForYear(ctx.allShows, year)
+
+  // Track unique artists by spotify_id to avoid duplicates from name variations
+  const seenArtists = new Map<
+    string,
+    { artist_name: string; spotify_id: string; image_url?: string; position: string }
+  >()
+
+  for (const s of shows) {
+    for (const a of s.show_artists) {
+      const sid = a.spotify_id
+      if (!sid || seenArtists.has(sid)) continue
+      seenArtists.set(sid, {
+        artist_name: a.artist,
+        spotify_id: sid,
+        image_url: a.image_url,
+        position: a.position,
+      })
+    }
+  }
+
+  for (const [sid, info] of seenArtists) {
+    const badgeKey = `artist_seen:${sid}`
+    const k = unlockKey(badgeKey, year)
+    if (!ctx.alreadyUnlocked.has(k)) {
+      grants.push({
+        key: badgeKey,
+        scope_year: year,
+        metadata: {
+          artist_name: info.artist_name,
+          spotify_id: info.spotify_id,
+          image_url: info.image_url ?? null,
+          position: info.position,
+        },
+      })
+    }
   }
 
   return grants
@@ -802,11 +755,14 @@ async function persistBadges(
   if (grants.length === 0) return
 
   for (const g of grants) {
-    const row = {
+    const row: Record<string, unknown> = {
       user_id: userId,
       badge_key: g.key,
       scope_year: g.scope_year,
       unlocked_at: new Date().toISOString(),
+    }
+    if (g.metadata) {
+      row.metadata = g.metadata
     }
 
     const { error } = await supabase.from('user_badges').insert(row)
@@ -834,12 +790,10 @@ export async function evaluateAndUnlockBadges(
   years?: number[],
 ): Promise<string[]> {
   try {
-    const [allShows, alreadyUnlocked, costsByYear, userArtistsCount] =
+    const [allShows, alreadyUnlocked] =
       await Promise.all([
         fetchAttendedShows(userId),
         fetchUnlockedBadges(userId),
-        fetchCostsByYear(userId),
-        fetchUserArtistsCount(userId),
       ])
 
     const showIds = allShows.map((s) => s.id)
@@ -849,8 +803,6 @@ export async function evaluateAndUnlockBadges(
       userId,
       allShows,
       coAttendance,
-      costsByYear,
-      userArtistsCount,
       alreadyUnlocked,
     }
 
@@ -870,6 +822,7 @@ export async function evaluateAndUnlockBadges(
     const yearGrants: BadgeGrant[] = []
     for (const y of targetYears) {
       yearGrants.push(...computeYearBadges(ctx, y))
+      yearGrants.push(...computeArtistBadges(ctx, y))
     }
 
     const allGrants = [...lifetimeGrants, ...yearGrants]
@@ -889,9 +842,23 @@ export async function evaluateAndUnlockBadges(
  * Fetch all badges for a user, organized for the UI.
  * Returns lifetime badges and year-scoped badges per year.
  */
+export interface ArtistBadgeWithStatus {
+  badge_key: string
+  artist_name: string
+  spotify_id: string
+  image_url: string | null
+  position: string
+  unlocked_at: string
+  scope_year: number
+}
+
 export async function getUserBadgesGrouped(userId: string): Promise<{
   lifetime: BadgeWithStatus[]
-  years: Array<{ year: number; badges: BadgeWithStatus[] }>
+  years: Array<{
+    year: number
+    badges: BadgeWithStatus[]
+    artistBadges: ArtistBadgeWithStatus[]
+  }>
   attendedYears: number[]
 }> {
   const [unlockedData, allShows] = await Promise.all([
@@ -937,6 +904,27 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
 
   const sortedYears = Array.from(attendedYears).sort((a, b) => b - a)
 
+  // Collect artist badges from unlocked data
+  const artistBadgesByYear = new Map<number, ArtistBadgeWithStatus[]>()
+  for (const row of unlockedData) {
+    if (row.badge_key.startsWith('artist_seen:') && row.scope_year != null) {
+      const meta = row.metadata as ArtistBadgeInfo | null
+      if (!meta) continue
+      if (!artistBadgesByYear.has(row.scope_year)) {
+        artistBadgesByYear.set(row.scope_year, [])
+      }
+      artistBadgesByYear.get(row.scope_year)!.push({
+        badge_key: row.badge_key,
+        artist_name: meta.artist_name,
+        spotify_id: meta.spotify_id,
+        image_url: meta.image_url ?? null,
+        position: meta.position ?? 'Support',
+        unlocked_at: row.unlocked_at,
+        scope_year: row.scope_year,
+      })
+    }
+  }
+
   const years = sortedYears.map((year) => {
     const badges: BadgeWithStatus[] = YEAR_BADGES.map((def) => {
       const u = unlockedMap.get(unlockKey(def.key, year))
@@ -948,7 +936,10 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
         metadata: u?.metadata ?? null,
       }
     })
-    return { year, badges }
+    const artistBadges = (artistBadgesByYear.get(year) ?? []).sort((a, b) =>
+      a.artist_name.localeCompare(b.artist_name),
+    )
+    return { year, badges, artistBadges }
   })
 
   return { lifetime, years, attendedYears: sortedYears }

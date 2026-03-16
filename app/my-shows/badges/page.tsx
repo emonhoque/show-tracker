@@ -27,9 +27,20 @@ interface BadgeResponse {
   image_url: string | null
 }
 
+interface ArtistBadge {
+  badge_key: string
+  artist_name: string
+  spotify_id: string
+  image_url: string | null
+  position: string
+  unlocked_at: string
+  scope_year: number
+}
+
 interface YearGroup {
   year: number
   badges: BadgeResponse[]
+  artistBadges: ArtistBadge[]
 }
 
 interface BadgesPayload {
@@ -53,7 +64,6 @@ const CATEGORY_META: Record<BadgeCategory, { label: string; icon: string }> = {
   venues: { label: 'Venues & Cities', icon: '📍' },
   artists: { label: 'Artists', icon: '🎤' },
   social: { label: 'Social', icon: '👥' },
-  power_user: { label: 'Power User', icon: '⚡' },
 }
 
 const CATEGORY_ORDER: BadgeCategory[] = [
@@ -62,7 +72,6 @@ const CATEGORY_ORDER: BadgeCategory[] = [
   'venues',
   'artists',
   'social',
-  'power_user',
 ]
 
 // ---- Placeholder badge icon by category ----
@@ -73,7 +82,6 @@ const PLACEHOLDER_ICONS: Record<BadgeCategory, string> = {
   venues: '🏟️',
   artists: '🎵',
   social: '🤝',
-  power_user: '💎',
 }
 
 function formatDate(iso: string): string {
@@ -170,13 +178,18 @@ export default function BadgesPage() {
   }
 
   // Compute totals across all scopes
+  const totalArtistBadges = data
+    ? data.years.reduce((s, y) => s + y.artistBadges.length, 0)
+    : 0
   const totalUnlocked = data
     ? data.summary.lifetimeUnlocked +
-      data.summary.unlockedByYear.reduce((s, y) => s + y.unlocked, 0)
+      data.summary.unlockedByYear.reduce((s, y) => s + y.unlocked, 0) +
+      totalArtistBadges
     : 0
   const totalBadges = data
     ? data.summary.lifetimeTotal +
-      data.summary.unlockedByYear.reduce((s, y) => s + y.total, 0)
+      data.summary.unlockedByYear.reduce((s, y) => s + y.total, 0) +
+      totalArtistBadges
     : 0
 
   return (
@@ -335,16 +348,17 @@ export default function BadgesPage() {
               const yearStats = data.summary.unlockedByYear.find(
                 (u) => u.year === yg.year,
               )
+              const yearArtistCount = yg.artistBadges.length
+              const yearTotalUnlocked =
+                (yearStats?.unlocked ?? 0) + yearArtistCount
+              const yearTotal = (yearStats?.total ?? 0) + yearArtistCount
               return (
                 <CollapsibleBadgeSection
                   key={yg.year}
                   title={String(yg.year)}
-                  subtitle={
-                    yearStats
-                      ? `${yearStats.unlocked} / ${yearStats.total}`
-                      : undefined
-                  }
+                  subtitle={`${yearTotalUnlocked} / ${yearTotal}`}
                   badges={yg.badges}
+                  artistBadges={yg.artistBadges}
                   defaultOpen={idx === 0}
                 />
               )
@@ -362,11 +376,13 @@ function CollapsibleBadgeSection({
   title,
   subtitle,
   badges,
+  artistBadges,
   defaultOpen = false,
 }: {
   title: string
   subtitle?: string
   badges: BadgeResponse[]
+  artistBadges?: ArtistBadge[]
   defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -421,6 +437,27 @@ function CollapsibleBadgeSection({
               </div>
             )
           })}
+
+          {/* Artist badges section */}
+          {artistBadges && artistBadges.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🎸</span>
+                <h3 className="text-sm font-medium text-foreground">
+                  Artists Seen
+                </h3>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  {artistBadges.length}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                {artistBadges.map((ab) => (
+                  <ArtistBadgeCard key={ab.badge_key} badge={ab} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -473,6 +510,35 @@ function BadgeCard({ badge }: { badge: BadgeResponse }) {
             Unlocked {formatDate(badge.unlocked_at)}
           </p>
         )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// ---- Artist badge card ----
+
+function ArtistBadgeCard({ badge }: { badge: ArtistBadge }) {
+  return (
+    <Card className="border-primary/40 bg-primary/5 transition-all duration-200">
+      <CardContent className="py-3 px-2 flex flex-col items-center text-center gap-1.5">
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+          {badge.image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={badge.image_url}
+              alt={badge.artist_name}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <span className="text-lg">🎤</span>
+          )}
+        </div>
+        <p className="text-xs font-semibold text-foreground leading-tight line-clamp-2">
+          {badge.artist_name}
+        </p>
+        <p className="text-[10px] text-muted-foreground capitalize">
+          {badge.position.toLowerCase()}
+        </p>
       </CardContent>
     </Card>
   )
