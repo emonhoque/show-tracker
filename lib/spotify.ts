@@ -43,11 +43,13 @@ async function getAccessToken(): Promise<string> {
   return accessToken
 }
 
-export async function searchArtists(query: string, limit: number = 20): Promise<SpotifyArtist[]> {
+export async function searchArtists(query: string, limit: number = 10): Promise<SpotifyArtist[]> {
   const token = await getAccessToken()
+  // Feb 2026: Search limit max reduced from 50 to 10
+  const clampedLimit = Math.min(limit, 10)
   
   const response = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=${limit}`,
+    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=${clampedLimit}`,
     {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -56,7 +58,9 @@ export async function searchArtists(query: string, limit: number = 20): Promise<
   )
 
   if (!response.ok) {
-    throw new Error(`Spotify API error: ${response.statusText}`)
+    const errorBody = await response.text().catch(() => 'no body')
+    console.error(`Spotify search error: ${response.status} ${response.statusText}`, errorBody)
+    throw new Error(`Spotify API error: ${response.status} ${response.statusText}`)
   }
 
   const data = await response.json()
@@ -76,7 +80,9 @@ export async function getArtist(artistId: string): Promise<SpotifyArtist> {
   )
 
   if (!response.ok) {
-    throw new Error(`Spotify API error: ${response.statusText}`)
+    const errorBody = await response.text().catch(() => 'no body')
+    console.error(`Spotify getArtist error for ${artistId}: ${response.status} ${response.statusText}`, errorBody)
+    throw new Error(`Spotify API error: ${response.status} ${response.statusText}`)
   }
 
   return response.json()
@@ -85,8 +91,10 @@ export async function getArtist(artistId: string): Promise<SpotifyArtist> {
 export async function getArtistAlbums(artistId: string, limit: number = 50): Promise<SpotifyRelease[]> {
   const token = await getAccessToken()
   
+  // Feb 2026: album_group field removed; include_groups parameter may no longer work.
+  // Fetch all albums and filter client-side by album_type instead.
   const response = await fetch(
-    `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=${limit}&market=US`,
+    `https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&market=US`,
     {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -95,31 +103,25 @@ export async function getArtistAlbums(artistId: string, limit: number = 50): Pro
   )
 
   if (!response.ok) {
-    throw new Error(`Spotify API error: ${response.statusText}`)
+    const errorBody = await response.text().catch(() => 'no body')
+    console.error(`Spotify getArtistAlbums error for ${artistId}: ${response.status} ${response.statusText}`, errorBody)
+    throw new Error(`Spotify API error: ${response.status} ${response.statusText}`)
   }
 
   const data = await response.json()
-  return data.items
+  // Filter client-side to only albums and singles (replaces include_groups param)
+  const items: SpotifyRelease[] = data.items ?? []
+  return items.filter(item => item.album_type === 'album' || item.album_type === 'single')
 }
 
-export async function getNewReleases(limit: number = 50): Promise<SpotifyRelease[]> {
-  const token = await getAccessToken()
-  
-  const response = await fetch(
-    `https://api.spotify.com/v1/browse/new-releases?limit=${limit}&market=US`,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error(`Spotify API error: ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  return data.albums.items
+/**
+ * @deprecated Removed in February 2026 Spotify API changes.
+ * GET /browse/new-releases is no longer available.
+ * Use getArtistAlbums() per-artist instead.
+ */
+export async function getNewReleases(_limit: number = 50): Promise<SpotifyRelease[]> {
+  console.warn('getNewReleases() is no longer available — GET /browse/new-releases was removed in Feb 2026')
+  return []
 }
 
 export function mapSpotifyArtistToArtist(spotifyArtist: SpotifyArtist, createdBy?: string) {
@@ -129,8 +131,9 @@ export function mapSpotifyArtistToArtist(spotifyArtist: SpotifyArtist, createdBy
     spotify_url: spotifyArtist.external_urls.spotify,
     image_url: spotifyArtist.images?.[0]?.url || null,
     genres: spotifyArtist.genres || [],
-    popularity: spotifyArtist.popularity || null,
-    followers_count: spotifyArtist.followers?.total || null,
+    // Feb 2026: popularity and followers removed from Artist responses
+    popularity: spotifyArtist.popularity ?? null,
+    followers_count: spotifyArtist.followers?.total ?? null,
     created_by: createdBy || null,
     is_active: true
   }

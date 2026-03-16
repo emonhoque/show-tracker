@@ -95,8 +95,9 @@ export interface SpotifyArtist {
     width: number
   }>
   genres: string[]
-  popularity: number
-  followers: {
+  // Feb 2026: popularity and followers removed from Spotify API responses
+  popularity?: number
+  followers?: {
     total: number
   }
 }
