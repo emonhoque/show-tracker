@@ -440,23 +440,7 @@ function CollapsibleBadgeSection({
 
           {/* Artist badges section */}
           {artistBadges && artistBadges.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-base">🎸</span>
-                <h3 className="text-sm font-medium text-foreground">
-                  Artists Seen
-                </h3>
-                <span className="text-xs text-muted-foreground ml-auto">
-                  {artistBadges.length}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                {artistBadges.map((ab) => (
-                  <ArtistBadgeCard key={ab.badge_key} badge={ab} />
-                ))}
-              </div>
-            </div>
+            <ArtistBadgesSection artistBadges={artistBadges} />
           )}
         </div>
       )}
@@ -518,28 +502,62 @@ function BadgeCard({ badge }: { badge: BadgeResponse }) {
 // ---- Artist badge card ----
 
 function ArtistBadgeCard({ badge }: { badge: ArtistBadge }) {
+  const proxiedUrl = badge.image_url
+    ? `/api/image-proxy?url=${encodeURIComponent(badge.image_url)}`
+    : null
+
   return (
-    <Card className="border-primary/40 bg-primary/5 transition-all duration-200">
-      <CardContent className="py-3 px-2 flex flex-col items-center text-center gap-1.5">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-          {badge.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={badge.image_url}
-              alt={badge.artist_name}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <span className="text-lg">🎤</span>
-          )}
+    <div className="flex flex-col items-center gap-1 p-1.5">
+      <div className="w-9 h-9 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+        {proxiedUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={proxiedUrl}
+            alt={badge.artist_name}
+            className="w-9 h-9 rounded-full object-cover"
+          />
+        ) : (
+          <span className="text-sm">🎤</span>
+        )}
+      </div>
+      <p className="text-[10px] font-medium text-foreground leading-tight text-center line-clamp-1 w-full">
+        {badge.artist_name}
+      </p>
+    </div>
+  )
+}
+
+// ---- Collapsible artist badges section ----
+
+function ArtistBadgesSection({ artistBadges }: { artistBadges: ArtistBadge[] }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 w-full text-left"
+      >
+        <span className="text-base">🎸</span>
+        <h3 className="text-sm font-medium text-foreground">Artists Seen</h3>
+        <span className="text-xs text-muted-foreground ml-auto mr-1">
+          {artistBadges.length}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 text-muted-foreground transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1">
+          {artistBadges.map((ab) => (
+            <ArtistBadgeCard key={ab.badge_key} badge={ab} />
+          ))}
         </div>
-        <p className="text-xs font-semibold text-foreground leading-tight line-clamp-2">
-          {badge.artist_name}
-        </p>
-        <p className="text-[10px] text-muted-foreground capitalize">
-          {badge.position.toLowerCase()}
-        </p>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   )
 }
