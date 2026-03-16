@@ -475,7 +475,7 @@ export interface SecretArtistBadge {
 
 /**
  * Fetch secret artist badge definitions from the database.
- * These are managed via the admin UI at /my-shows/badges/admin.
+ * These are managed via the admin UI at /my-profile/badges/admin.
  */
 export async function fetchSecretArtistBadges(): Promise<SecretArtistBadge[]> {
   const { data, error } = await supabase

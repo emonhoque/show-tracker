@@ -185,7 +185,7 @@ export default function RecapPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push('/my-shows')}
+              onClick={() => router.push('/my-profile')}
               className="p-1"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -204,7 +204,7 @@ export default function RecapPage() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add Show
               </Button>
-              <Button onClick={() => router.push('/my-shows')} variant="outline" size="sm">
+              <Button onClick={() => router.push('/my-profile')} variant="outline" size="sm">
                 <User className="w-4 h-4 mr-1" />
                 My Profile
               </Button>
@@ -236,7 +236,7 @@ export default function RecapPage() {
                     <Plus className="mr-3 h-4 w-4" />
                     Add Show
                   </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows')}>
+                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-profile')}>
                     <User className="mr-3 h-4 w-4" />
                     My Profile
                   </DropdownMenu.DropdownMenuItem>

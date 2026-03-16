@@ -269,7 +269,7 @@ export default function BadgesPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push('/my-shows')}
+              onClick={() => router.push('/my-profile')}
               className="p-1"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -290,7 +290,7 @@ export default function BadgesPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/my-shows/badges/admin')}
+                onClick={() => router.push('/my-profile/badges/admin')}
               >
                 <Shield className="w-4 h-4" />
               </Button>

@@ -188,14 +188,14 @@ export default function MyShowsPage() {
           <div className="shrink-0 w-px bg-border mx-1 self-stretch" />
           <button
             type="button"
-            onClick={() => router.push('/my-shows/recap')}
+            onClick={() => router.push('/my-profile/recap')}
             className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
           >
             <BarChart3 className="w-3.5 h-3.5 mr-1 inline" /> Recap
           </button>
           <button
             type="button"
-            onClick={() => router.push('/my-shows/badges')}
+            onClick={() => router.push('/my-profile/badges')}
             className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
           >
             <Trophy className="w-3.5 h-3.5 mr-1 inline" /> Badges

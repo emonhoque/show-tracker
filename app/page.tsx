@@ -507,7 +507,7 @@ export default function Home() {
                 <Plus className="w-4 h-4 mr-1" />
                 Add
               </Button>
-              <Button onClick={() => window.location.href = '/my-shows'} variant="outline" size="sm">
+              <Button onClick={() => window.location.href = '/my-profile'} variant="outline" size="sm">
                 <User className="w-4 h-4 mr-1" />
                 My Profile
               </Button>
@@ -536,7 +536,7 @@ export default function Home() {
                   </Button>
                 </DropdownMenu.DropdownMenuTrigger>
                 <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
-                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/my-shows'} className="py-3">
+                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/my-profile'} className="py-3">
                     <User className="mr-3 h-4 w-4" />
                     My Profile
                   </DropdownMenu.DropdownMenuItem>
