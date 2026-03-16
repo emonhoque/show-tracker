@@ -182,7 +182,6 @@ export default function RecapPage() {
         title="Recap"
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
         backHref="/my-profile"
-        addShowHref="/"
         showMyProfile
         showHome
         showLogout

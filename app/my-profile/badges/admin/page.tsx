@@ -372,7 +372,6 @@ export default function BadgesAdminPage() {
         titleIcon={<Shield className="w-5 h-5" />}
         subtitle={`${definitions.length} definition${definitions.length !== 1 ? 's' : ''}`}
         backHref="/my-profile/badges"
-        addShowHref="/"
         showMyProfile
         showHome
         showLogout

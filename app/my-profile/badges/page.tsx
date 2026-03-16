@@ -267,7 +267,6 @@ export default function BadgesPage() {
         title="My Badges"
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
         backHref="/my-profile"
-        addShowHref="/"
         showMyProfile
         showHome
         showLogout
@@ -313,7 +312,7 @@ export default function BadgesPage() {
             {/* ---- Tab bar ---- */}
             <div
               ref={tabBarRef}
-              className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4"
+              className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 scroll-hint-bounce"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {tabs.map((tab) => {
