@@ -28,7 +28,6 @@ export default function MyShowsPage() {
   const [past, setPast] = useState<ShowWithCosts[]>([])
   const [loading, setLoading] = useState(false)
   const [spendingOpen, setSpendingOpen] = useState(false)
-  const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()])
 
   const router = useRouter()
   const { showToast } = useToast()
@@ -40,10 +39,6 @@ export default function MyShowsPage() {
       setUserName(storedName)
       setAuthenticated(true)
     }
-    fetch('/api/shows/years')
-      .then((r) => r.json())
-      .then((d) => { if (d.years?.length) setAvailableYears(d.years) })
-      .catch(() => {})
   }, [])
 
   const fetchData = useCallback(async () => {
@@ -84,6 +79,15 @@ export default function MyShowsPage() {
     setAuthenticated(false)
     setUserName(null)
     router.push('/')
+  }
+
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear()
+    const years = []
+    for (let year = currentYear; year >= 2023; year--) {
+      years.push(year)
+    }
+    return years
   }
 
   if (!mounted) {
@@ -167,7 +171,7 @@ export default function MyShowsPage() {
           className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          {availableYears.map((year) => (
+          {generateYearOptions().map((year) => (
             <button
               key={year}
               type="button"

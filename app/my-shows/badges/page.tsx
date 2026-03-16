@@ -209,7 +209,7 @@ export default function BadgesPage() {
   const tabs: TabDef[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'lifetime', label: 'Lifetime' },
-    ...(data?.years.map((yg) => ({ id: yg.year as TabId, label: String(yg.year) })) ?? []),
+    ...(data?.years.map((yg) => ({ id: yg.year as TabId, label: String(yg.year) })).reverse() ?? []),
     ...(data && data.secretArtists.length > 0
       ? [{ id: 'secret' as TabId, label: 'Secret', icon: <Lock className="w-3.5 h-3.5" /> }]
       : []),
