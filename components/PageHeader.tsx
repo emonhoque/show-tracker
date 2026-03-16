@@ -147,6 +147,7 @@ export function PageHeader({
                 Add
               </Button>
             )}
+            {extraButtons}
             {hasMobileDropdown && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
