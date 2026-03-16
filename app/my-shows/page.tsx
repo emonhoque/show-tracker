@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, ArrowLeft } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, ArrowLeft, BarChart3, Trophy } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
@@ -191,14 +191,14 @@ export default function MyShowsPage() {
             onClick={() => router.push('/my-shows/recap')}
             className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
           >
-            📊 Recap
+            <BarChart3 className="w-3.5 h-3.5 mr-1 inline" /> Recap
           </button>
           <button
             type="button"
             onClick={() => router.push('/my-shows/badges')}
             className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
           >
-            🏆 Badges
+            <Trophy className="w-3.5 h-3.5 mr-1 inline" /> Badges
           </button>
         </div>
 

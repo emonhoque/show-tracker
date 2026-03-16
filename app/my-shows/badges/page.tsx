@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Trophy, Lock, Sparkles, Shield, ArrowLeft } from 'lucide-react'
+import { Trophy, Lock, Sparkles, Shield, ArrowLeft, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
+import type { ReactNode } from 'react'
 
 // ---- Types matching the grouped API response ----
 
@@ -60,12 +61,12 @@ interface BadgesPayload {
 
 // ---- Category display helpers ----
 
-const CATEGORY_META: Record<BadgeCategory, { label: string; icon: string }> = {
-  attendance: { label: 'Attendance', icon: '🎟️' },
-  streaks: { label: 'Streaks & Timing', icon: '🔥' },
-  venues: { label: 'Venues & Cities', icon: '📍' },
-  artists: { label: 'Artists', icon: '🎤' },
-  social: { label: 'Social', icon: '👥' },
+const CATEGORY_META: Record<BadgeCategory, { label: string; icon: ReactNode }> = {
+  attendance: { label: 'Attendance', icon: <Ticket className="w-4 h-4" /> },
+  streaks: { label: 'Streaks & Timing', icon: <Flame className="w-4 h-4" /> },
+  venues: { label: 'Venues & Cities', icon: <MapPin className="w-4 h-4" /> },
+  artists: { label: 'Artists', icon: <Mic className="w-4 h-4" /> },
+  social: { label: 'Social', icon: <Users className="w-4 h-4" /> },
 }
 
 const CATEGORY_ORDER: BadgeCategory[] = [
@@ -78,12 +79,12 @@ const CATEGORY_ORDER: BadgeCategory[] = [
 
 // ---- Placeholder badge icon by category ----
 
-const PLACEHOLDER_ICONS: Record<BadgeCategory, string> = {
-  attendance: '🎫',
-  streaks: '🔥',
-  venues: '🏟️',
-  artists: '🎵',
-  social: '🤝',
+const PLACEHOLDER_ICONS: Record<BadgeCategory, ReactNode> = {
+  attendance: <Ticket className="w-6 h-6 text-primary/70" />,
+  streaks: <Flame className="w-6 h-6 text-primary/70" />,
+  venues: <Building2 className="w-6 h-6 text-primary/70" />,
+  artists: <Music className="w-6 h-6 text-primary/70" />,
+  social: <Handshake className="w-6 h-6 text-primary/70" />,
 }
 
 function formatDate(iso: string): string {
@@ -117,6 +118,7 @@ type TabId = 'overview' | 'lifetime' | 'secret' | number
 interface TabDef {
   id: TabId
   label: string
+  icon?: ReactNode
 }
 
 // ---- Page component ----
@@ -209,7 +211,7 @@ export default function BadgesPage() {
     { id: 'lifetime', label: 'Lifetime' },
     ...(data?.years.map((yg) => ({ id: yg.year as TabId, label: String(yg.year) })) ?? []),
     ...(data && data.secretArtists.length > 0
-      ? [{ id: 'secret' as TabId, label: '🔒 Secret' }]
+      ? [{ id: 'secret' as TabId, label: 'Secret', icon: <Lock className="w-3.5 h-3.5" /> }]
       : []),
   ]
 
@@ -331,6 +333,7 @@ export default function BadgesPage() {
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
                     }`}
                   >
+                    {tab.icon && <span className="mr-1 inline-flex">{tab.icon}</span>}
                     {tab.label}
                   </button>
                 )
@@ -419,7 +422,7 @@ export default function BadgesPage() {
                                   className="w-14 h-14 rounded-full object-cover"
                                 />
                               ) : (
-                                <span className="text-2xl">🎤</span>
+                                <Mic className="w-7 h-7 text-primary/70" />
                               )}
                             </div>
                             <p className="text-[11px] font-medium text-foreground leading-tight">
@@ -537,8 +540,8 @@ export default function BadgesPage() {
                           onClick={() => setActiveTab('secret')}
                           className="bg-card border border-border rounded-lg p-3 text-left hover:border-primary/40 transition-colors"
                         >
-                          <p className="text-xs text-muted-foreground">
-                            🔒 Secret
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Lock className="w-3 h-3" /> Secret
                           </p>
                           <p className="text-lg font-bold text-foreground">
                             {secretUnlocked + yearlySecretUnlocked}
@@ -670,7 +673,7 @@ function BadgeGrid({
       {hasSecrets && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-base">🔒</span>
+            <Lock className="w-4 h-4" />
             <h3 className="text-sm font-medium text-foreground">Secret</h3>
             <span className="text-xs text-muted-foreground ml-auto">
               {secretBadges.filter((s) => s.unlocked).length}/?
@@ -777,7 +780,7 @@ function SecretBadgesTab({ badges }: { badges: SecretArtistBadge[] }) {
     <div className="space-y-6">
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          🔒 Secret Badges
+          <Lock className="w-5 h-5" /> Secret Badges
         </h2>
         <p className="text-sm text-muted-foreground">
           {allUnlocked} unlocked — see the right artists to discover more
@@ -880,7 +883,7 @@ function SecretArtistCard({ badge }: { badge: SecretArtistBadge }) {
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (
-            <span className="text-2xl">🎤</span>
+            <Mic className="w-6 h-6 text-primary/70" />
           )}
         </div>
         <p className="text-sm font-semibold text-foreground leading-tight">
