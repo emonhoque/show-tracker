@@ -62,11 +62,11 @@ interface BadgesPayload {
 // ---- Category display helpers ----
 
 const CATEGORY_META: Record<BadgeCategory, { label: string; icon: ReactNode }> = {
-  attendance: { label: 'Attendance', icon: <Ticket className="w-4 h-4" /> },
-  streaks: { label: 'Streaks & Timing', icon: <Flame className="w-4 h-4" /> },
-  venues: { label: 'Venues & Cities', icon: <MapPin className="w-4 h-4" /> },
-  artists: { label: 'Artists', icon: <Mic className="w-4 h-4" /> },
-  social: { label: 'Social', icon: <Users className="w-4 h-4" /> },
+  attendance: { label: 'Attendance', icon: <Ticket className="w-4 h-4 text-blue-500" /> },
+  streaks: { label: 'Streaks & Timing', icon: <Flame className="w-4 h-4 text-orange-500" /> },
+  venues: { label: 'Venues & Cities', icon: <MapPin className="w-4 h-4 text-green-500" /> },
+  artists: { label: 'Artists', icon: <Mic className="w-4 h-4 text-purple-500" /> },
+  social: { label: 'Social', icon: <Users className="w-4 h-4 text-pink-500" /> },
 }
 
 const CATEGORY_ORDER: BadgeCategory[] = [
@@ -80,11 +80,11 @@ const CATEGORY_ORDER: BadgeCategory[] = [
 // ---- Placeholder badge icon by category ----
 
 const PLACEHOLDER_ICONS: Record<BadgeCategory, ReactNode> = {
-  attendance: <Ticket className="w-6 h-6 text-primary/70" />,
-  streaks: <Flame className="w-6 h-6 text-primary/70" />,
-  venues: <Building2 className="w-6 h-6 text-primary/70" />,
-  artists: <Music className="w-6 h-6 text-primary/70" />,
-  social: <Handshake className="w-6 h-6 text-primary/70" />,
+  attendance: <Ticket className="w-6 h-6 text-blue-500/70" />,
+  streaks: <Flame className="w-6 h-6 text-orange-500/70" />,
+  venues: <Building2 className="w-6 h-6 text-green-500/70" />,
+  artists: <Music className="w-6 h-6 text-purple-500/70" />,
+  social: <Handshake className="w-6 h-6 text-pink-500/70" />,
 }
 
 function formatDate(iso: string): string {
