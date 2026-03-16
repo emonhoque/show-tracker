@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, ArrowLeft, BarChart3, Trophy } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, ArrowLeft, BarChart3, Trophy, Home } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {

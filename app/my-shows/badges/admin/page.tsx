@@ -17,6 +17,7 @@ import {
   Pencil,
   Check,
   X,
+  Home,
 } from 'lucide-react'
 
 // ---- Types ----
@@ -389,7 +390,11 @@ export default function BadgesAdminPage() {
               </p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="p-1">
+              <Home className="w-4 h-4" />
+            </Button>
+            <ThemeToggle />
         </div>
       </header>
 

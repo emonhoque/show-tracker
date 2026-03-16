@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Trophy, Lock, Sparkles, Shield, ArrowLeft, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake } from 'lucide-react'
+import { Trophy, Lock, Sparkles, Shield, ArrowLeft, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake, Home } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
 import type { ReactNode } from 'react'
@@ -295,6 +295,9 @@ export default function BadgesPage() {
                 <Shield className="w-4 h-4" />
               </Button>
             )}
+            <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="p-1">
+              <Home className="w-4 h-4" />
+            </Button>
             <ThemeToggle />
           </div>
         </div>

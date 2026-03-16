@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu, Play, User, ArrowLeft } from 'lucide-react'
+import { LogOut, Copy, Plus, Menu, Play, User, ArrowLeft, Home } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
@@ -217,9 +217,8 @@ export default function RecapPage() {
             
             {/* Mobile dropdown menu */}
             <div className="sm:hidden flex gap-2">
-              <Button onClick={() => router.push('/')} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add
+              <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="p-1">
+                <Home className="w-4 h-4" />
               </Button>
               <DropdownMenu.DropdownMenu>
                 <DropdownMenu.DropdownMenuTrigger asChild>
