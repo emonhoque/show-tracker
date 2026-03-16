@@ -23,6 +23,7 @@ export default function RecapPage() {
   const [loading, setLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [showStoryPlayer, setShowStoryPlayer] = useState(false)
+  const [availableYears, setAvailableYears] = useState<number[]>([new Date().getFullYear()])
 
   const router = useRouter()
 
@@ -52,6 +53,10 @@ export default function RecapPage() {
       setUserName(storedName)
       setAuthenticated(true)
     }
+    fetch('/api/shows/years')
+      .then((r) => r.json())
+      .then((d) => { if (d.years?.length) setAvailableYears(d.years) })
+      .catch(() => {})
   }, [])
 
   // Fetch recap data when year changes
@@ -106,15 +111,6 @@ export default function RecapPage() {
     } catch (error) {
       console.error('Failed to copy text:', error)
     }
-  }
-
-  const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear()
-    const years = []
-    for (let year = 2023; year <= currentYear; year++) {
-      years.push(year)
-    }
-    return years
   }
 
   // Transform API RecapData to Story RecapData format
@@ -256,7 +252,7 @@ export default function RecapPage() {
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Year Selector */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {generateYearOptions().map(year => (
+          {availableYears.map(year => (
             <button
               key={year}
               onClick={() => setSelectedYear(year)}
