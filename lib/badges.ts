@@ -440,12 +440,49 @@ interface BadgeGrant {
   metadata?: Record<string, unknown>
 }
 
-/** Info stored in metadata for artist-specific badges */
-export interface ArtistBadgeInfo {
-  artist_name: string
+// ---------------------------------------------------------------------------
+// 5b. Secret artist badges — curated list
+// ---------------------------------------------------------------------------
+//
+// To add a new secret artist badge:
+//   1. Add an entry to SECRET_ARTIST_BADGES below.
+//   2. Set `spotify_id` to the artist's Spotify ID (from the URL).
+//   3. Give it a unique `key` (convention: "secret_<short_name>").
+//   4. Write a custom `name` and `description` — this is what shows
+//      when the user unlocks it.
+//   5. Optionally set `image_url` for a custom badge image, otherwise
+//      the artist's Spotify image from the show data is used.
+//
+// These badges are HIDDEN until unlocked. The user won't know which
+// artists have secret badges. They unlock once (lifetime) when the
+// user has attended any show featuring that artist.
+// ---------------------------------------------------------------------------
+
+export interface SecretArtistBadge {
+  /** Unique badge key stored in DB, e.g. "secret_excision" */
+  key: string
+  /** Spotify artist ID — matched against show_artists[].spotify_id */
   spotify_id: string
-  image_url?: string | null
-  position: string
+  /** Display name shown when unlocked */
+  name: string
+  /** Flavor text shown when unlocked */
+  description: string
+  /** Optional custom image URL; falls back to artist image from show data */
+  image_url?: string
+}
+
+/**
+ * Fetch secret artist badge definitions from the database.
+ * These are managed via the admin UI at /my-shows/badges/admin.
+ */
+export async function fetchSecretArtistBadges(): Promise<SecretArtistBadge[]> {
+  const { data, error } = await supabase
+    .from('secret_badge_definitions')
+    .select('key, spotify_id, name, description, image_url')
+    .order('created_at', { ascending: true })
+
+  if (error || !data) return []
+  return data as SecretArtistBadge[]
 }
 
 /**
@@ -693,48 +730,45 @@ function computeYearBadges(ctx: EvalContext, year: number): BadgeGrant[] {
 }
 
 /**
- * Compute artist-specific badges for a given year.
- * One badge per unique artist the user saw that year.
- * Key: "artist_seen:{spotify_id}"
+ * Compute secret artist badges (lifetime). Unlocks once per artist
+ * the first time the user attends any show featuring that artist.
  */
-function computeArtistBadges(ctx: EvalContext, year: number): BadgeGrant[] {
+function computeSecretArtistBadges(
+  ctx: EvalContext,
+  definitions: SecretArtistBadge[],
+): BadgeGrant[] {
+  if (definitions.length === 0) return []
+
   const grants: BadgeGrant[] = []
-  const shows = showsForYear(ctx.allShows, year)
 
-  // Track unique artists by spotify_id to avoid duplicates from name variations
-  const seenArtists = new Map<
-    string,
-    { artist_name: string; spotify_id: string; image_url?: string; position: string }
-  >()
-
-  for (const s of shows) {
+  // Collect all spotify IDs the user has seen across all shows
+  const seenSpotifyIds = new Map<string, { artist_name: string; image_url?: string }>()
+  for (const s of ctx.allShows) {
     for (const a of s.show_artists) {
-      const sid = a.spotify_id
-      if (!sid || seenArtists.has(sid)) continue
-      seenArtists.set(sid, {
-        artist_name: a.artist,
-        spotify_id: sid,
-        image_url: a.image_url,
-        position: a.position,
-      })
+      if (a.spotify_id && !seenSpotifyIds.has(a.spotify_id)) {
+        seenSpotifyIds.set(a.spotify_id, {
+          artist_name: a.artist,
+          image_url: a.image_url,
+        })
+      }
     }
   }
 
-  for (const [sid, info] of seenArtists) {
-    const badgeKey = `artist_seen:${sid}`
-    const k = unlockKey(badgeKey, year)
-    if (!ctx.alreadyUnlocked.has(k)) {
-      grants.push({
-        key: badgeKey,
-        scope_year: year,
-        metadata: {
-          artist_name: info.artist_name,
-          spotify_id: info.spotify_id,
-          image_url: info.image_url ?? null,
-          position: info.position,
-        },
-      })
-    }
+  for (const secret of definitions) {
+    const k = unlockKey(secret.key, null)
+    if (ctx.alreadyUnlocked.has(k)) continue
+    const seen = seenSpotifyIds.get(secret.spotify_id)
+    if (!seen) continue
+
+    grants.push({
+      key: secret.key,
+      scope_year: null,
+      metadata: {
+        artist_name: seen.artist_name,
+        spotify_id: secret.spotify_id,
+        image_url: secret.image_url ?? seen.image_url ?? null,
+      },
+    })
   }
 
   return grants
@@ -790,10 +824,11 @@ export async function evaluateAndUnlockBadges(
   years?: number[],
 ): Promise<string[]> {
   try {
-    const [allShows, alreadyUnlocked] =
+    const [allShows, alreadyUnlocked, secretDefs] =
       await Promise.all([
         fetchAttendedShows(userId),
         fetchUnlockedBadges(userId),
+        fetchSecretArtistBadges(),
       ])
 
     const showIds = allShows.map((s) => s.id)
@@ -809,6 +844,9 @@ export async function evaluateAndUnlockBadges(
     // Compute lifetime badges
     const lifetimeGrants = computeLifetimeBadges(ctx)
 
+    // Compute secret artist badges (lifetime)
+    const secretGrants = computeSecretArtistBadges(ctx, secretDefs)
+
     // Determine which years to evaluate
     const allYears = new Set<number>()
     for (const s of allShows) {
@@ -822,10 +860,9 @@ export async function evaluateAndUnlockBadges(
     const yearGrants: BadgeGrant[] = []
     for (const y of targetYears) {
       yearGrants.push(...computeYearBadges(ctx, y))
-      yearGrants.push(...computeArtistBadges(ctx, y))
     }
 
-    const allGrants = [...lifetimeGrants, ...yearGrants]
+    const allGrants = [...lifetimeGrants, ...secretGrants, ...yearGrants]
 
     await persistBadges(userId, allGrants)
 
@@ -842,14 +879,14 @@ export async function evaluateAndUnlockBadges(
  * Fetch all badges for a user, organized for the UI.
  * Returns lifetime badges and year-scoped badges per year.
  */
-export interface ArtistBadgeWithStatus {
-  badge_key: string
-  artist_name: string
-  spotify_id: string
+export interface SecretArtistBadgeWithStatus {
+  key: string
+  name: string
+  description: string
+  unlocked: boolean
+  unlocked_at: string | null
   image_url: string | null
-  position: string
-  unlocked_at: string
-  scope_year: number
+  artist_name: string | null
 }
 
 export async function getUserBadgesGrouped(userId: string): Promise<{
@@ -857,11 +894,11 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
   years: Array<{
     year: number
     badges: BadgeWithStatus[]
-    artistBadges: ArtistBadgeWithStatus[]
   }>
+  secretArtists: SecretArtistBadgeWithStatus[]
   attendedYears: number[]
 }> {
-  const [unlockedData, allShows] = await Promise.all([
+  const [unlockedData, allShows, secretDefs] = await Promise.all([
     (async () => {
       const { data, error } = await supabase
         .from('user_badges')
@@ -871,6 +908,7 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
       return data as UnlockedBadge[]
     })(),
     fetchAttendedShows(userId),
+    fetchSecretArtistBadges(),
   ])
 
   // Build unlock lookup
@@ -904,26 +942,25 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
 
   const sortedYears = Array.from(attendedYears).sort((a, b) => b - a)
 
-  // Collect artist badges from unlocked data
-  const artistBadgesByYear = new Map<number, ArtistBadgeWithStatus[]>()
-  for (const row of unlockedData) {
-    if (row.badge_key.startsWith('artist_seen:') && row.scope_year != null) {
-      const meta = row.metadata as ArtistBadgeInfo | null
-      if (!meta) continue
-      if (!artistBadgesByYear.has(row.scope_year)) {
-        artistBadgesByYear.set(row.scope_year, [])
+  // Secret artist badges — only show unlocked ones (hidden until earned)
+  const secretArtists: SecretArtistBadgeWithStatus[] = secretDefs.map(
+    (def) => {
+      const u = unlockedMap.get(unlockKey(def.key, null))
+      const meta = u?.metadata as Record<string, unknown> | null
+      return {
+        key: def.key,
+        name: def.name,
+        description: def.description,
+        unlocked: !!u,
+        unlocked_at: u?.unlocked_at ?? null,
+        image_url:
+          def.image_url ??
+          (meta?.image_url as string | null) ??
+          null,
+        artist_name: (meta?.artist_name as string) ?? null,
       }
-      artistBadgesByYear.get(row.scope_year)!.push({
-        badge_key: row.badge_key,
-        artist_name: meta.artist_name,
-        spotify_id: meta.spotify_id,
-        image_url: meta.image_url ?? null,
-        position: meta.position ?? 'Support',
-        unlocked_at: row.unlocked_at,
-        scope_year: row.scope_year,
-      })
-    }
-  }
+    },
+  )
 
   const years = sortedYears.map((year) => {
     const badges: BadgeWithStatus[] = YEAR_BADGES.map((def) => {
@@ -936,13 +973,10 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
         metadata: u?.metadata ?? null,
       }
     })
-    const artistBadges = (artistBadgesByYear.get(year) ?? []).sort((a, b) =>
-      a.artist_name.localeCompare(b.artist_name),
-    )
-    return { year, badges, artistBadges }
+    return { year, badges }
   })
 
-  return { lifetime, years, attendedYears: sortedYears }
+  return { lifetime, years, secretArtists, attendedYears: sortedYears }
 }
 
 /**

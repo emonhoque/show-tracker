@@ -27,29 +27,30 @@ interface BadgeResponse {
   image_url: string | null
 }
 
-interface ArtistBadge {
-  badge_key: string
-  artist_name: string
-  spotify_id: string
+interface SecretArtistBadge {
+  key: string
+  name: string
+  description: string
+  unlocked: boolean
+  unlocked_at: string | null
   image_url: string | null
-  position: string
-  unlocked_at: string
-  scope_year: number
+  artist_name: string | null
 }
 
 interface YearGroup {
   year: number
   badges: BadgeResponse[]
-  artistBadges: ArtistBadge[]
 }
 
 interface BadgesPayload {
   lifetime: BadgeResponse[]
   years: YearGroup[]
+  secretArtists: SecretArtistBadge[]
   attendedYears: number[]
   newlyUnlocked: string[]
   summary: {
     totalDefinitions: number
+    totalSecretArtists: number
     lifetimeUnlocked: number
     lifetimeTotal: number
     unlockedByYear: Array<{ year: number; unlocked: number; total: number }>
@@ -178,18 +179,18 @@ export default function BadgesPage() {
   }
 
   // Compute totals across all scopes
-  const totalArtistBadges = data
-    ? data.years.reduce((s, y) => s + y.artistBadges.length, 0)
+  const secretUnlocked = data
+    ? data.secretArtists.filter((s) => s.unlocked).length
     : 0
   const totalUnlocked = data
     ? data.summary.lifetimeUnlocked +
       data.summary.unlockedByYear.reduce((s, y) => s + y.unlocked, 0) +
-      totalArtistBadges
+      secretUnlocked
     : 0
   const totalBadges = data
     ? data.summary.lifetimeTotal +
       data.summary.unlockedByYear.reduce((s, y) => s + y.total, 0) +
-      totalArtistBadges
+      data.summary.totalSecretArtists
     : 0
 
   return (
@@ -348,21 +349,28 @@ export default function BadgesPage() {
               const yearStats = data.summary.unlockedByYear.find(
                 (u) => u.year === yg.year,
               )
-              const yearArtistCount = yg.artistBadges.length
-              const yearTotalUnlocked =
-                (yearStats?.unlocked ?? 0) + yearArtistCount
-              const yearTotal = (yearStats?.total ?? 0) + yearArtistCount
               return (
                 <CollapsibleBadgeSection
                   key={yg.year}
                   title={String(yg.year)}
-                  subtitle={`${yearTotalUnlocked} / ${yearTotal}`}
+                  subtitle={
+                    yearStats
+                      ? `${yearStats.unlocked} / ${yearStats.total}`
+                      : undefined
+                  }
                   badges={yg.badges}
-                  artistBadges={yg.artistBadges}
                   defaultOpen={idx === 0}
                 />
               )
             })}
+
+            {/* Secret artist badges */}
+            {data.summary.totalSecretArtists > 0 && (
+              <SecretArtistBadgesSection
+                badges={data.secretArtists}
+                total={data.summary.totalSecretArtists}
+              />
+            )}
           </div>
         )}
       </main>
@@ -376,13 +384,11 @@ function CollapsibleBadgeSection({
   title,
   subtitle,
   badges,
-  artistBadges,
   defaultOpen = false,
 }: {
   title: string
   subtitle?: string
   badges: BadgeResponse[]
-  artistBadges?: ArtistBadge[]
   defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -437,11 +443,6 @@ function CollapsibleBadgeSection({
               </div>
             )
           })}
-
-          {/* Artist badges section */}
-          {artistBadges && artistBadges.length > 0 && (
-            <ArtistBadgesSection artistBadges={artistBadges} />
-          )}
         </div>
       )}
     </div>
@@ -499,65 +500,100 @@ function BadgeCard({ badge }: { badge: BadgeResponse }) {
   )
 }
 
-// ---- Artist badge card ----
+// ---- Secret artist badge section ----
 
-function ArtistBadgeCard({ badge }: { badge: ArtistBadge }) {
-  const proxiedUrl = badge.image_url
-    ? `/api/image-proxy?url=${encodeURIComponent(badge.image_url)}`
-    : null
-
-  return (
-    <div className="flex flex-col items-center gap-1 p-1.5">
-      <div className="w-9 h-9 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-        {proxiedUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={proxiedUrl}
-            alt={badge.artist_name}
-            className="w-9 h-9 rounded-full object-cover"
-          />
-        ) : (
-          <span className="text-sm">🎤</span>
-        )}
-      </div>
-      <p className="text-[10px] font-medium text-foreground leading-tight text-center line-clamp-1 w-full">
-        {badge.artist_name}
-      </p>
-    </div>
-  )
-}
-
-// ---- Collapsible artist badges section ----
-
-function ArtistBadgesSection({ artistBadges }: { artistBadges: ArtistBadge[] }) {
+function SecretArtistBadgesSection({
+  badges,
+  total,
+}: {
+  badges: SecretArtistBadge[]
+  total: number
+}) {
   const [open, setOpen] = useState(false)
+  const unlocked = badges.filter((b) => b.unlocked)
+  const lockedCount = total - unlocked.length
 
   return (
-    <div className="space-y-2">
+    <div className="border border-border rounded-lg overflow-hidden bg-card">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 w-full text-left"
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/40 transition-colors"
       >
-        <span className="text-base">🎸</span>
-        <h3 className="text-sm font-medium text-foreground">Artists Seen</h3>
-        <span className="text-xs text-muted-foreground ml-auto mr-1">
-          {artistBadges.length}
-        </span>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground">🔒 Secret</h2>
+          <span className="text-xs text-muted-foreground">
+            {unlocked.length} / {total}
+          </span>
+        </div>
         <ChevronDown
-          className={`w-4 h-4 text-muted-foreground transition-transform ${
+          className={`w-5 h-5 text-muted-foreground transition-transform ${
             open ? 'rotate-180' : ''
           }`}
         />
       </button>
 
       {open && (
-        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1">
-          {artistBadges.map((ab) => (
-            <ArtistBadgeCard key={ab.badge_key} badge={ab} />
-          ))}
+        <div className="px-4 pb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {unlocked.map((badge) => (
+              <SecretArtistCard key={badge.key} badge={badge} />
+            ))}
+            {/* Locked placeholders */}
+            {[...Array(lockedCount)].map((_, i) => (
+              <Card key={`locked-${i}`} className="opacity-60 grayscale">
+                <CardContent className="py-4 px-3 flex flex-col items-center text-center gap-2">
+                  <div className="text-3xl opacity-40">
+                    <Lock className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground leading-tight">
+                    ???
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-snug">
+                    See the right artist to unlock
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>
+  )
+}
+
+function SecretArtistCard({ badge }: { badge: SecretArtistBadge }) {
+  const proxiedUrl = badge.image_url
+    ? `/api/image-proxy?url=${encodeURIComponent(badge.image_url)}`
+    : null
+
+  return (
+    <Card className="border-primary/40 bg-primary/5 transition-all duration-200">
+      <CardContent className="py-4 px-3 flex flex-col items-center text-center gap-2">
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+          {proxiedUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={proxiedUrl}
+              alt={badge.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+          ) : (
+            <span className="text-2xl">🎤</span>
+          )}
+        </div>
+        <p className="text-sm font-semibold text-foreground leading-tight">
+          {badge.name}
+        </p>
+        <p className="text-xs text-muted-foreground leading-snug">
+          {badge.description}
+        </p>
+        {badge.unlocked_at && (
+          <p className="text-[10px] text-primary/70 mt-1">
+            Unlocked {formatDate(badge.unlocked_at)}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   )
 }

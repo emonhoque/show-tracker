@@ -51,7 +51,6 @@ export async function GET(request: NextRequest) {
         ...b,
         image_url: getBadgeImageUrl(b.key),
       })),
-      artistBadges: y.artistBadges,
     }))
 
     // Total / unlocked counts across all scopes
@@ -67,10 +66,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       lifetime,
       years,
+      secretArtists: grouped.secretArtists,
       attendedYears: grouped.attendedYears,
       newlyUnlocked: newBadges,
       summary: {
         totalDefinitions: BADGE_DEFINITIONS.length,
+        totalSecretArtists: grouped.secretArtists.length,
         lifetimeUnlocked: unlockedLifetime,
         lifetimeTotal: totalLifetime,
         unlockedByYear,
