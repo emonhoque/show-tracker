@@ -235,12 +235,20 @@ export default function BadgesPage() {
   // Also include recently unlocked secret badges
   const recentSecrets = (data?.secretArtists ?? [])
     .filter((s) => s.unlocked && s.unlocked_at)
-    .sort(
-      (a, b) =>
-        new Date(b.unlocked_at!).getTime() -
-        new Date(a.unlocked_at!).getTime(),
-    )
-    .slice(0, 3)
+    .map((s) => ({ ...s, _isSecret: true as const }))
+
+  // Merge standard + secret recently unlocked, sort by session-new first then date desc
+  const allRecentlyUnlocked = [
+    ...recentlyUnlocked.map((b) => ({ ...b, _isSecret: false as const })),
+    ...recentSecrets,
+  ]
+    .sort((a, b) => {
+      const aNew = newlySet.has(a.key) ? 1 : 0
+      const bNew = newlySet.has(b.key) ? 1 : 0
+      if (bNew !== aNew) return bNew - aNew
+      return new Date(b.unlocked_at!).getTime() - new Date(a.unlocked_at!).getTime()
+    })
+    .slice(0, 8)
 
   // Category progress across ALL scopes (lifetime + all years)
   const categoryProgress = CATEGORY_ORDER.map((cat) => {
@@ -373,60 +381,34 @@ export default function BadgesPage() {
                   )}
 
                   {/* Recently unlocked */}
-                  {(recentlyUnlocked.length > 0 ||
-                    recentSecrets.length > 0) && (
+                  {allRecentlyUnlocked.length > 0 && (
                     <div className="space-y-3">
                       <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-yellow-500" />
                         Recently Unlocked
                       </h2>
                       <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        {recentlyUnlocked.map((badge) => (
+                        {allRecentlyUnlocked.map((badge) => (
                           <div
-                            key={`${badge.key}-${badge.scope_year ?? 'lt'}`}
-                            className="shrink-0 w-24 flex flex-col items-center text-center gap-1"
-                          >
-                            <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-primary/40 flex items-center justify-center text-2xl">
-                              {badge.image_url ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={badge.image_url}
-                                  alt={badge.name}
-                                  className="w-14 h-14 rounded-full object-cover"
-                                />
-                              ) : (
-                                PLACEHOLDER_ICONS[badge.category]
-                              )}
-                            </div>
-                            <p className="text-[11px] font-medium text-foreground leading-tight">
-                              {badge.name}
-                            </p>
-                            {badge.scope === 'year' && badge.scope_year && (
-                              <span className="text-[10px] text-muted-foreground">
-                                {badge.scope_year}
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                        {recentSecrets.map((badge) => (
-                          <div
-                            key={badge.key}
+                            key={`${badge.key}-${('scope_year' in badge ? badge.scope_year : undefined) ?? 'secret'}`}
                             className="shrink-0 w-24 flex flex-col items-center text-center gap-1"
                           >
                             <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-primary/40 flex items-center justify-center overflow-hidden">
                               {badge.image_url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
-                                  src={`/api/image-proxy?url=${encodeURIComponent(badge.image_url)}`}
+                                  src={badge._isSecret ? `/api/image-proxy?url=${encodeURIComponent(badge.image_url)}` : badge.image_url}
                                   alt={badge.name}
                                   className="w-14 h-14 rounded-full object-cover"
                                 />
-                              ) : (
+                              ) : badge._isSecret ? (
                                 <Mic className="w-7 h-7 text-primary/70" />
+                              ) : (
+                                PLACEHOLDER_ICONS[('category' in badge ? badge.category : 'artists') as BadgeCategory]
                               )}
                             </div>
                             <p className="text-[11px] font-medium text-foreground leading-tight">
-                              {badge.name}
+                              {badge.name}{'scope' in badge && badge.scope === 'year' && 'scope_year' in badge && badge.scope_year ? ` [${badge.scope_year}]` : ''}
                             </p>
                           </div>
                         ))}
