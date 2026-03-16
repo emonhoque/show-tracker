@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { Trophy, Lock, Sparkles, Shield, ArrowLeft, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake, Home } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
+import { Trophy, Lock, Sparkles, Shield, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
 import type { ReactNode } from 'react'
@@ -209,7 +209,7 @@ export default function BadgesPage() {
   const tabs: TabDef[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'lifetime', label: 'Lifetime' },
-    ...(data?.years.map((yg) => ({ id: yg.year as TabId, label: String(yg.year) })).reverse() ?? []),
+    ...(data?.years.map((yg) => ({ id: yg.year as TabId, label: String(yg.year) })) ?? []),
     ...(data && data.secretArtists.length > 0
       ? [{ id: 'secret' as TabId, label: 'Secret', icon: <Lock className="w-3.5 h-3.5" /> }]
       : []),
@@ -263,45 +263,30 @@ export default function BadgesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* ---- Header ---- */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
+      <PageHeader
+        title="My Badges"
+        subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
+        backHref="/my-profile"
+        addShowHref="/"
+        showMyProfile
+        showHome
+        showLogout
+        onLogout={() => {
+          localStorage.removeItem('userName')
+          router.push('/')
+        }}
+        extraButtons={
+          userName?.toLowerCase() === 'emon hoque' ? (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={() => router.push('/my-profile')}
-              className="p-1"
+              onClick={() => router.push('/my-profile/badges/admin')}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <Shield className="w-4 h-4" />
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                My Badges
-              </h1>
-              {userName && (
-                <p className="text-sm text-muted-foreground">
-                  Welcome, {formatNameForDisplay(userName)}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {userName?.toLowerCase() === 'emon hoque' && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/my-profile/badges/admin')}
-              >
-                <Shield className="w-4 h-4" />
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="p-1">
-              <Home className="w-4 h-4" />
-            </Button>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+          ) : undefined
+        }
+      />
 
       {/* ---- Main ---- */}
       <main className="max-w-4xl mx-auto p-4 space-y-4">

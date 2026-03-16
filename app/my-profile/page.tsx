@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { PageHeader } from '@/components/PageHeader'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, ArrowLeft, BarChart3, Trophy, Home } from 'lucide-react'
-import * as DropdownMenu from '@/components/ui/dropdown-menu'
+import { DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
   type CostsSummary,
@@ -28,6 +27,7 @@ export default function MyShowsPage() {
   const [past, setPast] = useState<ShowWithCosts[]>([])
   const [loading, setLoading] = useState(false)
   const [spendingOpen, setSpendingOpen] = useState(false)
+  const scrollBarRef = useRef<HTMLDivElement>(null)
 
   const router = useRouter()
   const { showToast } = useToast()
@@ -108,67 +108,20 @@ export default function MyShowsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/')}
-              className="p-1"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-              {userName && (
-                <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <div className="hidden sm:flex gap-2">
-              <Button onClick={() => router.push('/')} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Show
-              </Button>
-              <ThemeToggle />
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-1" />
-                Logout
-              </Button>
-            </div>
-
-            <div className="sm:hidden flex gap-2">
-              <Button onClick={() => router.push('/')} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add
-              </Button>
-              <DropdownMenu.DropdownMenu>
-                <DropdownMenu.DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0" aria-label="Open menu">
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </DropdownMenu.DropdownMenuTrigger>
-                <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/')}>
-                    <Plus className="mr-3 h-4 w-4" />
-                    Add Show
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                    <LogOut className="mr-3 h-4 w-4" />
-                    Logout
-                  </DropdownMenu.DropdownMenuItem>
-                </DropdownMenu.DropdownMenuContent>
-              </DropdownMenu.DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="My Profile"
+        subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
+        backHref="/"
+        addShowHref="/"
+        showHome
+        showLogout
+        onLogout={handleLogout}
+      />
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         <div
-          className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4"
+          ref={scrollBarRef}
+          className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 scroll-hint-bounce"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {generateYearOptions().map((year) => (

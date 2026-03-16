@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { PageHeader } from '@/components/PageHeader'
 import { useToast } from '@/components/ui/toast'
 import {
-  ArrowLeft,
   Search,
   Plus,
   Trash2,
@@ -17,7 +16,7 @@ import {
   Pencil,
   Check,
   X,
-  Home,
+  ArrowLeft,
 } from 'lucide-react'
 
 // ---- Types ----
@@ -368,36 +367,16 @@ export default function BadgesAdminPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/my-profile/badges')}
-              className="p-1"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Secret Badge Admin
-              </h1>
-              <p className="text-sm text-muted-foreground">
-              {definitions.length} definition
-              {definitions.length !== 1 ? 's' : ''}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="p-1">
-              <Home className="w-4 h-4" />
-            </Button>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Secret Badge Admin"
+        titleIcon={<Shield className="w-5 h-5" />}
+        subtitle={`${definitions.length} definition${definitions.length !== 1 ? 's' : ''}`}
+        backHref="/my-profile/badges"
+        addShowHref="/"
+        showMyProfile
+        showHome
+        showLogout
+      />
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* ---- Add New Badge ---- */}

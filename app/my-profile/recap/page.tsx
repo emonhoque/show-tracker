@@ -6,9 +6,8 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu, Play, User, ArrowLeft, Home } from 'lucide-react'
-import * as DropdownMenu from '@/components/ui/dropdown-menu'
+import { PageHeader } from '@/components/PageHeader'
+import { Copy, Play, Plus } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
 import { RecapData } from '@/app/api/recap/route'
@@ -179,77 +178,16 @@ export default function RecapPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/my-profile')}
-              className="p-1"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Recap</h1>
-              {userName && (
-                <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {/* Desktop buttons */}
-            <div className="hidden sm:flex gap-2">
-              <Button onClick={() => router.push('/')} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Show
-              </Button>
-              <Button onClick={() => router.push('/my-profile')} variant="outline" size="sm">
-                <User className="w-4 h-4 mr-1" />
-                My Profile
-              </Button>
-              <ThemeToggle />
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-1" />
-                Logout
-              </Button>
-            </div>
-            
-            {/* Mobile dropdown menu */}
-            <div className="sm:hidden flex gap-2">
-              <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="p-1">
-                <Home className="w-4 h-4" />
-              </Button>
-              <DropdownMenu.DropdownMenu>
-                <DropdownMenu.DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0"
-                    aria-label="Open menu"
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </DropdownMenu.DropdownMenuTrigger>
-                <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/')}>
-                    <Plus className="mr-3 h-4 w-4" />
-                    Add Show
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-profile')}>
-                    <User className="mr-3 h-4 w-4" />
-                    My Profile
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                    <LogOut className="mr-3 h-4 w-4" />
-                    Logout
-                  </DropdownMenu.DropdownMenuItem>
-                </DropdownMenu.DropdownMenuContent>
-              </DropdownMenu.DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Recap"
+        subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
+        backHref="/my-profile"
+        addShowHref="/"
+        showMyProfile
+        showHome
+        showLogout
+        onLogout={handleLogout}
+      />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4 space-y-6">

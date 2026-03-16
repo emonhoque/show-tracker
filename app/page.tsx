@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PasswordGate } from '@/components/PasswordGate'
 import { ShowCard } from '@/components/ShowCard'
@@ -16,11 +15,8 @@ import { ReleasesFeed } from '@/components/ReleasesFeed'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
-import { Plus, LogOut, Menu, User } from 'lucide-react'
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { useTheme } from '@/components/ThemeProvider'
 import { useToast } from '@/components/ui/toast'
-import * as DropdownMenu from '@/components/ui/dropdown-menu'
+import { PageHeader } from '@/components/PageHeader'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
@@ -63,8 +59,6 @@ export default function Home() {
 
   }, [])
 
-  // Get theme - this will be handled by ThemeToggle component
-  const { theme, setTheme } = useTheme()
   const { showToast } = useToast()
 
   // Monitor online/offline status
@@ -491,91 +485,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Show Tracker</h1>
-            {userName && (
-              <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
-            )}
-          </div>
-          <div className="flex gap-2">
-            {/* Desktop buttons */}
-            <div className="hidden sm:flex gap-2">
-              <Button onClick={() => setShowAddModal(true)} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add
-              </Button>
-              <Button onClick={() => window.location.href = '/my-profile'} variant="outline" size="sm">
-                <User className="w-4 h-4 mr-1" />
-                My Profile
-              </Button>
-              <ThemeToggle />
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-1" />
-                Logout
-              </Button>
-            </div>
-            
-            {/* Mobile dropdown menu */}
-            <div className="sm:hidden flex gap-2">
-              <Button onClick={() => setShowAddModal(true)} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add
-              </Button>
-              <DropdownMenu.DropdownMenu>
-                <DropdownMenu.DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0"
-                    aria-label="Open menu"
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </DropdownMenu.DropdownMenuTrigger>
-                <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
-                  <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/my-profile'} className="py-3">
-                    <User className="mr-3 h-4 w-4" />
-                    My Profile
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="py-3">
-                    <div className="flex items-center gap-3">
-                      {theme === 'dark' ? (
-                        <>
-                          <div className="h-4 w-4 rounded-full bg-yellow-500 flex items-center justify-center">
-                            <span className="text-xs">☀️</span>
-                          </div>
-                          Light Mode
-                        </>
-                      ) : (
-                        <>
-                          <div className="h-4 w-4 rounded-full bg-gray-800 flex items-center justify-center">
-                            <span className="text-xs">🌙</span>
-                          </div>
-                          Dark Mode
-                        </>
-                      )}
-                    </div>
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 py-3">
-                    <LogOut className="mr-3 h-4 w-4" />
-                    Logout
-                  </DropdownMenu.DropdownMenuItem>
-                </DropdownMenu.DropdownMenuContent>
-              </DropdownMenu.DropdownMenu>
-            </div>
-          </div>
-        </div>
-        {isOffline && (
-          <div className="bg-yellow-100 dark:bg-yellow-900/20 border-t border-yellow-200 dark:border-yellow-800 px-4 py-2">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200 text-center">
-              You&apos;re offline. Some features may not be available.
-            </p>
-          </div>
-        )}
-      </header>
+      <PageHeader
+        title="Show Tracker"
+        subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
+        onAddShow={() => setShowAddModal(true)}
+        showMyProfile
+        showLogout
+        onLogout={handleLogout}
+        offlineBanner={isOffline}
+      />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4">
