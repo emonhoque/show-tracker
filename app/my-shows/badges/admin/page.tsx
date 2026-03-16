@@ -369,30 +369,29 @@ export default function BadgesAdminPage() {
       {/* Header */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/my-shows/badges')}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Secret Badge Admin
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                {definitions.length} definition
-                {definitions.length !== 1 ? 's' : ''}
-              </p>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Shield className="w-5 h-5" />
+              Secret Badge Admin
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {definitions.length} definition
+              {definitions.length !== 1 ? 's' : ''}
+            </p>
           </div>
           <ThemeToggle />
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push('/my-shows/badges')}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          ← Back to Badges
+        </Button>
         {/* ---- Add New Badge ---- */}
         <Card>
           <CardContent className="pt-6 space-y-4">

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Trophy, Lock, Sparkles, ArrowLeft, Shield } from 'lucide-react'
+import { Trophy, Lock, Sparkles, Shield } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
 
@@ -218,14 +218,16 @@ export default function BadgesPage() {
     ? [...data.lifetime, ...data.years.flatMap((y) => y.badges)]
     : []
 
-  // Recently unlocked: sort all unlocked badges by date, take newest 5
+  // Recently unlocked: prioritize newly unlocked this session, then by date descending
+  const newlySet = new Set(data?.newlyUnlocked ?? [])
   const recentlyUnlocked = allBadges
     .filter((b) => b.unlocked && b.unlocked_at)
-    .sort(
-      (a, b) =>
-        new Date(b.unlocked_at!).getTime() -
-        new Date(a.unlocked_at!).getTime(),
-    )
+    .sort((a, b) => {
+      const aNew = newlySet.has(a.key) ? 1 : 0
+      const bNew = newlySet.has(b.key) ? 1 : 0
+      if (bNew !== aNew) return bNew - aNew
+      return new Date(b.unlocked_at!).getTime() - new Date(a.unlocked_at!).getTime()
+    })
     .slice(0, 5)
 
   // Also include recently unlocked secret badges
@@ -253,25 +255,16 @@ export default function BadgesPage() {
       {/* ---- Header ---- */}
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/my-shows')}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-yellow-500" />
-                My Badges
-              </h1>
-              {userName && (
-                <p className="text-xs text-muted-foreground">
-                  Welcome, {formatNameForDisplay(userName)}
-                </p>
-              )}
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              My Badges
+            </h1>
+            {userName && (
+              <p className="text-xs text-muted-foreground">
+                Welcome, {formatNameForDisplay(userName)}
+              </p>
+            )}
           </div>
           <div className="flex gap-2">
             {userName?.toLowerCase() === 'emon hoque' && (
@@ -290,6 +283,14 @@ export default function BadgesPage() {
 
       {/* ---- Main ---- */}
       <main className="max-w-4xl mx-auto p-4 space-y-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push('/my-shows')}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          ← Back to My Shows
+        </Button>
 
         {/* ---- Loading skeleton ---- */}
         {loading && !data && (
