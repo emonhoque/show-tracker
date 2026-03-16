@@ -379,7 +379,6 @@ export default function BadgesPage() {
             {lifetimeSecrets.length > 0 && (
               <SecretArtistBadgesSection
                 badges={lifetimeSecrets}
-                total={lifetimeSecrets.length}
               />
             )}
           </div>
@@ -465,15 +464,15 @@ function CollapsibleBadgeSection({
                 <span className="text-base">🔒</span>
                 <h3 className="text-sm font-medium text-foreground">Secret</h3>
                 <span className="text-xs text-muted-foreground ml-auto">
-                  {secretBadges.filter((s) => s.unlocked).length}/{secretBadges.length}
+                  {secretBadges.filter((s) => s.unlocked).length}/?
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {secretBadges.filter((s) => s.unlocked).map((badge) => (
                   <SecretArtistCard key={`${badge.key}-${badge.scope_year}`} badge={badge} />
                 ))}
-                {secretBadges.filter((s) => !s.unlocked).map((badge, i) => (
-                  <Card key={`locked-year-${i}`} className="opacity-60 grayscale">
+                {secretBadges.some((s) => !s.unlocked) && (
+                  <Card className="opacity-60 grayscale">
                     <CardContent className="py-4 px-3 flex flex-col items-center text-center gap-2">
                       <div className="text-3xl opacity-40">
                         <Lock className="w-8 h-8 text-muted-foreground" />
@@ -482,7 +481,7 @@ function CollapsibleBadgeSection({
                       <p className="text-xs text-muted-foreground leading-snug">See the right artist to unlock</p>
                     </CardContent>
                   </Card>
-                ))}
+                )}
               </div>
             </div>
           )}
@@ -547,14 +546,12 @@ function BadgeCard({ badge }: { badge: BadgeResponse }) {
 
 function SecretArtistBadgesSection({
   badges,
-  total,
 }: {
   badges: SecretArtistBadge[]
-  total: number
 }) {
   const [open, setOpen] = useState(false)
   const unlocked = badges.filter((b) => b.unlocked)
-  const lockedCount = total - unlocked.length
+  const hasLocked = badges.some((b) => !b.unlocked)
 
   return (
     <div className="border border-border rounded-lg overflow-hidden bg-card">
@@ -566,7 +563,7 @@ function SecretArtistBadgesSection({
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-foreground">🔒 Secret</h2>
           <span className="text-xs text-muted-foreground">
-            {unlocked.length} / {total}
+            {unlocked.length} / ?
           </span>
         </div>
         <ChevronDown
@@ -582,9 +579,8 @@ function SecretArtistBadgesSection({
             {unlocked.map((badge) => (
               <SecretArtistCard key={badge.key} badge={badge} />
             ))}
-            {/* Locked placeholders */}
-            {[...Array(lockedCount)].map((_, i) => (
-              <Card key={`locked-${i}`} className="opacity-60 grayscale">
+            {hasLocked && (
+              <Card className="opacity-60 grayscale">
                 <CardContent className="py-4 px-3 flex flex-col items-center text-center gap-2">
                   <div className="text-3xl opacity-40">
                     <Lock className="w-8 h-8 text-muted-foreground" />
@@ -597,7 +593,7 @@ function SecretArtistBadgesSection({
                   </p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </div>
       )}

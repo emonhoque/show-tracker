@@ -75,6 +75,45 @@ export async function POST(request: NextRequest) {
 }
 
 /**
+ * PATCH /api/badges/admin — update a secret badge definition.
+ * Body: { id, name?, description?, scope? }
+ */
+export async function PATCH(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const body = await request.json()
+  const { id, name, description, scope } = body
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing required field: id' }, { status: 400 })
+  }
+
+  const updates: Record<string, string> = {}
+  if (name !== undefined) updates.name = name
+  if (description !== undefined) updates.description = description
+  if (scope === 'year' || scope === 'lifetime') updates.scope = scope
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+  }
+
+  const { data, error } = await supabase
+    .from('secret_badge_definitions')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ definition: data })
+}
+
+/**
  * DELETE /api/badges/admin — remove a secret badge definition.
  * Body: { id }
  */

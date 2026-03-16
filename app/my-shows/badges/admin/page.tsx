@@ -14,6 +14,9 @@ import {
   Trash2,
   Shield,
   Loader2,
+  Pencil,
+  Check,
+  X,
 } from 'lucide-react'
 
 // ---- Types ----
@@ -77,6 +80,13 @@ export default function BadgesAdminPage() {
   const [badgeDescription, setBadgeDescription] = useState('')
   const [badgeScope, setBadgeScope] = useState<'lifetime' | 'year'>('lifetime')
   const [creating, setCreating] = useState(false)
+
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [editScope, setEditScope] = useState<'lifetime' | 'year'>('lifetime')
+  const [saving, setSaving] = useState(false)
 
   // ---- Auth ----
 
@@ -207,6 +217,66 @@ export default function BadgesAdminPage() {
       })
     } finally {
       setCreating(false)
+    }
+  }
+
+  // ---- Edit badge ----
+
+  const startEdit = (def: BadgeDefinition) => {
+    setEditingId(def.id)
+    setEditName(def.name)
+    setEditDescription(def.description)
+    setEditScope(def.scope)
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+  }
+
+  const saveEdit = async () => {
+    if (!editingId || !editName.trim() || !editDescription.trim()) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/badges/admin', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminSecret}`,
+        },
+        body: JSON.stringify({
+          id: editingId,
+          name: editName.trim(),
+          description: editDescription.trim(),
+          scope: editScope,
+        }),
+      })
+      if (res.ok) {
+        showToast({
+          title: 'Updated',
+          description: `"${editName}" saved`,
+          type: 'success',
+          duration: 3000,
+        })
+        setEditingId(null)
+        fetchDefinitions()
+      } else {
+        const err = await res.json().catch(() => ({ error: 'Unknown error' }))
+        showToast({
+          title: 'Error',
+          description: err.error || 'Failed to update badge',
+          type: 'error',
+          duration: 4000,
+        })
+      }
+    } catch {
+      showToast({
+        title: 'Error',
+        description: 'Network error',
+        type: 'error',
+        duration: 4000,
+      })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -516,53 +586,137 @@ export default function BadgesAdminPage() {
             ) : (
               <div className="divide-y divide-border">
                 {definitions.map((def) => (
-                  <div
-                    key={def.id}
-                    className="flex items-center gap-3 py-3"
-                  >
-                    {def.image_url ? (
-                      <img
-                        src={proxyUrl(def.image_url)}
-                        alt={def.name}
-                        width={40}
-                        height={40}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                  <div key={def.id} className="py-3">
+                    {editingId === def.id ? (
+                      /* ---- Inline edit form ---- */
+                      <div className="flex items-start gap-3">
+                        {def.image_url ? (
+                          <img
+                            src={proxyUrl(def.image_url)}
+                            alt={def.name}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover mt-1"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm mt-1">
+                            🎵
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <Input
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Badge name"
+                            className="h-8 text-sm"
+                          />
+                          <Input
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            placeholder="Description"
+                            className="h-8 text-sm"
+                          />
+                          <div className="flex gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setEditScope('lifetime')}
+                              className={`px-2 py-1 rounded text-[10px] font-medium border transition-colors ${
+                                editScope === 'lifetime'
+                                  ? 'border-amber-500 bg-amber-500/10 text-amber-500'
+                                  : 'border-border text-muted-foreground'
+                              }`}
+                            >
+                              Lifetime
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditScope('year')}
+                              className={`px-2 py-1 rounded text-[10px] font-medium border transition-colors ${
+                                editScope === 'year'
+                                  ? 'border-blue-500 bg-blue-500/10 text-blue-500'
+                                  : 'border-border text-muted-foreground'
+                              }`}
+                            >
+                              Yearly
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 mt-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={saveEdit}
+                            disabled={saving || !editName.trim() || !editDescription.trim()}
+                            className="text-green-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20 h-8 w-8 p-0"
+                          >
+                            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={cancelEdit}
+                            className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm">
-                        🎵
+                      /* ---- Read-only row ---- */
+                      <div className="flex items-center gap-3">
+                        {def.image_url ? (
+                          <img
+                            src={proxyUrl(def.image_url)}
+                            alt={def.name}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm">
+                            🎵
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm truncate">
+                              {def.name}
+                            </p>
+                            <span
+                              className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                def.scope === 'year'
+                                  ? 'bg-blue-500/10 text-blue-500'
+                                  : 'bg-amber-500/10 text-amber-500'
+                              }`}
+                            >
+                              {def.scope === 'year' ? 'Yearly' : 'Lifetime'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {def.description}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground/60 font-mono">
+                            {def.key}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEdit(def)}
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteBadge(def)}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm truncate">
-                          {def.name}
-                        </p>
-                        <span
-                          className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                            def.scope === 'year'
-                              ? 'bg-blue-500/10 text-blue-500'
-                              : 'bg-amber-500/10 text-amber-500'
-                          }`}
-                        >
-                          {def.scope === 'year' ? 'Yearly' : 'Lifetime'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {def.description}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground/60 font-mono">
-                        {def.key}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteBadge(def)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
                   </div>
                 ))}
               </div>
