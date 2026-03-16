@@ -395,6 +395,7 @@ export default function BadgesAdminPage() {
               <Home className="w-4 h-4" />
             </Button>
             <ThemeToggle />
+          </div>
         </div>
       </header>
 
