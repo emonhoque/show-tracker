@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3 } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy, ArrowLeft } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
@@ -111,7 +111,15 @@ export default function MyShowsPage() {
     <div className="min-h-screen bg-background">
       <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.push('/')}
+              className="p-1"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <div>
               <h1 className="text-2xl font-bold text-foreground">My Shows</h1>
               {userName && (
@@ -160,32 +168,7 @@ export default function MyShowsPage() {
       </header>
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/')}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              ← Back to Shows
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/my-shows/recap')}
-            >
-              <BarChart3 className="w-4 h-4 mr-1" />
-              View Recap
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/my-shows/badges')}
-            >
-              Badges
-            </Button>
-          </div>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <label htmlFor="year-select" className="text-sm font-medium text-foreground">
               Year:
@@ -202,6 +185,24 @@ export default function MyShowsPage() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/my-shows/recap')}
+            >
+              <BarChart3 className="w-4 h-4 mr-1" />
+              Recap
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/my-shows/badges')}
+            >
+              <Trophy className="w-4 h-4 mr-1" />
+              Badges
+            </Button>
           </div>
         </div>
 
