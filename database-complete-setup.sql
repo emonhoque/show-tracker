@@ -123,6 +123,19 @@ CREATE TABLE IF NOT EXISTS user_badges (
 CREATE UNIQUE INDEX IF NOT EXISTS uq_user_badges_scoped
     ON user_badges (user_id, badge_key, COALESCE(scope_year, 0));
 
+-- Curated list of artists with custom hidden badges.
+-- Managed via the admin UI at /my-profile/badges/admin.
+CREATE TABLE IF NOT EXISTS secret_badge_definitions (
+    id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    key         TEXT        NOT NULL UNIQUE,
+    spotify_id  TEXT        NOT NULL UNIQUE,
+    name        TEXT        NOT NULL,
+    description TEXT        NOT NULL,
+    image_url   TEXT        DEFAULT NULL,
+    scope       TEXT        NOT NULL DEFAULT 'lifetime',
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- =====================================================
 -- 3. PERFORMANCE INDEXES
 -- =====================================================
@@ -189,6 +202,7 @@ ALTER TABLE releases ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE show_costs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
+ALTER TABLE secret_badge_definitions ENABLE ROW LEVEL SECURITY;
 
 -- Drop any existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Allow public read access to shows" ON shows;
@@ -225,6 +239,14 @@ DROP POLICY IF EXISTS "show_costs_select_policy" ON show_costs;
 DROP POLICY IF EXISTS "show_costs_insert_policy" ON show_costs;
 DROP POLICY IF EXISTS "show_costs_update_policy" ON show_costs;
 DROP POLICY IF EXISTS "show_costs_delete_policy" ON show_costs;
+DROP POLICY IF EXISTS "user_badges_select_policy" ON user_badges;
+DROP POLICY IF EXISTS "user_badges_insert_policy" ON user_badges;
+DROP POLICY IF EXISTS "user_badges_update_policy" ON user_badges;
+DROP POLICY IF EXISTS "user_badges_delete_policy" ON user_badges;
+DROP POLICY IF EXISTS "secret_badge_definitions_select" ON secret_badge_definitions;
+DROP POLICY IF EXISTS "secret_badge_definitions_insert" ON secret_badge_definitions;
+DROP POLICY IF EXISTS "secret_badge_definitions_update" ON secret_badge_definitions;
+DROP POLICY IF EXISTS "secret_badge_definitions_delete" ON secret_badge_definitions;
 
 -- Create optimized RLS policies for shows table
 CREATE POLICY "shows_select_policy" ON shows
@@ -316,6 +338,19 @@ CREATE POLICY "user_badges_update_policy" ON user_badges
 CREATE POLICY "user_badges_delete_policy" ON user_badges
     FOR DELETE USING (true);
 
+-- Create RLS policies for secret_badge_definitions table
+CREATE POLICY "secret_badge_definitions_select" ON secret_badge_definitions
+    FOR SELECT USING (true);
+
+CREATE POLICY "secret_badge_definitions_insert" ON secret_badge_definitions
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "secret_badge_definitions_update" ON secret_badge_definitions
+    FOR UPDATE USING (true);
+
+CREATE POLICY "secret_badge_definitions_delete" ON secret_badge_definitions
+    FOR DELETE USING (true);
+
 -- =====================================================
 -- 6. DATABASE STATISTICS UPDATE
 -- =====================================================
@@ -328,6 +363,7 @@ ANALYZE releases;
 ANALYZE user_artists;
 ANALYZE show_costs;
 ANALYZE user_badges;
+ANALYZE secret_badge_definitions;
 
 -- =====================================================
 -- 7. VERIFICATION QUERIES (OPTIONAL)
@@ -344,7 +380,7 @@ ANALYZE user_badges;
 -- =====================================================
 -- Your show-tracker database is now fully configured with:
 -- ✅ Enum types: cost_category
--- ✅ Tables: shows, rsvps, artists, releases, user_artists, show_costs
+-- ✅ Tables: shows, rsvps, artists, releases, user_artists, show_costs, user_badges, secret_badge_definitions
 -- ✅ Performance indexes for fast queries
 -- ✅ Auto-update trigger for show_costs.updated_at
 -- ✅ Optimized RLS policies for security
