@@ -16,7 +16,7 @@ import { ReleasesFeed } from '@/components/ReleasesFeed'
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatNameForDisplay } from '@/lib/validation'
 import { useInfiniteScroll } from '@/lib/useInfiniteScroll'
-import { Plus, LogOut, Menu, CalendarDays } from 'lucide-react'
+import { Plus, LogOut, Menu, User } from 'lucide-react'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
 import { useToast } from '@/components/ui/toast'
@@ -508,8 +508,8 @@ export default function Home() {
                 Add
               </Button>
               <Button onClick={() => window.location.href = '/my-shows'} variant="outline" size="sm">
-                <CalendarDays className="w-4 h-4 mr-1" />
-                My Shows
+                <User className="w-4 h-4 mr-1" />
+                My Profile
               </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
@@ -537,8 +537,8 @@ export default function Home() {
                 </DropdownMenu.DropdownMenuTrigger>
                 <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
                   <DropdownMenu.DropdownMenuItem onClick={() => window.location.href = '/my-shows'} className="py-3">
-                    <CalendarDays className="mr-3 h-4 w-4" />
-                    My Shows
+                    <User className="mr-3 h-4 w-4" />
+                    My Profile
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="py-3">
                     <div className="flex items-center gap-3">

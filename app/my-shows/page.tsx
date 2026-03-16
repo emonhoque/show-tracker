@@ -4,10 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useToast } from '@/components/ui/toast'
-import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy, ArrowLeft } from 'lucide-react'
+import { LogOut, Plus, Menu, DollarSign, ChevronDown, CalendarDays, History, ArrowLeft } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
@@ -121,7 +120,7 @@ export default function MyShowsPage() {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">My Shows</h1>
+              <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
               {userName && (
                 <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
               )}
@@ -168,42 +167,39 @@ export default function MyShowsPage() {
       </header>
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2">
-            <label htmlFor="year-select" className="text-sm font-medium text-foreground">
-              Year:
-            </label>
-            <Select value={selectedYear.toString()} onChange={(value) => setSelectedYear(parseInt(value))}>
-              <SelectTrigger className="w-32" id="year-select">
-                {selectedYear}
-              </SelectTrigger>
-              <SelectContent>
-                {generateYearOptions().map(year => (
-                  <SelectOption key={year} value={year.toString()}>
-                    {year}
-                  </SelectOption>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/my-shows/recap')}
+        <div
+          className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
+          {generateYearOptions().map((year) => (
+            <button
+              key={year}
+              type="button"
+              onClick={() => setSelectedYear(year)}
+              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedYear === year
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
             >
-              <BarChart3 className="w-4 h-4 mr-1" />
-              Recap
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/my-shows/badges')}
-            >
-              <Trophy className="w-4 h-4 mr-1" />
-              Badges
-            </Button>
-          </div>
+              {year}
+            </button>
+          ))}
+          <div className="shrink-0 w-px bg-border mx-1 self-stretch" />
+          <button
+            type="button"
+            onClick={() => router.push('/my-shows/recap')}
+            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+          >
+            📊 Recap
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/my-shows/badges')}
+            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+          >
+            🏆 Badges
+          </button>
         </div>
 
         {loading ? (

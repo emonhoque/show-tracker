@@ -265,8 +265,7 @@ export default function BadgesPage() {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-yellow-500" />
+              <h1 className="text-2xl font-bold text-foreground">
                 My Badges
               </h1>
               {userName && (

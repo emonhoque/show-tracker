@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu, Play, CalendarDays, ArrowLeft } from 'lucide-react'
+import { LogOut, Copy, Plus, Menu, Play, User, ArrowLeft } from 'lucide-react'
 import * as DropdownMenu from '@/components/ui/dropdown-menu'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
@@ -206,8 +205,8 @@ export default function RecapPage() {
                 Add Show
               </Button>
               <Button onClick={() => router.push('/my-shows')} variant="outline" size="sm">
-                <CalendarDays className="w-4 h-4 mr-1" />
-                My Shows
+                <User className="w-4 h-4 mr-1" />
+                My Profile
               </Button>
               <ThemeToggle />
               <Button onClick={handleLogout} variant="outline" size="sm">
@@ -239,8 +238,8 @@ export default function RecapPage() {
                     Add Show
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows')}>
-                    <CalendarDays className="mr-3 h-4 w-4" />
-                    My Shows
+                    <User className="mr-3 h-4 w-4" />
+                    My Profile
                   </DropdownMenu.DropdownMenuItem>
                   <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-3 h-4 w-4" />
@@ -256,22 +255,20 @@ export default function RecapPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Year Selector */}
-        <div className="flex items-center gap-4">
-          <label htmlFor="year-select" className="text-sm font-medium text-foreground">
-            Year:
-          </label>
-          <Select value={selectedYear.toString()} onChange={(value) => setSelectedYear(parseInt(value))}>
-            <SelectTrigger className="w-32" id="year-select">
-              {selectedYear}
-            </SelectTrigger>
-            <SelectContent>
-              {generateYearOptions().map(year => (
-                <SelectOption key={year} value={year.toString()}>
-                  {year}
-                </SelectOption>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {generateYearOptions().map(year => (
+            <button
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedYear === year
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {year}
+            </button>
+          ))}
         </div>
 
         {loading ? (
