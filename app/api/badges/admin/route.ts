@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { spotify_id, name, description, image_url } = body
+  const { spotify_id, name, description, image_url, scope } = body
 
   if (!spotify_id || !name || !description) {
     return NextResponse.json(
@@ -50,12 +50,14 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  const badgeScope = scope === 'year' ? 'year' : 'lifetime'
+
   // Auto-generate key from name: "Illenium Award" → "secret_illenium_award"
   const key = `secret_${name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}`
 
   const { data, error } = await supabase
     .from('secret_badge_definitions')
-    .insert({ key, spotify_id, name, description, image_url: image_url || null })
+    .insert({ key, spotify_id, name, description, image_url: image_url || null, scope: badgeScope })
     .select()
     .single()
 

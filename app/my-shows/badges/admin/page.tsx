@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -26,6 +25,7 @@ interface BadgeDefinition {
   name: string
   description: string
   image_url: string | null
+  scope: 'lifetime' | 'year'
   created_at: string
 }
 
@@ -34,6 +34,19 @@ interface SpotifyArtist {
   name: string
   external_urls: { spotify: string }
   images: Array<{ url: string; height: number; width: number }>
+}
+
+/** Pick the smallest Spotify image that's >= targetSize, or the last (smallest) available. */
+function pickImage(images: SpotifyArtist['images'], targetSize = 200): string | null {
+  if (!images.length) return null
+  // Spotify images are ordered largest→smallest
+  const suitable = images.filter((img) => img.width >= targetSize || img.height >= targetSize)
+  const picked = suitable.length ? suitable[suitable.length - 1] : images[images.length - 1]
+  return picked.url
+}
+
+function proxyUrl(url: string): string {
+  return `/api/image-proxy?url=${encodeURIComponent(url)}`
 }
 
 // ---- Page ----
@@ -62,6 +75,7 @@ export default function BadgesAdminPage() {
   )
   const [badgeName, setBadgeName] = useState('')
   const [badgeDescription, setBadgeDescription] = useState('')
+  const [badgeScope, setBadgeScope] = useState<'lifetime' | 'year'>('lifetime')
   const [creating, setCreating] = useState(false)
 
   // ---- Auth ----
@@ -159,7 +173,8 @@ export default function BadgesAdminPage() {
           spotify_id: selectedArtist.id,
           name: badgeName.trim(),
           description: badgeDescription.trim(),
-          image_url: selectedArtist.images[0]?.url || null,
+          image_url: pickImage(selectedArtist.images) || null,
+          scope: badgeScope,
         }),
       })
       if (res.ok) {
@@ -172,6 +187,7 @@ export default function BadgesAdminPage() {
         setSelectedArtist(null)
         setBadgeName('')
         setBadgeDescription('')
+        setBadgeScope('lifetime')
         fetchDefinitions()
       } else {
         const err = await res.json().catch(() => ({ error: 'Unknown error' }))
@@ -350,13 +366,13 @@ export default function BadgesAdminPage() {
                         onClick={() => selectArtist(artist)}
                         className="w-full flex items-center gap-3 p-2 hover:bg-muted/50 transition-colors text-left"
                       >
-                        {artist.images[0]?.url ? (
-                          <Image
-                            src={`/api/image-proxy?url=${encodeURIComponent(artist.images[0].url)}`}
+                        {pickImage(artist.images) ? (
+                          <img
+                            src={proxyUrl(pickImage(artist.images)!)}
                             alt={artist.name}
                             width={36}
                             height={36}
-                            className="rounded-full object-cover"
+                            className="w-9 h-9 rounded-full object-cover"
                           />
                         ) : (
                           <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs">
@@ -377,13 +393,13 @@ export default function BadgesAdminPage() {
             {selectedArtist && (
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  {selectedArtist.images[0]?.url ? (
-                    <Image
-                      src={`/api/image-proxy?url=${encodeURIComponent(selectedArtist.images[0].url)}`}
+                  {pickImage(selectedArtist.images) ? (
+                    <img
+                      src={proxyUrl(pickImage(selectedArtist.images)!)}
                       alt={selectedArtist.name}
                       width={48}
                       height={48}
-                      className="rounded-full object-cover"
+                      className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
@@ -426,6 +442,41 @@ export default function BadgesAdminPage() {
                     onChange={(e) => setBadgeDescription(e.target.value)}
                     placeholder="e.g. Saw Illenium live"
                   />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground">
+                    Unlock Type
+                  </label>
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setBadgeScope('lifetime')}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        badgeScope === 'lifetime'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      Lifetime
+                      <p className="text-[10px] font-normal mt-0.5 opacity-70">
+                        Unlocks once, forever
+                      </p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBadgeScope('year')}
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        badgeScope === 'year'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-muted-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      Yearly
+                      <p className="text-[10px] font-normal mt-0.5 opacity-70">
+                        Unlocks each year seen
+                      </p>
+                    </button>
+                  </div>
                 </div>
                 <Button
                   onClick={createBadge}
@@ -470,12 +521,12 @@ export default function BadgesAdminPage() {
                     className="flex items-center gap-3 py-3"
                   >
                     {def.image_url ? (
-                      <Image
-                        src={`/api/image-proxy?url=${encodeURIComponent(def.image_url)}`}
+                      <img
+                        src={proxyUrl(def.image_url)}
                         alt={def.name}
                         width={40}
                         height={40}
-                        className="rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm">
@@ -483,9 +534,20 @@ export default function BadgesAdminPage() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">
-                        {def.name}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm truncate">
+                          {def.name}
+                        </p>
+                        <span
+                          className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                            def.scope === 'year'
+                              ? 'bg-blue-500/10 text-blue-500'
+                              : 'bg-amber-500/10 text-amber-500'
+                          }`}
+                        >
+                          {def.scope === 'year' ? 'Yearly' : 'Lifetime'}
+                        </span>
+                      </div>
                       <p className="text-xs text-muted-foreground truncate">
                         {def.description}
                       </p>

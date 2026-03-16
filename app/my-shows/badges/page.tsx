@@ -31,6 +31,8 @@ interface SecretArtistBadge {
   key: string
   name: string
   description: string
+  scope: 'lifetime' | 'year'
+  scope_year: number | null
   unlocked: boolean
   unlocked_at: string | null
   image_url: string | null
@@ -179,13 +181,18 @@ export default function BadgesPage() {
   }
 
   // Compute totals across all scopes
-  const secretUnlocked = data
-    ? data.secretArtists.filter((s) => s.unlocked).length
+  const lifetimeSecrets = data
+    ? data.secretArtists.filter((s) => s.scope === 'lifetime')
+    : []
+  const secretUnlocked = lifetimeSecrets.filter((s) => s.unlocked).length
+  const yearlySecretUnlocked = data
+    ? data.secretArtists.filter((s) => s.scope === 'year' && s.unlocked).length
     : 0
   const totalUnlocked = data
     ? data.summary.lifetimeUnlocked +
       data.summary.unlockedByYear.reduce((s, y) => s + y.unlocked, 0) +
-      secretUnlocked
+      secretUnlocked +
+      yearlySecretUnlocked
     : 0
   const totalBadges = data
     ? data.summary.lifetimeTotal +
@@ -349,6 +356,9 @@ export default function BadgesPage() {
               const yearStats = data.summary.unlockedByYear.find(
                 (u) => u.year === yg.year,
               )
+              const yearSecrets = data.secretArtists.filter(
+                (s) => s.scope === 'year' && s.scope_year === yg.year,
+              )
               return (
                 <CollapsibleBadgeSection
                   key={yg.year}
@@ -359,16 +369,17 @@ export default function BadgesPage() {
                       : undefined
                   }
                   badges={yg.badges}
+                  secretBadges={yearSecrets}
                   defaultOpen={idx === 0}
                 />
               )
             })}
 
-            {/* Secret artist badges */}
-            {data.summary.totalSecretArtists > 0 && (
+            {/* Secret artist badges (lifetime only) */}
+            {lifetimeSecrets.length > 0 && (
               <SecretArtistBadgesSection
-                badges={data.secretArtists}
-                total={data.summary.totalSecretArtists}
+                badges={lifetimeSecrets}
+                total={lifetimeSecrets.length}
               />
             )}
           </div>
@@ -384,15 +395,18 @@ function CollapsibleBadgeSection({
   title,
   subtitle,
   badges,
+  secretBadges,
   defaultOpen = false,
 }: {
   title: string
   subtitle?: string
   badges: BadgeResponse[]
+  secretBadges?: SecretArtistBadge[]
   defaultOpen?: boolean
 }) {
   const [open, setOpen] = useState(defaultOpen)
   const grouped = groupByCategory(badges)
+  const hasSecrets = secretBadges && secretBadges.length > 0
 
   return (
     <div className="border border-border rounded-lg overflow-hidden bg-card">
@@ -443,6 +457,35 @@ function CollapsibleBadgeSection({
               </div>
             )
           })}
+
+          {/* Year-scoped secret artist badges */}
+          {hasSecrets && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🔒</span>
+                <h3 className="text-sm font-medium text-foreground">Secret</h3>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  {secretBadges.filter((s) => s.unlocked).length}/{secretBadges.length}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {secretBadges.filter((s) => s.unlocked).map((badge) => (
+                  <SecretArtistCard key={`${badge.key}-${badge.scope_year}`} badge={badge} />
+                ))}
+                {secretBadges.filter((s) => !s.unlocked).map((badge, i) => (
+                  <Card key={`locked-year-${i}`} className="opacity-60 grayscale">
+                    <CardContent className="py-4 px-3 flex flex-col items-center text-center gap-2">
+                      <div className="text-3xl opacity-40">
+                        <Lock className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground leading-tight">???</p>
+                      <p className="text-xs text-muted-foreground leading-snug">See the right artist to unlock</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
