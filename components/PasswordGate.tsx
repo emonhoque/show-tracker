@@ -52,7 +52,7 @@ export function PasswordGate({ onSuccess }: PasswordGateProps) {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Show Tracker Demo</CardTitle>
-          <CardDescription>Enter the shared password and your full name to continue</CardDescription>
+          <CardDescription>Password is <strong>demo</strong>. Keep the name <strong>Alice Johnson</strong> to explore sample data, or enter your own</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
