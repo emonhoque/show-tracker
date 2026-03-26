@@ -202,7 +202,8 @@ export default function BadgesPage() {
   const totalBadges = data
     ? data.summary.lifetimeTotal +
       data.summary.unlockedByYear.reduce((s, y) => s + y.total, 0) +
-      data.summary.totalSecretArtists
+      secretUnlocked +
+      yearlySecretUnlocked
     : 0
 
   // Build tab list
