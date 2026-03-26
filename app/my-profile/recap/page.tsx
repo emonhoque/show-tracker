@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectOption, SelectTrigger } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { LogOut, Copy, Plus, Menu, Play, CalendarDays } from 'lucide-react'
-import * as DropdownMenu from '@/components/ui/dropdown-menu'
+import { PageHeader } from '@/components/PageHeader'
+import { Copy, Play, Plus } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
 import { RecapData } from '@/app/api/recap/route'
@@ -112,7 +110,7 @@ export default function RecapPage() {
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear()
     const years = []
-    for (let year = 2023; year <= currentYear; year++) {
+    for (let year = currentYear; year >= 2023; year--) {
       years.push(year)
     }
     return years
@@ -180,98 +178,33 @@ export default function RecapPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card shadow-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Recap</h1>
-              {userName && (
-                <p className="text-sm text-muted-foreground">Welcome, {formatNameForDisplay(userName)}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {/* Desktop buttons */}
-            <div className="hidden sm:flex gap-2">
-              <Button onClick={() => router.push('/')} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Show
-              </Button>
-              <Button onClick={() => router.push('/my-shows')} variant="outline" size="sm">
-                <CalendarDays className="w-4 h-4 mr-1" />
-                My Shows
-              </Button>
-              <ThemeToggle />
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="w-4 h-4 mr-1" />
-                Logout
-              </Button>
-            </div>
-            
-            {/* Mobile dropdown menu */}
-            <div className="sm:hidden flex gap-2">
-              <Button onClick={() => router.push('/')} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add
-              </Button>
-              <DropdownMenu.DropdownMenu>
-                <DropdownMenu.DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0"
-                    aria-label="Open menu"
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </DropdownMenu.DropdownMenuTrigger>
-                <DropdownMenu.DropdownMenuContent align="end" className="w-48 p-2">
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/')}>
-                    <Plus className="mr-3 h-4 w-4" />
-                    Add Show
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={() => router.push('/my-shows')}>
-                    <CalendarDays className="mr-3 h-4 w-4" />
-                    My Shows
-                  </DropdownMenu.DropdownMenuItem>
-                  <DropdownMenu.DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                    <LogOut className="mr-3 h-4 w-4" />
-                    Logout
-                  </DropdownMenu.DropdownMenuItem>
-                </DropdownMenu.DropdownMenuContent>
-              </DropdownMenu.DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title="Recap"
+        subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
+        backHref="/my-profile"
+        showMyProfile
+        showHome
+        showLogout
+        onLogout={handleLogout}
+      />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4 space-y-6">
         {/* Year Selector */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/my-shows')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            ← Back to My Shows
-          </Button>
-          <label htmlFor="year-select" className="text-sm font-medium text-foreground">
-            Year:
-          </label>
-          <Select value={selectedYear.toString()} onChange={(value) => setSelectedYear(parseInt(value))}>
-            <SelectTrigger className="w-32" id="year-select">
-              {selectedYear}
-            </SelectTrigger>
-            <SelectContent>
-              {generateYearOptions().map(year => (
-                <SelectOption key={year} value={year.toString()}>
-                  {year}
-                </SelectOption>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {generateYearOptions().map(year => (
+            <button
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                selectedYear === year
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {year}
+            </button>
+          ))}
         </div>
 
         {loading ? (

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { isShowPast } from '@/lib/time'
 import { validateUserName, validateRsvpStatus } from '@/lib/validation'
+import { evaluateAndUnlockBadges } from '@/lib/badges'
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,6 +66,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Failed to save RSVP' },
         { status: 500 }
+      )
+    }
+
+    // Fire-and-forget badge evaluation so it does not delay the response
+    // Pass the show year so only that year's badges are re-evaluated
+    if (nameValidation.sanitizedValue) {
+      const showYear = new Date(show.date_time).getUTCFullYear()
+      evaluateAndUnlockBadges(nameValidation.sanitizedValue, [showYear]).catch(
+        (err) => console.error('[badges] async eval failed:', err),
       )
     }
 

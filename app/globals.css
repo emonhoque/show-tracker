@@ -212,3 +212,19 @@
 .grid-cols-13 {
   grid-template-columns: 140px repeat(12, 1fr);
 }
+
+/* Horizontal scroll hint bounce (mobile only) */
+@keyframes scroll-hint {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-24px); }
+  40%  { transform: translateX(0); }
+  60%  { transform: translateX(-12px); }
+  80%  { transform: translateX(0); }
+  100% { transform: translateX(0); }
+}
+
+@media (max-width: 639px) {
+  .scroll-hint-bounce {
+    animation: scroll-hint 1s ease-in-out 0.5s 1;
+  }
+}
