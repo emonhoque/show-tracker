@@ -4,6 +4,53 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.9.0] - 2026-03-26
+
+### Added
+- **Badge system** - Full achievement/badge system for concert attendance
+  - `lib/badges.ts` — single source of truth for all badge definitions, evaluation logic, and persistence
+  - `GET /api/badges` — fetch and evaluate badges for a user; triggers unlock of any newly earned badges on every request
+  - `POST /api/badges/backfill` — backfill badges for all existing users
+  - `user_badges` table with `scope_year` column and unique index enforcing one unlock per (user, badge, scope)
+  - Badges page at `/my-profile/badges` showing all badge categories with progress
+  - Backfill script (`scripts/backfill-badges.mjs`) for retroactive evaluation
+  - Badge unlock triggered automatically on RSVP save
+- **Badge categories & criteria** - 5 categories with lifetime and year-scoped variants
+  - **Attendance** — milestone badges (Debut, Getting Hooked, Double Digits, etc.) and yearly warrior
+  - **Streaks & Timing** — back-to-back nights, triple threat, weekend warrior, monthly streak, night owl
+  - **Venues & Cities** — venue explorer/collector, venue regular, city hopper, home turf
+  - **Artists** — artist devotee/fan, diverse taste, headliner collector, local champion
+  - **Social** — dynamic duo (co-attendance with the same person at 5+ shows)
+- **Year-scoped badges** - Badges that can be earned once per calendar year (in addition to lifetime badges); `scope_year` persisted in DB
+- **Secret artist badges** — hidden badges tied to specific Spotify artists that reveal only when unlocked
+  - Included in the user badge response alongside standard badges
+  - Artist badges section refactored into its own component with improved image handling
+  - Supports both `lifetime` and `year` scope
+  - Stored in a dedicated `secret_badge_definitions` table with RLS policies
+- **Secret badge admin interface** - Full CRUD at `/my-profile/badges/admin`
+  - Create new secret badge definitions tied to a Spotify artist ID
+  - Edit existing definitions via `PATCH` endpoint
+  - Delete definitions
+  - Home button added to admin page header for quick navigation
+- **Tab navigation on Badges page** - Separate tabs for Lifetime, per-year, and Secret badge categories with horizontal scroll hint animation on mobile
+- **Recap page** (`/my-profile/recap`) - Concert summary page with personal statistics and leaderboard
+- **PageHeader component** - Shared header layout used consistently across Badges, My Profile, and Recap pages; supports extra custom buttons
+- **Home & back navigation buttons** - Home button on Badges, My Profile, and Recap pages; back button on Badges and Recap pages
+
+### Changed
+- **"My Shows" renamed to "My Profile"** - Button labels updated across all pages for consistency
+- **Badge & Recap nav buttons use icons** - Replaced text labels with icons for improved visual clarity
+- **Badge icon color coding** - Category badge icons now use distinct colors per category
+- **Local year generation** - Year selection in My Shows and Recap pages is now computed client-side, removing an extra `/api/years` call
+- **Recently unlocked badges** - Standard and secret badges merged into a single unified list, sorted session-new first then by date descending
+- **Content Security Policy** - Updated to explicitly allow connections to Supabase and Google Fonts
+- **Code cleanup** - Removed unused `addShowHref` prop from Badges and Recap pages
+
+### Fixed
+- **Secret badge total count** - Secret badges no longer inflate the total badge count; each unlocked secret badge adds exactly 1 to the denominator
+
+---
+
 ## [1.8.2] - 2026-03-13
 
 ### Fixed
