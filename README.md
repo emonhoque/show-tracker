@@ -5,13 +5,13 @@
 **A modern Progressive Web App for groups to track concerts and manage RSVPs**
 
 [![Version](https://img.shields.io/badge/version-1.9.0-blue)](https://github.com/emonhoque/show-tracker/releases)
-[![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.0-black)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19.2.3-blue)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
 
-Built with Next.js 15.5.2 and Supabase, featuring offline capabilities and native app-like experience.
+Built with Next.js 16.1.0 and Supabase, featuring offline capabilities and native app-like experience.
 
 </div>
 
@@ -65,15 +65,24 @@ Built for music lovers who attend lots of shows and want to stay coordinated.
 - 🎯 **Headliner tracking** - Mark and track headliners in your year-end recap
 - 🖼️ **Artist images** - Automatic artist photos from Spotify
 
-### My Shows & Cost Tracking
-- 🎟️ **My Shows** - Personal dashboard at `/my-shows` with upcoming and past shows split by date
+### My Profile & Cost Tracking
+- 🎟️ **My Profile** - Personal dashboard at `/my-profile` with upcoming and past shows split by date
   - Expandable cards showing poster, artists, attendees, and costs
   - Year selector and direct link to Recap stories
 - 💰 **Cost Tracking** - Log spending per show by category (Ticket, Transport, Food/Drink, Merch, Accommodation, Other)
 - 📊 **Spending Summary** - Yearly breakdown with total spend, average per show, cost per artist, and category breakdown
 
+### Badges
+- 🏆 **Achievement badges** - Earn badges based on concert attendance history at `/my-profile/badges`
+  - 5 categories: Attendance, Streaks & Timing, Venues & Cities, Artists, Social
+  - Lifetime badges (earn once) and year-scoped badges (earn once per calendar year)
+  - Badges auto-evaluated on every page load and on RSVP
+- 🔒 **Secret artist badges** - Hidden badges revealed only when earned; tied to specific Spotify artists
+  - Admin interface at `/my-profile/badges/admin` to create and manage secret badge definitions
+- 🔄 **Backfill support** - Retroactively award badges to all existing users via `/api/badges/backfill`
+
 ### Data & Analytics
-- 📈 **Year-end Recap** - Comprehensive analytics with leaderboards, monthly trends, and personal stats (now at `/my-shows/recap`)
+- 📈 **Year-end Recap** - Comprehensive analytics with leaderboards, monthly trends, and personal stats at `/my-profile/recap`
 - 📅 **Calendar Export** - Export shows to Google Calendar or download .ics files with custom duration
 - 📊 **Performance monitoring** - Vercel Speed Insights integration
 - 📸 **Photo sharing** - Google Photos links for past shows
@@ -205,7 +214,7 @@ See [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md) for detailed instructions
 3. RSVP to upcoming shows
 4. Past shows are automatically moved to the Past tab
 5. Check the "Music" tab to see new music from tracked artists
-6. Visit the "Recap" page for year-end analytics and statistics
+6. Visit **My Profile** for your personal show dashboard, cost tracking, badges, and recap
 
 ### PWA Installation
 - **Mobile**: Tap "Add to Home Screen" in your browser menu
@@ -255,6 +264,25 @@ The app now includes a community-driven Release Radar tracking system:
 - Set up a cron job to call `/api/cron/check-releases` periodically
 - This checks all tracked artists for new releases
 - New releases are automatically added to the database
+
+### Badges Feature
+Earn achievement badges based on your concert attendance history:
+
+#### Badge Categories
+- **Attendance** — milestone badges for total shows attended (lifetime) and yearly warrior
+- **Streaks & Timing** — back-to-back nights, triple threat (3 shows in a week), weekend warrior, monthly streak, night owl
+- **Venues & Cities** — venue explorer/collector, venue regular, city hopper, home turf
+- **Artists** — artist devotee/fan, diverse taste, headliner collector, local champion
+- **Social** — dynamic duo (co-attend 5+ shows with the same person)
+
+#### Secret Badges
+- Hidden badges that appear only when unlocked
+- Tied to specific Spotify artists — attending a show featuring that artist unlocks the badge
+- Admins can manage secret badge definitions at `/my-profile/badges/admin`
+
+#### Backfilling
+- Run the backfill script to award badges retroactively: `node scripts/backfill-badges.mjs`
+- Or call `POST /api/badges/backfill` directly
 
 ### Year-end Recap Feature
 The app includes comprehensive analytics and year-end recaps:
@@ -355,7 +383,7 @@ The easiest way to deploy is using [Vercel](https://vercel.com):
 
 ### Other Platforms
 
-This app can be deployed to any platform that supports Next.js 15:
+This app can be deployed to any platform that supports Next.js 16:
 - **Netlify** - Configure build command: `npm run build`
 - **Railway** - Add Dockerfile or use Node.js template
 - **Self-hosted** - Run `npm run build && npm start`
@@ -365,8 +393,8 @@ This app can be deployed to any platform that supports Next.js 15:
 ## 🛠️ Tech Stack
 
 ### Core Framework
-- **[Next.js](https://nextjs.org)** 15.5.2 - React framework with App Router
-- **[React](https://react.dev)** 19.1.0 - UI library
+- **[Next.js](https://nextjs.org)** 16.1.0 - React framework with App Router
+- **[React](https://react.dev)** 19.2.3 - UI library
 - **[TypeScript](https://www.typescriptlang.org)** 5.x - Type safety
 
 ### Styling & UI
@@ -405,6 +433,9 @@ The app uses a single, comprehensive database setup file ([database-complete-set
 - **`artists`** - Spotify artist data for release tracking
 - **`releases`** - Music releases from tracked artists
 - **`user_artists`** - Many-to-many relationship for community tracking
+- **`user_badges`** - Unlocked badges per user with `scope_year` for yearly variants; unique index on (user, badge, scope)
+- **`show_costs`** - Per-show cost entries by category per user
+- **`secret_badge_definitions`** - Admin-managed secret badge definitions tied to Spotify artist IDs
 
 ### Key Features
 - **Optimized indexes** - For upcoming/past shows and RSVP joins
@@ -613,6 +644,20 @@ Searches Spotify for artists.
 GET /api/releases?weeks=13
 ```
 Gets recent releases from tracked artists.
+
+### Badges API
+
+#### Get & Evaluate Badges
+```http
+GET /api/badges?user=name
+```
+Fetches all badges for a user and evaluates/unlocks any newly earned badges. Returns lifetime badges, year-grouped badges, secret artist badges, and a summary with unlock counts.
+
+#### Backfill Badges
+```http
+POST /api/badges/backfill
+```
+Evaluates and unlocks badges for all existing users retroactively.
 
 For complete API documentation, see the source code in [app/api/](app/api/).
 
