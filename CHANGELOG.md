@@ -4,7 +4,16 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
-## [1.10.0] - 2026-04-09
+## [1.10.1] - 2026-04-09
+
+### Fixed
+- **Mobile menu tap target** — Increased hamburger menu button size from 32×32px to 40×40px for easier tapping on mobile
+- **iOS PWA first-tap delay** — Added `touch-manipulation` to the menu button to eliminate the 300ms double-tap-to-zoom delay on iOS PWA
+- **Image modal swipe navigation** — Added touch swipe left/right to navigate between images on mobile
+
+---
+
+## [1.10.0] - 2026-04-08
 
 ### Added
 - **Merch tracking system** — Full merchandise collection management integrated into My Profile

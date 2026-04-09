@@ -154,10 +154,10 @@ export function PageHeader({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 w-8 p-0"
+                    className="h-10 w-10 p-0 touch-manipulation"
                     aria-label="Open menu"
                   >
-                    <Menu className="h-4 w-4" />
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 p-2">

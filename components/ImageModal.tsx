@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -56,6 +56,29 @@ export function ImageModal({ open, onOpenChange, src, alt, images }: ImageModalP
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [open, hasMultiple, goNext, goPrev])
 
+  // Touch swipe navigation
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null || !hasMultiple) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+    touchStartX.current = null
+    touchStartY.current = null
+
+    // Only swipe if horizontal movement is dominant and exceeds threshold
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) goNext()
+      else goPrev()
+    }
+  }, [hasMultiple, goNext, goPrev])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
@@ -76,6 +99,8 @@ export function ImageModal({ open, onOpenChange, src, alt, images }: ImageModalP
         <div 
           className="relative w-full h-full flex items-center justify-center"
           onClick={() => onOpenChange(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close button */}
           <button
