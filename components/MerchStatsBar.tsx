@@ -1,9 +1,8 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
 import { MerchStats } from '@/lib/types'
-import { formatPriceMinor, getCategoryEmoji, getCategoryLabel } from '@/lib/merch'
-import { ShoppingBag, Star, Sparkles, DollarSign, Trophy } from 'lucide-react'
+import { formatPriceMinor } from '@/lib/merch'
+import { ShoppingBag, DollarSign, Star, Sparkles, Palette } from 'lucide-react'
 
 interface MerchStatsBarProps {
   stats: MerchStats | null
@@ -13,60 +12,63 @@ interface MerchStatsBarProps {
 export function MerchStatsBar({ stats, loading }: MerchStatsBarProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 animate-pulse">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-3 sm:p-4">
-              <div className="h-3 bg-muted rounded w-16 mb-2"></div>
-              <div className="h-6 bg-muted rounded w-10"></div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card animate-pulse">
+        <div className="h-4 bg-muted rounded w-32"></div>
       </div>
     )
   }
 
   if (!stats || stats.totalItems === 0) return null
 
-  const statCards = [
+  const chips: { icon: React.ReactNode; text: string }[] = [
     {
-      label: 'Items',
-      value: String(stats.totalItems),
-      icon: <ShoppingBag className="w-4 h-4 text-blue-500" />,
-    },
-    {
-      label: 'Spent',
-      value: stats.totalSpent > 0 ? formatPriceMinor(stats.totalSpent) : '—',
-      icon: <DollarSign className="w-4 h-4 text-green-500" />,
-    },
-    {
-      label: 'Top Artist',
-      value: stats.topArtist ? stats.topArtist.name : '—',
-      sub: stats.topArtist ? `${stats.topArtist.count} items` : undefined,
-      icon: <Trophy className="w-4 h-4 text-yellow-500" />,
-    },
-    {
-      label: 'Special',
-      value: `${stats.signedCount} signed · ${stats.limitedEditionCount} limited`,
-      icon: <Star className="w-4 h-4 text-purple-500" />,
+      icon: <ShoppingBag className="w-3.5 h-3.5 text-blue-500" />,
+      text: `${stats.totalItems} item${stats.totalItems !== 1 ? 's' : ''}`,
     },
   ]
 
+  if (stats.totalSpent > 0) {
+    chips.push({
+      icon: <DollarSign className="w-3.5 h-3.5 text-green-500" />,
+      text: formatPriceMinor(stats.totalSpent),
+    })
+  }
+
+  if (stats.topArtist) {
+    chips.push({
+      icon: <span className="text-xs">🏆</span>,
+      text: stats.topArtist.name + (stats.topArtist.count > 1 ? ` (${stats.topArtist.count})` : ''),
+    })
+  }
+
+  if (stats.signedCount > 0) {
+    chips.push({
+      icon: <Star className="w-3.5 h-3.5 text-yellow-500" />,
+      text: `${stats.signedCount} signed`,
+    })
+  }
+
+  if (stats.limitedEditionCount > 0) {
+    chips.push({
+      icon: <Sparkles className="w-3.5 h-3.5 text-purple-500" />,
+      text: `${stats.limitedEditionCount} limited`,
+    })
+  }
+
+  if (stats.customCount > 0) {
+    chips.push({
+      icon: <Palette className="w-3.5 h-3.5 text-pink-500" />,
+      text: `${stats.customCount} custom`,
+    })
+  }
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-      {statCards.map((stat) => (
-        <Card key={stat.label}>
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center gap-1.5 mb-1">
-              {stat.icon}
-              <span className="text-xs text-muted-foreground">{stat.label}</span>
-            </div>
-            <p className="text-sm sm:text-base font-semibold text-foreground truncate">{stat.value}</p>
-            {stat.sub && (
-              <p className="text-xs text-muted-foreground">{stat.sub}</p>
-            )}
-          </CardContent>
-        </Card>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 rounded-lg border border-border bg-card text-sm">
+      {chips.map((chip, i) => (
+        <span key={i} className="flex items-center gap-1 text-foreground whitespace-nowrap">
+          {chip.icon}
+          <span>{chip.text}</span>
+        </span>
       ))}
     </div>
   )
