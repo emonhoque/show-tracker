@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/PageHeader'
+import { ProfileTabs } from '@/components/ProfileTabs'
 import { MerchCard } from '@/components/MerchCard'
 import { MerchCardSkeleton } from '@/components/MerchCardSkeleton'
 import { MerchEmptyState } from '@/components/MerchEmptyState'
@@ -12,11 +13,11 @@ import { MerchStatsBar } from '@/components/MerchStatsBar'
 import { AddMerchModal } from '@/components/AddMerchModal'
 import { EditMerchModal } from '@/components/EditMerchModal'
 import { DeleteMerchDialog } from '@/components/DeleteMerchDialog'
-import { PasswordGate } from '@/components/PasswordGate'
 import { useToast } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { Plus, ShoppingBag } from 'lucide-react'
 import { MerchItem, MerchStats } from '@/lib/types'
+import { formatNameForDisplay } from '@/lib/validation'
 
 export default function MerchPage() {
   const [mounted, setMounted] = useState(false)
@@ -56,6 +57,13 @@ export default function MerchPage() {
       setAuthenticated(true)
     }
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('userName')
+    setAuthenticated(false)
+    setUserName(null)
+    router.push('/')
+  }
 
   const fetchMerch = useCallback(async () => {
     if (!userName) return
@@ -171,21 +179,19 @@ export default function MerchPage() {
   if (!mounted) return null
 
   if (!authenticated) {
-    return (
-      <PasswordGate onSuccess={(name: string) => {
-        setUserName(name)
-        setAuthenticated(true)
-      }} />
-    )
+    router.push('/')
+    return null
   }
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        title="My Merch"
-        titleIcon={<ShoppingBag className="w-6 h-6" />}
-        backHref="/my-profile"
+        title="My Profile"
+        subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
+        backHref="/"
         showHome
+        showLogout
+        onLogout={handleLogout}
         extraButtons={
           <Button onClick={() => setShowAddModal(true)} size="sm">
             <Plus className="w-4 h-4 mr-1" />
@@ -193,6 +199,7 @@ export default function MerchPage() {
           </Button>
         }
       />
+      <ProfileTabs />
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {/* Stats */}

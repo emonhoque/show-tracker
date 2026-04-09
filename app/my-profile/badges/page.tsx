@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
+import { ProfileTabs } from '@/components/ProfileTabs'
 import { Trophy, Lock, Sparkles, Shield, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
@@ -265,10 +266,9 @@ export default function BadgesPage() {
     <div className="min-h-screen bg-background">
       {/* ---- Header ---- */}
       <PageHeader
-        title="My Badges"
+        title="My Profile"
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
-        backHref="/my-profile"
-        showMyProfile
+        backHref="/"
         showHome
         showLogout
         onLogout={() => {
@@ -287,6 +287,7 @@ export default function BadgesPage() {
           ) : undefined
         }
       />
+      <ProfileTabs />
 
       {/* ---- Main ---- */}
       <main className="max-w-4xl mx-auto p-4 space-y-4">
