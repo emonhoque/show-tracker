@@ -537,6 +537,7 @@ export default function BadgesPage() {
                   sectionLabel="Lifetime"
                   unlocked={data.summary.lifetimeUnlocked}
                   total={data.summary.lifetimeTotal}
+                  secretBadges={lifetimeSecrets}
                 />
               )}
 

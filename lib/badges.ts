@@ -204,6 +204,24 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     criteria: '100+ distinct artist names across all attended shows.',
     threshold: 100,
   },
+  {
+    key: 'diverse_taste_250',
+    name: 'Human Algorithm',
+    description: '250 unique artists. Spotify could never.',
+    category: 'artists',
+    scope: 'lifetime',
+    criteria: '250+ distinct artist names across all attended shows.',
+    threshold: 250,
+  },
+  {
+    key: 'diverse_taste_500',
+    name: 'Genre Doesn\'t Exist',
+    description: '500 unique artists. You\'ve transcended taste.',
+    category: 'artists',
+    scope: 'lifetime',
+    criteria: '500+ distinct artist names across all attended shows.',
+    threshold: 500,
+  },
 
   // ---- Social (lifetime) ----
   {
@@ -797,6 +815,8 @@ function computeLifetimeBadges(ctx: EvalContext): BadgeGrant[] {
   if (allArtists.size >= 25) grant('diverse_taste')
   if (allArtists.size >= 50) grant('diverse_taste_50')
   if (allArtists.size >= 100) grant('diverse_taste_100')
+  if (allArtists.size >= 250) grant('diverse_taste_250')
+  if (allArtists.size >= 500) grant('diverse_taste_500')
 
   // ---- Social (lifetime) ----
   const showGoingMap = new Map<string, Set<string>>()
