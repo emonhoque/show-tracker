@@ -141,12 +141,21 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   },
   {
     key: 'venue_collector',
-    name: '20 Venues',
-    description: '20 venues and counting.',
+    name: '25 Venues',
+    description: '25 venues and counting.',
     category: 'venues',
     scope: 'lifetime',
-    criteria: '20+ distinct venues across all attended shows.',
-    threshold: 20,
+    criteria: '25+ distinct venues across all attended shows.',
+    threshold: 25,
+  },
+  {
+    key: 'venue_master',
+    name: '50 Venues',
+    description: '50 venues — you\'ve got a map full of pins.',
+    category: 'venues',
+    scope: 'lifetime',
+    criteria: '50+ distinct venues across all attended shows.',
+    threshold: 50,
   },
 
   // ---- Artists (lifetime) ----
@@ -160,6 +169,15 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     threshold: 5,
   },
   {
+    key: 'diverse_taste_5',
+    name: 'Getting Around',
+    description: '5 unique artists across your shows.',
+    category: 'artists',
+    scope: 'lifetime',
+    criteria: '5+ distinct artist names across all attended shows.',
+    threshold: 5,
+  },
+  {
     key: 'diverse_taste',
     name: 'All Over the Map',
     description: '25 unique artists across all your shows.',
@@ -167,6 +185,24 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     scope: 'lifetime',
     criteria: '25+ distinct artist names across all attended shows.',
     threshold: 25,
+  },
+  {
+    key: 'diverse_taste_50',
+    name: 'Music Encyclopedia',
+    description: '50 unique artists — your taste is massive.',
+    category: 'artists',
+    scope: 'lifetime',
+    criteria: '50+ distinct artist names across all attended shows.',
+    threshold: 50,
+  },
+  {
+    key: 'diverse_taste_100',
+    name: 'Walking Festival',
+    description: '100 unique artists. You ARE a festival lineup.',
+    category: 'artists',
+    scope: 'lifetime',
+    criteria: '100+ distinct artist names across all attended shows.',
+    threshold: 100,
   },
 
   // ---- Social (lifetime) ----
@@ -177,6 +213,24 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     category: 'social',
     scope: 'lifetime',
     criteria: 'Any other user co-attended 5+ of the same shows.',
+    threshold: 5,
+  },
+  {
+    key: 'inseparable',
+    name: 'Inseparable',
+    description: '10 shows with the same person.',
+    category: 'social',
+    scope: 'lifetime',
+    criteria: 'Any other user co-attended 10+ of the same shows.',
+    threshold: 10,
+  },
+  {
+    key: 'the_crew',
+    name: 'The Crew',
+    description: 'Shared shows with 5 different people.',
+    category: 'social',
+    scope: 'lifetime',
+    criteria: '5+ distinct co-attendees across all attended shows.',
     threshold: 5,
   },
 
@@ -710,7 +764,8 @@ function computeLifetimeBadges(ctx: EvalContext): BadgeGrant[] {
     allVenues.add(s.venue.toLowerCase().trim())
   }
   if (allVenues.size >= 10) grant('venue_explorer')
-  if (allVenues.size >= 20) grant('venue_collector')
+  if (allVenues.size >= 25) grant('venue_collector')
+  if (allVenues.size >= 50) grant('venue_master')
 
   // ---- Artists (lifetime) ----
   const artistShowCount = new Map<string, number>()
@@ -730,7 +785,10 @@ function computeLifetimeBadges(ctx: EvalContext): BadgeGrant[] {
     ? Math.max(...artistShowCount.values())
     : 0
   if (maxArtistCount >= 5) grant('artist_devotee')
+  if (allArtists.size >= 5) grant('diverse_taste_5')
   if (allArtists.size >= 25) grant('diverse_taste')
+  if (allArtists.size >= 50) grant('diverse_taste_50')
+  if (allArtists.size >= 100) grant('diverse_taste_100')
 
   // ---- Social (lifetime) ----
   const showGoingMap = new Map<string, Set<string>>()
@@ -751,6 +809,8 @@ function computeLifetimeBadges(ctx: EvalContext): BadgeGrant[] {
     ? Math.max(...friendCounts.values())
     : 0
   if (maxFriendCount >= 5) grant('dynamic_duo')
+  if (maxFriendCount >= 10) grant('inseparable')
+  if (friendCounts.size >= 5) grant('the_crew')
 
   return grants
 }
