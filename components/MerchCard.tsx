@@ -173,6 +173,7 @@ export function MerchCard({ item, onEdit, onDelete }: MerchCardProps) {
           onOpenChange={setImageModalOpen}
           src={primaryImage}
           alt={item.name}
+          images={item.images?.map(img => img.image_url)}
         />
       )}
     </>

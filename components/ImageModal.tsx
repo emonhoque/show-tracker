@@ -1,18 +1,36 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { X } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ImageModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   src: string
   alt: string
+  images?: string[]
 }
 
-export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
+export function ImageModal({ open, onOpenChange, src, alt, images }: ImageModalProps) {
+  const allImages = images && images.length > 0 ? images : [src]
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const hasMultiple = allImages.length > 1
+
+  const goNext = useCallback(() => {
+    setCurrentIndex(i => (i + 1) % allImages.length)
+  }, [allImages.length])
+
+  const goPrev = useCallback(() => {
+    setCurrentIndex(i => (i - 1 + allImages.length) % allImages.length)
+  }, [allImages.length])
+
+  // Reset index when modal opens
+  useEffect(() => {
+    if (open) setCurrentIndex(0)
+  }, [open])
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (open) {
@@ -26,6 +44,17 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
       document.body.style.overflow = 'unset'
     }
   }, [open])
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!open || !hasMultiple) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') goNext()
+      else if (e.key === 'ArrowLeft') goPrev()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, hasMultiple, goNext, goPrev])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,11 +85,40 @@ export function ImageModal({ open, onOpenChange, src, alt }: ImageModalProps) {
           >
             <X className="w-6 h-6" />
           </button>
+
+          {/* Previous button */}
+          {hasMultiple && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goPrev() }}
+              className="absolute left-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Next button */}
+          {hasMultiple && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goNext() }}
+              className="absolute right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Counter */}
+          {hasMultiple && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
+              {currentIndex + 1} / {allImages.length}
+            </div>
+          )}
           
           {/* Image */}
           <Image
-            src={src}
-            alt={alt}
+            src={allImages[currentIndex]}
+            alt={`${alt}${hasMultiple ? ` (${currentIndex + 1} of ${allImages.length})` : ''}`}
             width={800}
             height={600}
             className="max-w-full max-h-full object-contain rounded-lg"
