@@ -54,6 +54,7 @@ export default function Home() {
   const [merchShowId, setMerchShowId] = useState<string | null>(null)
   const [merchShowTitle, setMerchShowTitle] = useState<string | null>(null)
   const [merchShowArtist, setMerchShowArtist] = useState<string | null>(null)
+  const [merchShowArtistSpotifyId, setMerchShowArtistSpotifyId] = useState<string | null>(null)
 
   // Check if component is mounted on client side
   useEffect(() => {
@@ -426,7 +427,9 @@ export default function Home() {
     setMerchShowTitle(show.title)
     // Pre-fill with the headliner artist name if available
     const headliner = show.show_artists?.find(a => a.position === 'Headliner')
-    setMerchShowArtist(headliner?.artist || show.show_artists?.[0]?.artist || '')
+    const prefillArtistData = headliner || show.show_artists?.[0]
+    setMerchShowArtist(prefillArtistData?.artist || '')
+    setMerchShowArtistSpotifyId(prefillArtistData?.spotify_id || null)
     setShowMerchModal(true)
   }
 
@@ -647,6 +650,7 @@ export default function Home() {
         prefillShowId={merchShowId || undefined}
         prefillShowTitle={merchShowTitle || undefined}
         prefillArtist={merchShowArtist || undefined}
+        prefillArtistSpotifyId={merchShowArtistSpotifyId || undefined}
       />
 
       {/* PWA Features */}

@@ -13,8 +13,8 @@ import {
   validateMerchNotes,
 } from '@/lib/validation'
 import { MERCH_CATEGORIES, MERCH_CONDITIONS, PURCHASE_SOURCES, parsePriceToMinor } from '@/lib/merch'
-import { Show, ShowArtist, RSVPSummary } from '@/lib/types'
-import { X, Upload, ImageIcon } from 'lucide-react'
+import { Show, ShowArtist, RSVPSummary, SpotifyArtist } from '@/lib/types'
+import { X, Upload, ImageIcon, Search } from 'lucide-react'
 
 const MAX_IMAGES = 5
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -25,7 +25,7 @@ interface AddMerchModalProps {
   onOpenChange: (open: boolean) => void
   onItemAdded: () => void
   prefillArtist?: string
-  prefillArtistId?: string
+  prefillArtistSpotifyId?: string
   prefillShowId?: string
   prefillShowTitle?: string
 }
@@ -35,7 +35,7 @@ export function AddMerchModal({
   onOpenChange,
   onItemAdded,
   prefillArtist,
-  prefillArtistId,
+  prefillArtistSpotifyId,
   prefillShowId,
   prefillShowTitle,
 }: AddMerchModalProps) {
@@ -63,6 +63,11 @@ export function AddMerchModal({
   const [shows, setShows] = useState<Pick<Show, 'id' | 'title' | 'date_time' | 'venue' | 'show_artists'>[]>([])
   const [selectedShowId, setSelectedShowId] = useState<string>(prefillShowId || '')
   const [showSearch, setShowSearch] = useState('')
+  const [artistSearch, setArtistSearch] = useState('')
+  const [artistResults, setArtistResults] = useState<SpotifyArtist[]>([])
+  const [searchingArtist, setSearchingArtist] = useState(false)
+  const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null)
+  const [selectedArtistImage, setSelectedArtistImage] = useState<string | null>(null)
   const { showToast } = useToast()
 
   // Fetch shows the user has RSVP'd to
@@ -121,9 +126,83 @@ export function AddMerchModal({
       setImagePreviews([])
       setSelectedShowId(prefillShowId || '')
       setShowSearch('')
+      setArtistSearch('')
+      setArtistResults([])
+      setSelectedArtistId(null)
+      setSelectedArtistImage(null)
       setError('')
     }
   }, [open, prefillArtist, prefillShowId])
+
+  // Auto-link prefilled artist to Spotify/DB when modal opens
+  useEffect(() => {
+    if (!open || !prefillArtistSpotifyId) return
+    const linkArtist = async () => {
+      try {
+        const userName = localStorage.getItem('userName')
+        const res = await fetch('/api/artists', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ spotifyId: prefillArtistSpotifyId, createdBy: userName }),
+        })
+        if (res.ok) {
+          const dbArtist = await res.json()
+          setSelectedArtistId(dbArtist.id)
+          setSelectedArtistImage(dbArtist.image_url || null)
+        }
+      } catch {
+        // Non-critical
+      }
+    }
+    linkArtist()
+  }, [open, prefillArtistSpotifyId])
+
+  const handleArtistSearch = async () => {
+    const q = artistSearch.trim()
+    if (!q) return
+    setSearchingArtist(true)
+    try {
+      const res = await fetch(`/api/artists/search?q=${encodeURIComponent(q)}`)
+      if (res.ok) {
+        const data = await res.json()
+        setArtistResults(data.artists || [])
+      }
+    } catch {
+      // Non-critical
+    } finally {
+      setSearchingArtist(false)
+    }
+  }
+
+  const handleSelectArtist = async (artist: SpotifyArtist) => {
+    updateField('artist_name', artist.name)
+    setSelectedArtistImage(artist.images?.[0]?.url || null)
+    setArtistSearch('')
+    setArtistResults([])
+    // Upsert to artists table to get DB id
+    try {
+      const userName = localStorage.getItem('userName')
+      const res = await fetch('/api/artists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spotifyId: artist.id, createdBy: userName }),
+      })
+      if (res.ok) {
+        const dbArtist = await res.json()
+        setSelectedArtistId(dbArtist.id)
+      }
+    } catch {
+      // Still keep the name even if DB upsert fails
+    }
+  }
+
+  const clearArtist = () => {
+    updateField('artist_name', '')
+    setSelectedArtistId(null)
+    setSelectedArtistImage(null)
+    setArtistSearch('')
+    setArtistResults([])
+  }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -235,7 +314,7 @@ export function AddMerchModal({
           user_id: userName,
           name: formData.name,
           artist_name: formData.artist_name,
-          artist_id: prefillArtistId || null,
+          artist_id: selectedArtistId || null,
           show_id: selectedShowId || null,
           category: formData.category,
           variant: formData.variant || null,
@@ -292,17 +371,52 @@ export function AddMerchModal({
             </div>
           )}
 
-          {/* Artist Name */}
+          {/* Artist */}
           <div>
             <label className="text-sm font-medium text-foreground">Artist *</label>
-            <Input
-              type="text"
-              value={formData.artist_name}
-              onChange={(e) => updateField('artist_name', e.target.value)}
-              placeholder="e.g. Excision"
-              required
-              className="mt-1"
-            />
+            {formData.artist_name ? (
+              <div className="mt-1 flex items-center gap-2 p-2 border border-border rounded-md bg-muted/30">
+                {selectedArtistImage && (
+                  <Image src={selectedArtistImage} alt="" width={32} height={32} className="rounded-full object-cover w-8 h-8" />
+                )}
+                <span className="text-sm font-medium flex-1">{formData.artist_name}</span>
+                <button type="button" onClick={clearArtist} className="text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="mt-1 space-y-1">
+                <div className="flex gap-1">
+                  <Input
+                    type="text"
+                    value={artistSearch}
+                    onChange={(e) => setArtistSearch(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleArtistSearch() } }}
+                    placeholder="Search Spotify for artist..."
+                  />
+                  <Button type="button" size="sm" variant="outline" onClick={handleArtistSearch} disabled={searchingArtist} className="px-2">
+                    <Search className="w-4 h-4" />
+                  </Button>
+                </div>
+                {artistResults.length > 0 && (
+                  <div className="max-h-40 overflow-y-auto border border-border rounded-md divide-y divide-border">
+                    {artistResults.map(a => (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() => handleSelectArtist(a)}
+                        className="flex items-center gap-2 w-full p-2 text-left hover:bg-muted transition-colors"
+                      >
+                        {a.images?.[0]?.url && (
+                          <Image src={a.images[0].url} alt="" width={32} height={32} className="rounded-full object-cover w-8 h-8" />
+                        )}
+                        <span className="text-sm">{a.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Category */}
