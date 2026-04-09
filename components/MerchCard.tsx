@@ -138,17 +138,16 @@ export function MerchCard({ item, onEdit, onDelete }: MerchCardProps) {
               )}
             </div>
 
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${getCategoryColor(item.category)}`}>
-              {getCategoryEmoji(item.category)} {getCategoryLabel(item.category)}
+            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-full ${getCategoryColor(item.category)}`}>
+              <span className="w-4 text-center leading-none">{getCategoryEmoji(item.category)}</span>
+              {getCategoryLabel(item.category)}
             </span>
 
             {item.show && (
-              <p className="text-xs text-muted-foreground leading-snug line-clamp-2">
-                <span className="inline-flex items-baseline gap-1">
-                  <span>🎪</span>
-                  <span>{item.show.title} — {item.show.venue}</span>
-                </span>
-              </p>
+              <div className="flex items-start gap-1.5 text-xs text-muted-foreground leading-snug">
+                <span className="w-4 text-center shrink-0 pt-px">🎪</span>
+                <span className="line-clamp-2">{item.show.title} — {item.show.venue}</span>
+              </div>
             )}
 
             <div className="flex items-center justify-between">
