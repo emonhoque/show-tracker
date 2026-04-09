@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 import { ProfileTabs } from '@/components/ProfileTabs'
-import { Trophy, Lock, Sparkles, Shield, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake } from 'lucide-react'
+import { Trophy, Lock, Sparkles, Shield, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake, ShoppingBag } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
 import type { ReactNode } from 'react'
@@ -68,6 +68,7 @@ const CATEGORY_META: Record<BadgeCategory, { label: string; icon: ReactNode }> =
   venues: { label: 'Venues & Cities', icon: <MapPin className="w-4 h-4 text-green-500" /> },
   artists: { label: 'Artists', icon: <Mic className="w-4 h-4 text-purple-500" /> },
   social: { label: 'Social', icon: <Users className="w-4 h-4 text-pink-500" /> },
+  merch: { label: 'Merch', icon: <ShoppingBag className="w-4 h-4 text-amber-500" /> },
 }
 
 const CATEGORY_ORDER: BadgeCategory[] = [
@@ -76,6 +77,7 @@ const CATEGORY_ORDER: BadgeCategory[] = [
   'venues',
   'artists',
   'social',
+  'merch',
 ]
 
 // ---- Placeholder badge icon by category ----
@@ -86,6 +88,7 @@ const PLACEHOLDER_ICONS: Record<BadgeCategory, ReactNode> = {
   venues: <Building2 className="w-6 h-6 text-green-500/70" />,
   artists: <Music className="w-6 h-6 text-purple-500/70" />,
   social: <Handshake className="w-6 h-6 text-pink-500/70" />,
+  merch: <ShoppingBag className="w-6 h-6 text-amber-500/70" />,
 }
 
 function formatDate(iso: string): string {
