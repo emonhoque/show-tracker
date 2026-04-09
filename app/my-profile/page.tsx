@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 import { useToast } from '@/components/ui/toast'
-import { DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy } from 'lucide-react'
+import { DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy, ShoppingBag } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
   type CostsSummary,
@@ -152,6 +152,13 @@ export default function MyShowsPage() {
             className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
           >
             <Trophy className="w-3.5 h-3.5 mr-1 inline" /> Badges
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push('/my-profile/merch')}
+            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+          >
+            <ShoppingBag className="w-3.5 h-3.5 mr-1 inline" /> Merch
           </button>
         </div>
 

@@ -184,7 +184,7 @@ export default function MerchPage() {
       <PageHeader
         title="My Merch"
         titleIcon={<ShoppingBag className="w-6 h-6" />}
-        backHref="/"
+        backHref="/my-profile"
         showHome
         extraButtons={
           <Button onClick={() => setShowAddModal(true)} size="sm">

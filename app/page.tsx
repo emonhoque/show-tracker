@@ -506,7 +506,6 @@ export default function Home() {
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
         onAddShow={() => setShowAddModal(true)}
         showMyProfile
-        showMerch
         showLogout
         onLogout={handleLogout}
         offlineBanner={isOffline}
