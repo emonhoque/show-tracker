@@ -190,6 +190,9 @@ export async function PUT(
 
     // Update images: replace all
     if (image_urls && Array.isArray(image_urls)) {
+      if (image_urls.length > 5) {
+        return NextResponse.json({ error: 'Maximum 5 images allowed per item' }, { status: 400 })
+      }
       // Validate all URLs
       for (const url of image_urls) {
         const urlValidation = validateUrl(url)

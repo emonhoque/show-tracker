@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -10,10 +11,14 @@ import {
   validateMerchName,
   validateArtistName,
   validateMerchNotes,
-  validateUrl,
 } from '@/lib/validation'
 import { MERCH_CATEGORIES, MERCH_CONDITIONS, PURCHASE_SOURCES, parsePriceToMinor } from '@/lib/merch'
 import { MerchItem, Show, ShowArtist, RSVPSummary } from '@/lib/types'
+import { X, Upload } from 'lucide-react'
+
+const MAX_IMAGES = 5
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 interface EditMerchModalProps {
   open: boolean
@@ -37,8 +42,12 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
     is_signed: false,
     is_limited_edition: false,
     is_custom: false,
-    image_url: '',
   })
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([])
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([])
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([])
+  const [uploadingImages, setUploadingImages] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [shows, setShows] = useState<Pick<Show, 'id' | 'title' | 'date_time' | 'venue' | 'show_artists'>[]>([])
@@ -106,13 +115,69 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
         is_signed: item.is_signed,
         is_limited_edition: item.is_limited_edition,
         is_custom: item.is_custom,
-        image_url: item.images && item.images.length > 0 ? item.images[0].image_url : '',
       })
+      setExistingImageUrls(item.images ? item.images.map(img => img.image_url) : [])
+      setNewImageFiles([])
+      setNewImagePreviews([])
       setSelectedShowId(item.show_id || '')
       setShowSearch('')
       setError('')
     }
   }, [item, open])
+
+  const totalImages = existingImageUrls.length + newImageFiles.length
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    const remaining = MAX_IMAGES - totalImages
+    if (remaining <= 0) return
+
+    const validFiles: File[] = []
+    for (const file of files.slice(0, remaining)) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setError('Only JPEG, PNG, and WebP images are allowed.')
+        continue
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setError('Each image must be under 10MB.')
+        continue
+      }
+      validFiles.push(file)
+    }
+
+    if (validFiles.length > 0) {
+      setNewImageFiles(prev => [...prev, ...validFiles])
+      const newPreviews = validFiles.map(f => URL.createObjectURL(f))
+      setNewImagePreviews(prev => [...prev, ...newPreviews])
+    }
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const removeExistingImage = (index: number) => {
+    setExistingImageUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const removeNewImage = (index: number) => {
+    URL.revokeObjectURL(newImagePreviews[index])
+    setNewImageFiles(prev => prev.filter((_, i) => i !== index))
+    setNewImagePreviews(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const uploadNewImages = async (): Promise<string[]> => {
+    const urls: string[] = []
+    for (const file of newImageFiles) {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload-merch-image', { method: 'POST', body: fd })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to upload image')
+      }
+      const data = await res.json()
+      urls.push(data.url)
+    }
+    return urls
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -137,14 +202,6 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
       return
     }
 
-    if (formData.image_url) {
-      const urlValidation = validateUrl(formData.image_url)
-      if (!urlValidation.isValid) {
-        setError(urlValidation.error!)
-        return
-      }
-    }
-
     if (formData.purchase_price) {
       const priceMinor = parsePriceToMinor(formData.purchase_price)
       if (priceMinor === null) {
@@ -155,7 +212,18 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
 
     setSaving(true)
     try {
-      const imageUrls = formData.image_url ? [formData.image_url] : []
+      // Upload new images to Vercel Blob
+      let newUploadedUrls: string[] = []
+      if (newImageFiles.length > 0) {
+        setUploadingImages(true)
+        try {
+          newUploadedUrls = await uploadNewImages()
+        } finally {
+          setUploadingImages(false)
+        }
+      }
+
+      const allImageUrls = [...existingImageUrls, ...newUploadedUrls]
 
       const res = await fetch(`/api/merch/${item.id}`, {
         method: 'PUT',
@@ -176,7 +244,7 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
           is_limited_edition: formData.is_limited_edition,
           is_custom: formData.is_custom,
           notes: formData.notes || null,
-          image_urls: imageUrls,
+          image_urls: allImageUrls,
         }),
       })
 
@@ -184,6 +252,9 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
         const data = await res.json()
         throw new Error(data.error || 'Failed to update item')
       }
+
+      // Clean up object URLs
+      newImagePreviews.forEach(url => URL.revokeObjectURL(url))
 
       showToast({ title: 'Item updated', type: 'success' })
       onItemUpdated()
@@ -420,16 +491,59 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
             </label>
           </div>
 
-          {/* Image URL */}
+          {/* Images */}
           <div>
-            <label className="text-sm font-medium text-foreground">Image URL</label>
-            <Input
-              type="text"
-              value={formData.image_url}
-              onChange={(e) => updateField('image_url', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="mt-1"
-            />
+            <label className="text-sm font-medium text-foreground">
+              Images {totalImages > 0 && `(${totalImages}/${MAX_IMAGES})`}
+            </label>
+            <div className="mt-1 space-y-2">
+              {(existingImageUrls.length > 0 || newImagePreviews.length > 0) && (
+                <div className="flex flex-wrap gap-2">
+                  {existingImageUrls.map((src, i) => (
+                    <div key={`existing-${i}`} className="relative w-20 h-20 rounded-md overflow-hidden border border-border">
+                      <Image src={src} alt={`Image ${i + 1}`} fill className="object-cover" sizes="80px" />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingImage(i)}
+                        className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                  {newImagePreviews.map((src, i) => (
+                    <div key={`new-${i}`} className="relative w-20 h-20 rounded-md overflow-hidden border border-border">
+                      <Image src={src} alt={`New ${i + 1}`} fill className="object-cover" sizes="80px" />
+                      <button
+                        type="button"
+                        onClick={() => removeNewImage(i)}
+                        className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {totalImages < MAX_IMAGES && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-2 text-sm border border-dashed border-border rounded-md hover:bg-muted transition-colors w-full justify-center"
+                >
+                  <Upload className="w-4 h-4" />
+                  {totalImages === 0 ? 'Add images' : 'Add more'}
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+            </div>
           </div>
 
           {/* Notes */}
@@ -459,7 +573,7 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
               disabled={saving}
               className="w-full sm:w-auto"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? (uploadingImages ? 'Uploading images...' : 'Saving...') : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>
