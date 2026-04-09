@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { PageHeader } from '@/components/PageHeader'
+import { ProfileTabs } from '@/components/ProfileTabs'
 import { Copy, Play, Plus } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import { RecapChart } from '@/components/RecapChart'
@@ -179,14 +180,14 @@ export default function RecapPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <PageHeader
-        title="Recap"
+        title="My Profile"
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
-        backHref="/my-profile"
-        showMyProfile
+        backHref="/"
         showHome
         showLogout
         onLogout={handleLogout}
       />
+      <ProfileTabs />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto p-4 space-y-6">

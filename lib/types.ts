@@ -121,3 +121,68 @@ export interface SpotifyRelease {
     name: string
   }>
 }
+
+// Merch Tracking types
+export type MerchCategory =
+  | 'shirt'
+  | 'hoodie'
+  | 'vinyl'
+  | 'poster'
+  | 'hat'
+  | 'pin'
+  | 'sticker'
+  | 'flag'
+  | 'jersey'
+  | 'jacket'
+  | 'accessory'
+  | 'other'
+
+export type MerchCondition = 'new' | 'good' | 'worn' | 'sealed'
+
+export type PurchaseSource = 'concert' | 'online' | 'resale' | 'gift' | 'other'
+
+export interface MerchItem {
+  id: string
+  user_id: string
+  artist_name: string
+  artist_id?: string | null
+  show_id?: string | null
+  name: string
+  category: MerchCategory
+  variant?: string | null
+  quantity: number
+  condition: MerchCondition
+  purchase_date?: string | null
+  purchase_price_minor?: number | null
+  currency: string
+  purchase_source?: PurchaseSource | null
+  is_signed: boolean
+  is_limited_edition: boolean
+  is_custom: boolean
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  // Joined data
+  images?: MerchItemImage[]
+  show?: Pick<Show, 'id' | 'title' | 'date_time' | 'venue'> | null
+  artist?: Pick<Artist, 'id' | 'artist_name' | 'image_url'> | null
+}
+
+export interface MerchItemImage {
+  id: string
+  merch_item_id: string
+  image_url: string
+  display_order: number
+  created_at: string
+}
+
+export interface MerchStats {
+  totalItems: number
+  totalQuantity: number
+  totalSpent: number
+  categoryBreakdown: Record<string, number>
+  topArtist: { name: string; count: number } | null
+  signedCount: number
+  limitedEditionCount: number
+  customCount: number
+}

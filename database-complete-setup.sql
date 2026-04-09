@@ -25,6 +25,51 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
+-- Create merch category enum
+DO $$ BEGIN
+    CREATE TYPE merch_category AS ENUM (
+        'shirt',
+        'hoodie',
+        'vinyl',
+        'poster',
+        'hat',
+        'pin',
+        'sticker',
+        'flag',
+        'jersey',
+        'jacket',
+        'accessory',
+        'other'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Create merch condition enum
+DO $$ BEGIN
+    CREATE TYPE merch_condition AS ENUM (
+        'new',
+        'good',
+        'worn',
+        'sealed'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Create purchase source enum
+DO $$ BEGIN
+    CREATE TYPE purchase_source AS ENUM (
+        'concert',
+        'online',
+        'resale',
+        'gift',
+        'other'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 -- =====================================================
 -- 2. TABLE CREATION
 -- =====================================================
@@ -136,6 +181,39 @@ CREATE TABLE IF NOT EXISTS secret_badge_definitions (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Create merch_items table
+CREATE TABLE IF NOT EXISTS merch_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL,                              -- matches rsvps.name / show_costs.user_id
+    artist_name TEXT NOT NULL,                          -- free-text artist name
+    artist_id UUID REFERENCES artists(id) ON DELETE SET NULL,  -- optional link to tracked artist
+    show_id UUID REFERENCES shows(id) ON DELETE SET NULL,      -- optional link to a show
+    name TEXT NOT NULL,
+    category merch_category NOT NULL DEFAULT 'other',
+    variant TEXT,                                       -- size, color, edition, etc.
+    quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    condition merch_condition DEFAULT 'new',
+    purchase_date DATE,
+    purchase_price_minor INTEGER CHECK (purchase_price_minor IS NULL OR purchase_price_minor >= 0),  -- cents
+    currency CHAR(3) NOT NULL DEFAULT 'USD',
+    purchase_source purchase_source,
+    is_signed BOOLEAN NOT NULL DEFAULT false,
+    is_limited_edition BOOLEAN NOT NULL DEFAULT false,
+    is_custom BOOLEAN NOT NULL DEFAULT false,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create merch_item_images table
+CREATE TABLE IF NOT EXISTS merch_item_images (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    merch_item_id UUID NOT NULL REFERENCES merch_items(id) ON DELETE CASCADE,
+    image_url TEXT NOT NULL,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- =====================================================
 -- 3. PERFORMANCE INDEXES
 -- =====================================================
@@ -165,6 +243,15 @@ CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON user_badges(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_badges_badge_key ON user_badges(badge_key);
 CREATE INDEX IF NOT EXISTS idx_user_badges_unlocked_at ON user_badges(unlocked_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_badges_user_scope ON user_badges(user_id, scope_year);
+CREATE INDEX IF NOT EXISTS idx_merch_items_user_id ON merch_items(user_id);
+CREATE INDEX IF NOT EXISTS idx_merch_items_artist_id ON merch_items(artist_id);
+CREATE INDEX IF NOT EXISTS idx_merch_items_show_id ON merch_items(show_id);
+CREATE INDEX IF NOT EXISTS idx_merch_items_category ON merch_items(category);
+CREATE INDEX IF NOT EXISTS idx_merch_items_user_category ON merch_items(user_id, category);
+CREATE INDEX IF NOT EXISTS idx_merch_items_user_artist ON merch_items(user_id, artist_name);
+CREATE INDEX IF NOT EXISTS idx_merch_items_created_at ON merch_items(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_merch_items_signed ON merch_items(is_signed) WHERE is_signed = true;
+CREATE INDEX IF NOT EXISTS idx_merch_item_images_item_id ON merch_item_images(merch_item_id);
 
 -- Optional indexes for future features (uncomment if needed)
 -- CREATE INDEX IF NOT EXISTS idx_rsvps_name_lower ON rsvps(LOWER(name));
@@ -182,11 +269,18 @@ BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+SET search_path = '';
 
 DROP TRIGGER IF EXISTS update_show_costs_updated_at ON show_costs;
 CREATE TRIGGER update_show_costs_updated_at
     BEFORE UPDATE ON show_costs
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_merch_items_updated_at ON merch_items;
+CREATE TRIGGER update_merch_items_updated_at
+    BEFORE UPDATE ON merch_items
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
@@ -203,6 +297,8 @@ ALTER TABLE user_artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE show_costs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE secret_badge_definitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE merch_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE merch_item_images ENABLE ROW LEVEL SECURITY;
 
 -- Drop any existing policies to avoid conflicts
 DROP POLICY IF EXISTS "Allow public read access to shows" ON shows;
@@ -247,6 +343,14 @@ DROP POLICY IF EXISTS "secret_badge_definitions_select" ON secret_badge_definiti
 DROP POLICY IF EXISTS "secret_badge_definitions_insert" ON secret_badge_definitions;
 DROP POLICY IF EXISTS "secret_badge_definitions_update" ON secret_badge_definitions;
 DROP POLICY IF EXISTS "secret_badge_definitions_delete" ON secret_badge_definitions;
+DROP POLICY IF EXISTS "merch_items_select_policy" ON merch_items;
+DROP POLICY IF EXISTS "merch_items_insert_policy" ON merch_items;
+DROP POLICY IF EXISTS "merch_items_update_policy" ON merch_items;
+DROP POLICY IF EXISTS "merch_items_delete_policy" ON merch_items;
+DROP POLICY IF EXISTS "merch_item_images_select_policy" ON merch_item_images;
+DROP POLICY IF EXISTS "merch_item_images_insert_policy" ON merch_item_images;
+DROP POLICY IF EXISTS "merch_item_images_update_policy" ON merch_item_images;
+DROP POLICY IF EXISTS "merch_item_images_delete_policy" ON merch_item_images;
 
 -- Create optimized RLS policies for shows table
 CREATE POLICY "shows_select_policy" ON shows
@@ -351,6 +455,33 @@ CREATE POLICY "secret_badge_definitions_update" ON secret_badge_definitions
 CREATE POLICY "secret_badge_definitions_delete" ON secret_badge_definitions
     FOR DELETE USING (true);
 
+-- Create RLS policies for merch_items table
+-- Write policies restricted to service_role; SELECT remains open.
+CREATE POLICY "merch_items_select_policy" ON merch_items
+    FOR SELECT USING (true);
+
+CREATE POLICY "merch_items_insert_policy" ON merch_items
+    FOR INSERT TO service_role WITH CHECK (true);
+
+CREATE POLICY "merch_items_update_policy" ON merch_items
+    FOR UPDATE TO service_role USING (true);
+
+CREATE POLICY "merch_items_delete_policy" ON merch_items
+    FOR DELETE TO service_role USING (true);
+
+-- Create RLS policies for merch_item_images table
+CREATE POLICY "merch_item_images_select_policy" ON merch_item_images
+    FOR SELECT USING (true);
+
+CREATE POLICY "merch_item_images_insert_policy" ON merch_item_images
+    FOR INSERT TO service_role WITH CHECK (true);
+
+CREATE POLICY "merch_item_images_update_policy" ON merch_item_images
+    FOR UPDATE TO service_role USING (true);
+
+CREATE POLICY "merch_item_images_delete_policy" ON merch_item_images
+    FOR DELETE TO service_role USING (true);
+
 -- =====================================================
 -- 6. DATABASE STATISTICS UPDATE
 -- =====================================================
@@ -364,6 +495,8 @@ ANALYZE user_artists;
 ANALYZE show_costs;
 ANALYZE user_badges;
 ANALYZE secret_badge_definitions;
+ANALYZE merch_items;
+ANALYZE merch_item_images;
 
 -- =====================================================
 -- 7. VERIFICATION QUERIES (OPTIONAL)
@@ -379,8 +512,8 @@ ANALYZE secret_badge_definitions;
 -- SETUP COMPLETE
 -- =====================================================
 -- Your show-tracker database is now fully configured with:
--- ✅ Enum types: cost_category
--- ✅ Tables: shows, rsvps, artists, releases, user_artists, show_costs, user_badges, secret_badge_definitions
+-- ✅ Enum types: cost_category, merch_category, merch_condition, purchase_source
+-- ✅ Tables: shows, rsvps, artists, releases, user_artists, show_costs, user_badges, secret_badge_definitions, merch_items, merch_item_images
 -- ✅ Performance indexes for fast queries
 -- ✅ Auto-update trigger for show_costs.updated_at
 -- ✅ Optimized RLS policies for security

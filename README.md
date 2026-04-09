@@ -4,7 +4,7 @@
 
 **A modern Progressive Web App for groups to track concerts and manage RSVPs**
 
-[![Version](https://img.shields.io/badge/version-1.9.0-blue)](https://github.com/emonhoque/show-tracker/releases)
+[![Version](https://img.shields.io/badge/version-1.10.0-blue)](https://github.com/emonhoque/show-tracker/releases)
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.0-black)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19.2.3-blue)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org)
@@ -72,12 +72,23 @@ Built for music lovers who attend lots of shows and want to stay coordinated.
 - 💰 **Cost Tracking** - Log spending per show by category (Ticket, Transport, Food/Drink, Merch, Accommodation, Other)
 - 📊 **Spending Summary** - Yearly breakdown with total spend, average per show, cost per artist, and category breakdown
 
+### Merch Tracking
+- 👕 **Merch collection** - Track your concert merchandise at `/my-profile/merch`
+  - Add items with artist (Spotify search), category, images (Vercel Blob upload), price, quantity, and show link
+  - Edit and delete items with confirmation dialogs
+  - Multi-image support with navigation and counter on cards
+- 🔍 **Smart filters** - Filter by category and artist with options populated from your collection
+- 📊 **Stats bar** - Compact chip-based overview of total items, total spent, top artist, and top category
+
 ### Badges
-- 🏆 **Achievement badges** - Earn badges based on concert attendance history at `/my-profile/badges`
-  - 5 categories: Attendance, Streaks & Timing, Venues & Cities, Artists, Social
+- 🏆 **Achievement badges** - Earn badges based on concert attendance and merch at `/my-profile/badges`
+  - 6 categories: Attendance, Streaks & Timing, Venues & Cities, Artists, Social, Merch
   - Lifetime badges (earn once) and year-scoped badges (earn once per calendar year)
+  - Collapsible category sections with animated chevron indicators
   - Badges auto-evaluated on every page load and on RSVP
+- 👕 **Merch badges** - 13 lifetime and 2 year-scoped badges for collection milestones, signed/limited items, spending, and artist variety
 - 🔒 **Secret artist badges** - Hidden badges revealed only when earned; tied to specific Spotify artists
+  - Secret merch badges — owning merch by a secret artist unlocks a companion badge
   - Admin interface at `/my-profile/badges/admin` to create and manage secret badge definitions
 - 🔄 **Backfill support** - Retroactively award badges to all existing users via `/api/badges/backfill`
 

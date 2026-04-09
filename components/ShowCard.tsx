@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime, formatDaysUntilShow } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2 } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2, ShoppingBag } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 import { ShareShowImage } from '@/components/ShareShowImage'
@@ -33,9 +33,10 @@ interface ShowCardProps {
   onDelete?: (showId: string) => void
   onRSVPUpdate?: () => void
   onDuplicate?: (show: Show) => void
+  onAddMerch?: (show: Show) => void
 }
 
-export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate }: ShowCardProps) {
+export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate, onAddMerch }: ShowCardProps) {
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -337,6 +338,12 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
+                  </DropdownMenu.DropdownMenuItem>
+                )}
+                {isPast && onAddMerch && (
+                  <DropdownMenu.DropdownMenuItem onClick={() => onAddMerch(show)}>
+                    <ShoppingBag className="mr-2 h-4 w-4" />
+                    Add Merch
                   </DropdownMenu.DropdownMenuItem>
                 )}
               </DropdownMenu.DropdownMenuContent>

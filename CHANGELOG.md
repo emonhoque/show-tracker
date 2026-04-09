@@ -4,6 +4,40 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.10.0] - 2026-04-09
+
+### Added
+- **Merch tracking system** — Full merchandise collection management integrated into My Profile
+  - New `/my-profile/merch` page for browsing, adding, editing, and deleting merch items
+  - `AddMerchModal` and `EditMerchModal` with Spotify artist search, show picker (auto-prefills purchase date), image upload via Vercel Blob, and quantity/price tracking
+  - `MerchCard` with multi-image support (navigation and counter), signed/limited/custom badges, and price display
+  - `MerchFilters` with dynamic category and artist dropdowns based on the user's collection
+  - `MerchStatsBar` — compact chip-based stats overview (total items, total spent, top artist, top category)
+  - `MerchCardSkeleton`, `MerchEmptyState`, `MerchErrorState` loading/empty/error states
+  - `DeleteMerchDialog` confirmation dialog for safe deletion
+  - `lib/merch.ts` — merch constants (categories, types) and helper utilities
+  - `lib/validation.ts` — server-side validation for merch API inputs
+  - `lib/types.ts` — `MerchItem`, `MerchCategory`, and related TypeScript interfaces
+  - API routes: `POST/GET /api/merch`, `PATCH/DELETE /api/merch/[id]`, `GET /api/merch/stats`, `POST /api/upload-merch-image`
+- **Merch badges** — 13 lifetime and 2 year-scoped merch badges
+  - Lifetime: Souvenir, Collector (10), Hoarder (25), Walking Merch Booth (50), Autograph Hunter (signed), Pen Pal (5 signed), Rare Find (limited), Merch Sampler (5 artists), Brand Ambassador (10 artists), Big Spender ($500+), The Whale ($1,000+), A Bit of Everything (5 categories), DIY Fan (custom)
+  - Year-scoped: Yearly Haul (5 items/year), Show Shopper (merch at 3 shows/year)
+  - Secret merch badges — owning merch by a secret artist unlocks a companion `secret_merch_*` badge
+- **Artist diversity badge tiers** — Added 250 ("Human Algorithm") and 500 ("Genre Doesn't Exist") unique artist lifetime badges
+- **Early Bird badge** — Year-scoped badge for attending a show starting at 5 PM or earlier
+- **Collapsible badge sections** — All badge category groups and secret badge sections are now expandable/collapsible with animated chevron indicators
+
+### Changed
+- **ProfileTabs component** — Added tab navigation bar across My Profile sub-pages (Shows, Merch, Badges, Recap) with active state highlighting
+- **ImageModal multi-image support** — Now supports navigating through multiple images with left/right arrows and an image counter overlay
+- **MerchStatsBar redesign** — Replaced the grid layout with a compact horizontal chip strip for a cleaner look
+- **Shows tab icon** — Changed from dollar sign to ticket icon in ProfileTabs for consistency
+- **Venue & artist badge criteria** — Updated descriptions and thresholds for clarity
+- **Condition field removed from merch UI** — Simplified the merch form by removing the Condition dropdown (DB column retained for future use)
+- **Show picker improvements** — Searchable dropdown with outside-click-to-close, auto-prefill of purchase date when a show is selected
+
+---
+
 ## [1.9.0] - 2026-03-26
 
 ### Added

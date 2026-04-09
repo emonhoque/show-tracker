@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 import { useToast } from '@/components/ui/toast'
-import { DollarSign, ChevronDown, CalendarDays, History, BarChart3, Trophy } from 'lucide-react'
+import { DollarSign, ChevronDown, CalendarDays, History } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import {
   type CostsSummary,
   type ShowWithCosts,
 } from '@/lib/costs'
 import { ShowCostsCard } from '@/components/CostsComponents'
+import { ProfileTabs } from '@/components/ProfileTabs'
 
 const fmtUSD = (value: number) =>
   '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -112,16 +113,17 @@ export default function MyShowsPage() {
         title="My Profile"
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
         backHref="/"
-        addShowHref="/"
         showHome
         showLogout
         onLogout={handleLogout}
       />
+      <ProfileTabs />
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
+        {/* Year Selector */}
         <div
           ref={scrollBarRef}
-          className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4 scroll-hint-bounce"
+          className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {generateYearOptions().map((year) => (
@@ -138,21 +140,6 @@ export default function MyShowsPage() {
               {year}
             </button>
           ))}
-          <div className="shrink-0 w-px bg-border mx-1 self-stretch" />
-          <button
-            type="button"
-            onClick={() => router.push('/my-profile/recap')}
-            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
-          >
-            <BarChart3 className="w-3.5 h-3.5 mr-1 inline" /> Recap
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/my-profile/badges')}
-            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
-          >
-            <Trophy className="w-3.5 h-3.5 mr-1 inline" /> Badges
-          </button>
         </div>
 
         {loading ? (

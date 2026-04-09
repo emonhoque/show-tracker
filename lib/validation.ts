@@ -208,6 +208,104 @@ export function normalizeNameForStorage(name: string): string {
   return sanitizeText(name).toLowerCase()
 }
 
+// ── Merch validation ────────────────────────────────────
+
+const VALID_MERCH_CATEGORIES = [
+  'shirt', 'hoodie', 'vinyl', 'poster', 'hat', 'pin',
+  'sticker', 'flag', 'jersey', 'jacket', 'accessory', 'other'
+]
+
+const VALID_MERCH_CONDITIONS = ['new', 'good', 'worn', 'sealed']
+
+const VALID_PURCHASE_SOURCES = ['concert', 'online', 'resale', 'gift', 'other']
+
+export function validateMerchName(name: string): ValidationResult {
+  const sanitized = sanitizeText(name)
+  if (!sanitized) {
+    return { isValid: false, error: 'Item name is required' }
+  }
+  if (sanitized.length > 150) {
+    return { isValid: false, error: 'Item name must be 150 characters or less' }
+  }
+  if (sanitized.length < 2) {
+    return { isValid: false, error: 'Item name must be at least 2 characters' }
+  }
+  return { isValid: true, sanitizedValue: sanitized }
+}
+
+export function validateArtistName(name: string): ValidationResult {
+  const sanitized = sanitizeText(name)
+  if (!sanitized) {
+    return { isValid: false, error: 'Artist name is required' }
+  }
+  if (sanitized.length > 100) {
+    return { isValid: false, error: 'Artist name must be 100 characters or less' }
+  }
+  if (sanitized.length < 1) {
+    return { isValid: false, error: 'Artist name must be at least 1 character' }
+  }
+  return { isValid: true, sanitizedValue: sanitized }
+}
+
+export function validateMerchCategory(category: string): ValidationResult {
+  if (!VALID_MERCH_CATEGORIES.includes(category)) {
+    return { isValid: false, error: 'Invalid category' }
+  }
+  return { isValid: true, sanitizedValue: category }
+}
+
+export function validateMerchCondition(condition: string): ValidationResult {
+  if (!condition) {
+    return { isValid: true, sanitizedValue: 'new' }
+  }
+  if (!VALID_MERCH_CONDITIONS.includes(condition)) {
+    return { isValid: false, error: 'Invalid condition' }
+  }
+  return { isValid: true, sanitizedValue: condition }
+}
+
+export function validatePurchaseSource(source: string): ValidationResult {
+  if (!source) {
+    return { isValid: true, sanitizedValue: '' }
+  }
+  if (!VALID_PURCHASE_SOURCES.includes(source)) {
+    return { isValid: false, error: 'Invalid purchase source' }
+  }
+  return { isValid: true, sanitizedValue: source }
+}
+
+export function validateMerchVariant(variant: string): ValidationResult {
+  if (!variant) {
+    return { isValid: true, sanitizedValue: '' }
+  }
+  const sanitized = sanitizeText(variant)
+  if (sanitized.length > 100) {
+    return { isValid: false, error: 'Variant must be 100 characters or less' }
+  }
+  return { isValid: true, sanitizedValue: sanitized }
+}
+
+export function validateMerchNotes(notes: string): ValidationResult {
+  if (!notes) {
+    return { isValid: true, sanitizedValue: '' }
+  }
+  const sanitized = sanitizeText(notes)
+  if (sanitized.length > 500) {
+    return { isValid: false, error: 'Notes must be 500 characters or less' }
+  }
+  return { isValid: true, sanitizedValue: sanitized }
+}
+
+export function validateQuantity(quantity: number): ValidationResult {
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return { isValid: false, error: 'Quantity must be at least 1' }
+  }
+  if (quantity > 999) {
+    return { isValid: false, error: 'Quantity must be 999 or less' }
+  }
+  return { isValid: true, sanitizedValue: String(quantity) }
+}
+
 // Format name for display (title case with special handling for prefixes)
 export function formatNameForDisplay(normalizedName: string): string {
   if (!normalizedName || typeof normalizedName !== 'string') {
