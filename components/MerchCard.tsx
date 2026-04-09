@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { ImageModal } from '@/components/ImageModal'
-import { getCategoryLabel, getCategoryEmoji, getConditionLabel, formatPriceMinor } from '@/lib/merch'
+import { getCategoryLabel, getCategoryEmoji, formatPriceMinor } from '@/lib/merch'
 import { formatUserTime } from '@/lib/time'
 import { MerchItem } from '@/lib/types'
 import { Edit, Trash2, MoreVertical, Star, Sparkles, Palette } from 'lucide-react'
@@ -154,7 +154,6 @@ export function MerchCard({ item, onEdit, onDelete }: MerchCardProps) {
             )}
 
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>{getConditionLabel(item.condition)}</span>
               {item.purchase_price_minor != null && item.purchase_price_minor > 0 && (
                 <span className="font-medium text-foreground">{formatPriceMinor(item.purchase_price_minor)}</span>
               )}

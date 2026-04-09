@@ -12,7 +12,7 @@ import {
   validateArtistName,
   validateMerchNotes,
 } from '@/lib/validation'
-import { MERCH_CATEGORIES, MERCH_CONDITIONS, PURCHASE_SOURCES, parsePriceToMinor } from '@/lib/merch'
+import { MERCH_CATEGORIES, PURCHASE_SOURCES, parsePriceToMinor } from '@/lib/merch'
 import { MerchItem, Show, ShowArtist, RSVPSummary, SpotifyArtist } from '@/lib/types'
 import { X, Upload, Search } from 'lucide-react'
 
@@ -436,34 +436,17 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
             />
           </div>
 
-          {/* Condition + Quantity row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm font-medium text-foreground">Condition</label>
-              <Select value={formData.condition} onChange={(v) => updateField('condition', v)} className="mt-1">
-                <SelectTrigger className="w-full">
-                  {MERCH_CONDITIONS.find(c => c.value === formData.condition)?.label || 'Select'}
-                </SelectTrigger>
-                <SelectContent>
-                  {MERCH_CONDITIONS.map(c => (
-                    <SelectOption key={c.value} value={c.value}>
-                      {c.label}
-                    </SelectOption>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-foreground">Quantity</label>
-              <Input
-                type="number"
-                min="1"
-                max="999"
-                value={formData.quantity}
-                onChange={(e) => updateField('quantity', e.target.value)}
-                className="mt-1"
-              />
-            </div>
+          {/* Quantity */}
+          <div>
+            <label className="text-sm font-medium text-foreground">Quantity</label>
+            <Input
+              type="number"
+              min="1"
+              max="999"
+              value={formData.quantity}
+              onChange={(e) => updateField('quantity', e.target.value)}
+              className="mt-1"
+            />
           </div>
 
           {/* Price + Source row */}
