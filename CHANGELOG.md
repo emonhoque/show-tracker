@@ -4,6 +4,19 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.10.2] - 2026-04-09
+
+### Fixed
+- **Merch card text truncation** — Item names now wrap up to 2 lines instead of cutting off; show/venue text also wraps
+- **Merch card emoji alignment** — Category and show emojis use fixed-width containers for consistent vertical alignment
+- **Missing category colors** — Added distinct pill colors for jersey, sticker, flag, jacket, and accessory (previously fell through to invisible gray in dark mode)
+- **iOS PWA menu button** — Switched to controlled dropdown state for reliable first-tap behavior on iOS
+
+### Changed
+- **Merch card layout polish** — Improved spacing, price prominence, and quantity/variant placement
+
+---
+
 ## [1.10.1] - 2026-04-09
 
 ### Fixed
