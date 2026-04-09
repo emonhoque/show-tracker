@@ -74,7 +74,7 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
           const data = await res.json()
           const pastShows = (data.shows || []) as (Show & { rsvps?: RSVPSummary })[]
           const filtered = pastShows
-            .filter(s => s.rsvps && (s.rsvps.going?.includes(userName) || s.rsvps.maybe?.includes(userName)))
+            .filter(s => s.rsvps?.going?.includes(userName))
             .map(s => ({ id: s.id, title: s.title, date_time: s.date_time, venue: s.venue, show_artists: s.show_artists }))
           // Ensure the currently linked show is in the list even if user didn't RSVP
           if (item?.show_id && !filtered.find(s => s.id === item.show_id)) {
