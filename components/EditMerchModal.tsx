@@ -550,7 +550,14 @@ export function EditMerchModal({ open, onOpenChange, item, onItemUpdated }: Edit
                             <div
                               key={s.id}
                               className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors"
-                              onClick={() => { setSelectedShowId(s.id); setShowSearch(''); setShowDropdownOpen(false) }}
+                              onClick={() => {
+                                setSelectedShowId(s.id)
+                                setShowSearch('')
+                                setShowDropdownOpen(false)
+                                if (s.date_time && !formData.purchase_date) {
+                                  updateField('purchase_date', new Date(s.date_time).toISOString().split('T')[0])
+                                }
+                              }}
                             >
                               🎪 {s.title} — {s.venue} ({new Date(s.date_time).toLocaleDateString()}){artistStr ? ` · ${artistStr}` : ''}
                             </div>

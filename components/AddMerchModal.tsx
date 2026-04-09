@@ -579,7 +579,15 @@ export function AddMerchModal({
                             <div
                               key={s.id}
                               className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors"
-                              onClick={() => { setSelectedShowId(s.id); setShowSearch(''); setShowDropdownOpen(false) }}
+                              onClick={() => {
+                                setSelectedShowId(s.id)
+                                setShowSearch('')
+                                setShowDropdownOpen(false)
+                                if (s.date_time) {
+                                  const d = new Date(s.date_time)
+                                  updateField('purchase_date', d.toISOString().split('T')[0])
+                                }
+                              }}
                             >
                               🎪 {s.title} — {s.venue} ({new Date(s.date_time).toLocaleDateString()}){artists ? ` · ${artists}` : ''}
                             </div>
