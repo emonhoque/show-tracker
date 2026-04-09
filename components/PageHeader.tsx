@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -66,6 +66,7 @@ export function PageHeader({
 
   // Collect mobile dropdown items
   const hasMobileDropdown = showMyProfile || showHome || showLogout
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <header className="bg-card shadow-sm border-b border-border">
@@ -149,15 +150,16 @@ export function PageHeader({
             )}
             {extraButtons}
             {hasMobileDropdown && (
-              <DropdownMenu>
+              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-10 w-10 p-0 touch-manipulation"
+                    className="h-8 w-8 p-0"
                     aria-label="Open menu"
+                    onClick={() => setMenuOpen(prev => !prev)}
                   >
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 p-2">
