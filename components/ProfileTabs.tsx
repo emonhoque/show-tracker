@@ -1,10 +1,10 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { DollarSign, BarChart3, Trophy, ShoppingBag } from 'lucide-react'
+import { Ticket, BarChart3, Trophy, ShoppingBag } from 'lucide-react'
 
 const TABS = [
-  { href: '/my-profile', label: 'Shows', icon: DollarSign },
+  { href: '/my-profile', label: 'Shows', icon: Ticket },
   { href: '/my-profile/merch', label: 'Merch', icon: ShoppingBag },
   { href: '/my-profile/badges', label: 'Badges', icon: Trophy },
   { href: '/my-profile/recap', label: 'Recap', icon: BarChart3 },
