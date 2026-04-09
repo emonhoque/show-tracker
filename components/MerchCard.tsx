@@ -104,10 +104,10 @@ export function MerchCard({ item, onEdit, onDelete }: MerchCardProps) {
           )}
 
           {/* Details Section */}
-          <div className="p-3 space-y-1.5">
+          <div className="p-3 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm text-foreground truncate">{item.name}</h3>
+                <h3 className="font-semibold text-sm text-foreground leading-snug line-clamp-2">{item.name}</h3>
                 <p className="text-sm text-muted-foreground truncate">{item.artist_name}</p>
               </div>
               {(onEdit || onDelete) && (
@@ -138,29 +138,32 @@ export function MerchCard({ item, onEdit, onDelete }: MerchCardProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getCategoryColor(item.category)}`}>
-                {getCategoryEmoji(item.category)} {getCategoryLabel(item.category)}
-              </span>
-              {item.variant && (
-                <span className="text-xs text-muted-foreground">{item.variant}</span>
-              )}
-            </div>
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${getCategoryColor(item.category)}`}>
+              {getCategoryEmoji(item.category)} {getCategoryLabel(item.category)}
+            </span>
 
             {item.show && (
-              <p className="text-xs text-muted-foreground truncate">
-                🎪 {item.show.title} — {item.show.venue}
+              <p className="text-xs text-muted-foreground leading-snug line-clamp-2">
+                <span className="inline-flex items-baseline gap-1">
+                  <span>🎪</span>
+                  <span>{item.show.title} — {item.show.venue}</span>
+                </span>
               </p>
             )}
 
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              {item.purchase_price_minor != null && item.purchase_price_minor > 0 && (
-                <span className="font-medium text-foreground">{formatPriceMinor(item.purchase_price_minor)}</span>
+            <div className="flex items-center justify-between">
+              {item.purchase_price_minor != null && item.purchase_price_minor > 0 ? (
+                <span className="text-sm font-semibold text-foreground">{formatPriceMinor(item.purchase_price_minor)}</span>
+              ) : (
+                <span />
+              )}
+              {item.quantity > 1 && (
+                <span className="text-xs text-muted-foreground">Qty: {item.quantity}</span>
               )}
             </div>
 
-            {item.quantity > 1 && (
-              <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+            {item.variant && (
+              <p className="text-xs text-muted-foreground">{item.variant}</p>
             )}
           </div>
         </CardContent>
