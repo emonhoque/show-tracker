@@ -63,6 +63,8 @@ export function AddMerchModal({
   const [shows, setShows] = useState<Pick<Show, 'id' | 'title' | 'date_time' | 'venue' | 'show_artists'>[]>([])
   const [selectedShowId, setSelectedShowId] = useState<string>(prefillShowId || '')
   const [showSearch, setShowSearch] = useState('')
+  const [showDropdownOpen, setShowDropdownOpen] = useState(false)
+  const showDropdownRef = useRef<HTMLDivElement>(null)
   const [artistSearch, setArtistSearch] = useState('')
   const [artistResults, setArtistResults] = useState<SpotifyArtist[]>([])
   const [searchingArtist, setSearchingArtist] = useState(false)
@@ -77,31 +79,32 @@ export function AddMerchModal({
     if (!userName) return
     const fetchShows = async () => {
       try {
-        const [upRes, pastRes] = await Promise.all([
-          fetch('/api/shows/upcoming'),
-          fetch('/api/shows/past?limit=200'),
-        ])
-        const allShows: Pick<Show, 'id' | 'title' | 'date_time' | 'venue' | 'show_artists'>[] = []
-        const filterByRsvp = (items: (Show & { rsvps?: RSVPSummary })[]) =>
-          items
+        const res = await fetch('/api/shows/past?limit=200')
+        if (res.ok) {
+          const data = await res.json()
+          const pastShows = (data.shows || []) as (Show & { rsvps?: RSVPSummary })[]
+          const filtered = pastShows
             .filter(s => s.rsvps && (s.rsvps.going?.includes(userName) || s.rsvps.maybe?.includes(userName)))
             .map(s => ({ id: s.id, title: s.title, date_time: s.date_time, venue: s.venue, show_artists: s.show_artists }))
-        if (upRes.ok) {
-          const upData = await upRes.json()
-          const items = Array.isArray(upData) ? upData : upData.shows || []
-          allShows.push(...filterByRsvp(items))
+          setShows(filtered)
         }
-        if (pastRes.ok) {
-          const pastData = await pastRes.json()
-          allShows.push(...filterByRsvp(pastData.shows || []))
-        }
-        setShows(allShows)
       } catch {
         // Non-critical
       }
     }
     fetchShows()
   }, [open])
+
+  // Close show dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showDropdownRef.current && !showDropdownRef.current.contains(e.target as Node)) {
+        setShowDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Reset form when modal opens with prefill values
   useEffect(() => {
@@ -126,6 +129,7 @@ export function AddMerchModal({
       setImagePreviews([])
       setSelectedShowId(prefillShowId || '')
       setShowSearch('')
+      setShowDropdownOpen(false)
       setArtistSearch('')
       setArtistResults([])
       setSelectedArtistId(null)
@@ -538,41 +542,61 @@ export function AddMerchModal({
           {/* Linked Show */}
           <div>
             <label className="text-sm font-medium text-foreground">Purchased at Show</label>
-            <div className="mt-1 space-y-1">
-              <Input
-                type="text"
-                value={showSearch}
-                onChange={(e) => setShowSearch(e.target.value)}
-                placeholder="Search by show name, venue, or artist..."
-              />
-              <Select value={selectedShowId} onChange={(v) => { setSelectedShowId(v); setShowSearch('') }}>
-                <SelectTrigger className="w-full">
-                  {selectedShowId
-                    ? (() => {
-                        const s = shows.find(s => s.id === selectedShowId)
-                        return s ? `🎪 ${s.title} — ${s.venue}` : (prefillShowTitle || 'Selected show')
-                      })()
-                    : 'None (not purchased at a show)'}
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectOption value="">None</SelectOption>
-                  {shows
-                    .filter(s => {
-                      if (!showSearch) return true
-                      const q = showSearch.toLowerCase()
-                      const artistNames = (s.show_artists || []).map((a: ShowArtist) => a.artist.toLowerCase()).join(' ')
-                      return s.title.toLowerCase().includes(q) || s.venue.toLowerCase().includes(q) || artistNames.includes(q)
-                    })
-                    .map(s => {
-                      const artists = (s.show_artists || []).map((a: ShowArtist) => a.artist).join(', ')
-                      return (
-                        <SelectOption key={s.id} value={s.id}>
-                          🎪 {s.title} — {s.venue} ({new Date(s.date_time).toLocaleDateString()}){artists ? ` · ${artists}` : ''}
-                        </SelectOption>
-                      )
-                    })}
-                </SelectContent>
-              </Select>
+            <div className="mt-1 relative" ref={showDropdownRef}>
+              {selectedShowId ? (
+                <div className="flex items-center gap-2 p-2 border border-border rounded-md bg-muted/30">
+                  <span className="text-sm flex-1">
+                    🎪 {(() => {
+                      const s = shows.find(s => s.id === selectedShowId)
+                      return s ? `${s.title} — ${s.venue}` : (prefillShowTitle || 'Selected show')
+                    })()}
+                  </span>
+                  <button type="button" onClick={() => { setSelectedShowId(''); setShowSearch('') }} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    type="text"
+                    value={showSearch}
+                    onChange={(e) => { setShowSearch(e.target.value); setShowDropdownOpen(true) }}
+                    onFocus={() => setShowDropdownOpen(true)}
+                    placeholder="Search past shows..."
+                  />
+                  {showDropdownOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-auto">
+                      {shows
+                        .filter(s => {
+                          if (!showSearch) return true
+                          const q = showSearch.toLowerCase()
+                          const artistNames = (s.show_artists || []).map((a: ShowArtist) => a.artist.toLowerCase()).join(' ')
+                          return s.title.toLowerCase().includes(q) || s.venue.toLowerCase().includes(q) || artistNames.includes(q)
+                        })
+                        .map(s => {
+                          const artists = (s.show_artists || []).map((a: ShowArtist) => a.artist).join(', ')
+                          return (
+                            <div
+                              key={s.id}
+                              className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors"
+                              onClick={() => { setSelectedShowId(s.id); setShowSearch(''); setShowDropdownOpen(false) }}
+                            >
+                              🎪 {s.title} — {s.venue} ({new Date(s.date_time).toLocaleDateString()}){artists ? ` · ${artists}` : ''}
+                            </div>
+                          )
+                        })}
+                      {shows.filter(s => {
+                        if (!showSearch) return true
+                        const q = showSearch.toLowerCase()
+                        const artistNames = (s.show_artists || []).map((a: ShowArtist) => a.artist.toLowerCase()).join(' ')
+                        return s.title.toLowerCase().includes(q) || s.venue.toLowerCase().includes(q) || artistNames.includes(q)
+                      }).length === 0 && (
+                        <div className="px-3 py-2 text-sm text-muted-foreground">No matching shows</div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
