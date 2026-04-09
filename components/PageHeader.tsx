@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useTheme } from '@/components/ThemeProvider'
-import { Plus, LogOut, Menu, User, ArrowLeft, Home, Moon, Sun } from 'lucide-react'
+import { Plus, LogOut, Menu, User, ArrowLeft, Home, Moon, Sun, ShoppingBag } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -21,6 +21,7 @@ interface PageHeaderProps {
   onAddShow?: () => void
   addShowHref?: string
   showMyProfile?: boolean
+  showMerch?: boolean
   showHome?: boolean
   showLogout?: boolean
   onLogout?: () => void
@@ -36,6 +37,7 @@ export function PageHeader({
   onAddShow,
   addShowHref,
   showMyProfile = false,
+  showMerch = false,
   showHome = false,
   showLogout = false,
   onLogout,
@@ -65,7 +67,7 @@ export function PageHeader({
   const hasAddShow = !!(onAddShow || addShowHref)
 
   // Collect mobile dropdown items
-  const hasMobileDropdown = showMyProfile || showHome || showLogout
+  const hasMobileDropdown = showMyProfile || showMerch || showHome || showLogout
 
   return (
     <header className="bg-card shadow-sm border-b border-border">
@@ -119,6 +121,16 @@ export function PageHeader({
                 My Profile
               </Button>
             )}
+            {showMerch && (
+              <Button
+                onClick={() => router.push('/merch')}
+                variant="outline"
+                size="sm"
+              >
+                <ShoppingBag className="w-4 h-4 mr-1" />
+                Merch
+              </Button>
+            )}
             {showHome && (
               <Button
                 onClick={() => router.push('/')}
@@ -168,6 +180,15 @@ export function PageHeader({
                     >
                       <User className="mr-3 h-4 w-4" />
                       My Profile
+                    </DropdownMenuItem>
+                  )}
+                  {showMerch && (
+                    <DropdownMenuItem
+                      onClick={() => router.push('/merch')}
+                      className="py-3"
+                    >
+                      <ShoppingBag className="mr-3 h-4 w-4" />
+                      My Merch
                     </DropdownMenuItem>
                   )}
                   {showHome && (

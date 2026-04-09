@@ -8,6 +8,7 @@ import { ShowCardSkeleton } from '@/components/ShowCardSkeleton'
 import { AddShowModal } from '@/components/AddShowModal'
 import { EditShowModal } from '@/components/EditShowModal'
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
+import { AddMerchModal } from '@/components/AddMerchModal'
 import { PWAFeatures } from '@/components/PWAFeatures'
 import { RSVPFilter } from '@/components/RSVPFilter'
 import { RSVPFilterSkeleton } from '@/components/RSVPFilterSkeleton'
@@ -47,6 +48,12 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [isOffline, setIsOffline] = useState(false)
   const [cacheVersion, setCacheVersion] = useState(0)
+
+  // Merch modal state (Add Merch from Show)
+  const [showMerchModal, setShowMerchModal] = useState(false)
+  const [merchShowId, setMerchShowId] = useState<string | null>(null)
+  const [merchShowTitle, setMerchShowTitle] = useState<string | null>(null)
+  const [merchShowArtist, setMerchShowArtist] = useState<string | null>(null)
 
   // Check if component is mounted on client side
   useEffect(() => {
@@ -414,6 +421,15 @@ export default function Home() {
     })
   }
 
+  const handleAddMerchFromShow = (show: Show) => {
+    setMerchShowId(show.id)
+    setMerchShowTitle(show.title)
+    // Pre-fill with the headliner artist name if available
+    const headliner = show.show_artists?.find(a => a.position === 'Headliner')
+    setMerchShowArtist(headliner?.artist || show.show_artists?.[0]?.artist || '')
+    setShowMerchModal(true)
+  }
+
   const confirmDeleteShow = async () => {
     if (!deletingShowId) return
 
@@ -490,6 +506,7 @@ export default function Home() {
         subtitle={userName ? `Welcome, ${formatNameForDisplay(userName)}` : undefined}
         onAddShow={() => setShowAddModal(true)}
         showMyProfile
+        showMerch
         showLogout
         onLogout={handleLogout}
         offlineBanner={isOffline}
@@ -573,6 +590,7 @@ export default function Home() {
                     onDelete={handleDeleteShow}
                     onRSVPUpdate={() => updateRSVPs(show.id)}
                     onDuplicate={handleDuplicateShow}
+                    onAddMerch={handleAddMerchFromShow}
                   />
                 ))}
                 
@@ -620,6 +638,16 @@ export default function Home() {
         onOpenChange={setShowDeleteDialog}
         showTitle={deletingShowTitle}
         onConfirm={confirmDeleteShow}
+      />
+
+      {/* Add Merch from Show Modal */}
+      <AddMerchModal
+        open={showMerchModal}
+        onOpenChange={setShowMerchModal}
+        onItemAdded={() => setShowMerchModal(false)}
+        prefillShowId={merchShowId || undefined}
+        prefillShowTitle={merchShowTitle || undefined}
+        prefillArtist={merchShowArtist || undefined}
       />
 
       {/* PWA Features */}
