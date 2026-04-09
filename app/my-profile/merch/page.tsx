@@ -24,6 +24,7 @@ export default function MerchPage() {
   const [authenticated, setAuthenticated] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [items, setItems] = useState<MerchItem[]>([])
+  const [allItems, setAllItems] = useState<MerchItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState<MerchStats | null>(null)
@@ -72,29 +73,26 @@ export default function MerchPage() {
 
     try {
       const params = new URLSearchParams({ user: userName })
-      if (selectedCategory) params.set('category', selectedCategory)
-      if (selectedArtist) params.set('artist', selectedArtist)
-      if (signedOnly) params.set('signed', 'true')
 
       const res = await fetch(`/api/merch?${params}`)
       if (!res.ok) throw new Error('Failed to load merch')
 
       const data = await res.json()
-      let filteredItems = data.items || []
+      const all: MerchItem[] = data.items || []
+      setAllItems(all)
 
-      if (showLinkedOnly) {
-        filteredItems = filteredItems.filter((item: MerchItem) => item.show_id)
-      }
+      // Apply filters client-side
+      let filtered = all
+      if (selectedCategory) filtered = filtered.filter(i => i.category === selectedCategory)
+      if (selectedArtist) filtered = filtered.filter(i => i.artist_name === selectedArtist)
+      if (signedOnly) filtered = filtered.filter(i => i.is_signed)
+      if (customOnly) filtered = filtered.filter(i => i.is_custom)
+      if (showLinkedOnly) filtered = filtered.filter(i => i.show_id)
 
-      // Client-side filter for custom items
-      if (customOnly) {
-        filteredItems = filteredItems.filter((item: MerchItem) => item.is_custom)
-      }
+      setItems(filtered)
 
-      setItems(filteredItems)
-
-      // Extract unique artist names for filter
-      const artists = [...new Set(filteredItems.map((item: MerchItem) => item.artist_name))] as string[]
+      // Extract unique artist names from all items
+      const artists = [...new Set(all.map(i => i.artist_name))] as string[]
       setAvailableArtists(artists.sort())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load merch')
@@ -212,7 +210,11 @@ export default function MerchPage() {
           signedOnly={signedOnly}
           customOnly={customOnly}
           showLinkedOnly={showLinkedOnly}
+          availableCategories={[...new Set(allItems.map(i => i.category))]}
           availableArtists={availableArtists}
+          hasSigned={allItems.some(i => i.is_signed)}
+          hasCustom={allItems.some(i => i.is_custom)}
+          hasShowLinked={allItems.some(i => i.show_id)}
           filteredCount={items.length}
           onCategoryChange={setSelectedCategory}
           onArtistChange={setSelectedArtist}

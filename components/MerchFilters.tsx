@@ -12,7 +12,11 @@ interface MerchFiltersProps {
   signedOnly: boolean
   customOnly: boolean
   showLinkedOnly: boolean
+  availableCategories: string[]
   availableArtists: string[]
+  hasSigned: boolean
+  hasCustom: boolean
+  hasShowLinked: boolean
   filteredCount: number
   onCategoryChange: (category: string) => void
   onArtistChange: (artist: string) => void
@@ -28,7 +32,11 @@ export function MerchFilters({
   signedOnly,
   customOnly,
   showLinkedOnly,
+  availableCategories,
   availableArtists,
+  hasSigned,
+  hasCustom,
+  hasShowLinked,
   filteredCount,
   onCategoryChange,
   onArtistChange,
@@ -48,7 +56,7 @@ export function MerchFilters({
     if (contentRef.current) {
       setContentHeight(contentRef.current.scrollHeight)
     }
-  }, [selectedCategory, selectedArtist, signedOnly, customOnly, showLinkedOnly, availableArtists])
+  }, [selectedCategory, selectedArtist, signedOnly, customOnly, showLinkedOnly, availableCategories, availableArtists, hasSigned, hasCustom, hasShowLinked])
 
   const handleToggle = () => {
     if (isAnimating) return
@@ -107,7 +115,7 @@ export function MerchFilters({
                   >
                     All
                   </Button>
-                  {MERCH_CATEGORIES.map(cat => (
+                  {MERCH_CATEGORIES.filter(cat => availableCategories.includes(cat.value)).map(cat => (
                     <Button
                       key={cat.value}
                       variant={selectedCategory === cat.value ? 'default' : 'outline'}
@@ -151,30 +159,36 @@ export function MerchFilters({
 
               {/* Toggle filters */}
               <div className="flex flex-wrap gap-2">
-                <Button
-                  variant={signedOnly ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => onSignedToggle(!signedOnly)}
-                  className="h-7 sm:h-9 text-xs sm:text-sm px-2 transition-all duration-200 hover:scale-105"
-                >
-                  ⭐ Signed Only
-                </Button>
-                <Button
-                  variant={customOnly ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => onCustomToggle(!customOnly)}
-                  className="h-7 sm:h-9 text-xs sm:text-sm px-2 transition-all duration-200 hover:scale-105"
-                >
-                  🎨 Custom Only
-                </Button>
-                <Button
-                  variant={showLinkedOnly ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => onShowLinkedToggle(!showLinkedOnly)}
-                  className="h-7 sm:h-9 text-xs sm:text-sm px-2 transition-all duration-200 hover:scale-105"
-                >
-                  🎪 Linked to Show
-                </Button>
+                {hasSigned && (
+                  <Button
+                    variant={signedOnly ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onSignedToggle(!signedOnly)}
+                    className="h-7 sm:h-9 text-xs sm:text-sm px-2 transition-all duration-200 hover:scale-105"
+                  >
+                    ⭐ Signed Only
+                  </Button>
+                )}
+                {hasCustom && (
+                  <Button
+                    variant={customOnly ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onCustomToggle(!customOnly)}
+                    className="h-7 sm:h-9 text-xs sm:text-sm px-2 transition-all duration-200 hover:scale-105"
+                  >
+                    🎨 Custom Only
+                  </Button>
+                )}
+                {hasShowLinked && (
+                  <Button
+                    variant={showLinkedOnly ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => onShowLinkedToggle(!showLinkedOnly)}
+                    className="h-7 sm:h-9 text-xs sm:text-sm px-2 transition-all duration-200 hover:scale-105"
+                  >
+                    🎪 Linked to Show
+                  </Button>
+                )}
               </div>
             </div>
           </div>
