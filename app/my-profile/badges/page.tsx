@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader } from '@/components/PageHeader'
 import { ProfileTabs } from '@/components/ProfileTabs'
-import { Trophy, Lock, Sparkles, Shield, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake, ShoppingBag } from 'lucide-react'
+import { Trophy, Lock, Sparkles, Shield, Ticket, Flame, MapPin, Mic, Users, Music, Building2, Handshake, ShoppingBag, ChevronDown } from 'lucide-react'
 import { formatNameForDisplay } from '@/lib/validation'
 import type { BadgeCategory } from '@/lib/badges'
 import type { ReactNode } from 'react'
@@ -621,17 +621,12 @@ function BadgeGrid({
         const unlockedInCat = catBadges.filter((b) => b.unlocked).length
 
         return (
-          <div key={category} className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-base">{meta.icon}</span>
-              <h3 className="text-sm font-medium text-foreground">
-                {meta.label}
-              </h3>
-              <span className="text-xs text-muted-foreground ml-auto">
-                {unlockedInCat}/{catBadges.length}
-              </span>
-            </div>
-
+          <CollapsibleSection
+            key={category}
+            icon={<span className="text-base">{meta.icon}</span>}
+            label={meta.label}
+            count={`${unlockedInCat}/${catBadges.length}`}
+          >
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {catBadges.map((badge) => (
                 <BadgeCard
@@ -640,20 +635,17 @@ function BadgeGrid({
                 />
               ))}
             </div>
-          </div>
+          </CollapsibleSection>
         )
       })}
 
       {/* Year-scoped secret badges inside year tab */}
       {hasSecrets && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4" />
-            <h3 className="text-sm font-medium text-foreground">Secret</h3>
-            <span className="text-xs text-muted-foreground ml-auto">
-              {secretBadges.filter((s) => s.unlocked).length}/?
-            </span>
-          </div>
+        <CollapsibleSection
+          icon={<Lock className="w-4 h-4" />}
+          label="Secret"
+          count={`${secretBadges.filter((s) => s.unlocked).length}/?`}
+        >
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {secretBadges
               .filter((s) => s.unlocked)
@@ -679,8 +671,50 @@ function BadgeGrid({
               </Card>
             )}
           </div>
-        </div>
+        </CollapsibleSection>
       )}
+    </div>
+  )
+}
+
+// ---- Collapsible section ----
+
+function CollapsibleSection({
+  icon,
+  label,
+  count,
+  children,
+  defaultOpen = true,
+}: {
+  icon: ReactNode
+  label: string
+  count: string
+  children: ReactNode
+  defaultOpen?: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-2 w-full text-left"
+      >
+        {icon}
+        <h3 className="text-sm font-medium text-foreground">
+          {label}
+        </h3>
+        <span className="text-xs text-muted-foreground ml-auto mr-1">
+          {count}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+            open ? '' : '-rotate-90'
+          }`}
+        />
+      </button>
+      {open && children}
     </div>
   )
 }
@@ -764,10 +798,11 @@ function SecretBadgesTab({ badges }: { badges: SecretArtistBadge[] }) {
 
       {/* Lifetime secrets */}
       {lifetimeSecrets.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            Lifetime
-          </h3>
+        <CollapsibleSection
+          icon={<Lock className="w-4 h-4" />}
+          label="Lifetime"
+          count={`${lifetimeSecrets.filter((s) => s.unlocked).length}/?`}
+        >
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {lifetimeSecrets
               .filter((s) => s.unlocked)
@@ -778,17 +813,19 @@ function SecretBadgesTab({ badges }: { badges: SecretArtistBadge[] }) {
               <LockedPlaceholderCard />
             )}
           </div>
-        </div>
+        </CollapsibleSection>
       )}
 
       {/* Year-scoped secrets */}
       {sortedYears.map((year) => {
         const yearBadges = yearGroups.get(year)!
         return (
-          <div key={year} className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              {year}
-            </h3>
+          <CollapsibleSection
+            key={year}
+            icon={<Lock className="w-4 h-4" />}
+            label={String(year)}
+            count={`${yearBadges.filter((s) => s.unlocked).length}/?`}
+          >
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {yearBadges
                 .filter((s) => s.unlocked)
@@ -802,7 +839,7 @@ function SecretBadgesTab({ badges }: { badges: SecretArtistBadge[] }) {
                 <LockedPlaceholderCard />
               )}
             </div>
-          </div>
+          </CollapsibleSection>
         )
       })}
 
