@@ -289,6 +289,14 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     scope: 'year',
     criteria: 'An attended show in the year with time_local >= "22:00".',
   },
+  {
+    key: 'early_bird',
+    name: 'Early Bird',
+    description: 'Caught a show starting at 5 PM or earlier.',
+    category: 'streaks',
+    scope: 'year',
+    criteria: 'An attended show in the year with time_local <= "17:00".',
+  },
 
   // ---- Venues & Cities (year) ----
   {
@@ -898,6 +906,14 @@ function computeYearBadges(ctx: EvalContext, year: number): BadgeGrant[] {
     }
   }
 
+  // Early bird
+  for (const s of shows) {
+    if (s.time_local && s.time_local <= '17:00') {
+      grant('early_bird')
+      break
+    }
+  }
+
   // ---- Venues & Cities (year) ----
   const venueCounts = new Map<string, number>()
   const cityCounts = new Map<string, number>()
@@ -1120,58 +1136,43 @@ function computeSecretArtistBadges(
 /**
  * Compute secret merch badges. Uses the same secret artist definitions —
  * if the user owns merch by a secret artist, they get a "secret_merch_<key>" badge.
- * Lifetime definitions unlock once; year-scoped unlock per purchase year.
+ * Always lifetime-scoped (unlocks once per artist).
  */
 function computeSecretMerchBadges(
   ctx: EvalContext,
   definitions: SecretArtistBadge[],
-  targetYears: number[],
 ): BadgeGrant[] {
   if (definitions.length === 0 || ctx.merchItems.length === 0) return []
 
   const grants: BadgeGrant[] = []
 
-  // Collect all spotify IDs from merch (for lifetime)
+  // Collect all spotify IDs from merch
   const merchAllTime = new Map<string, { artist_name: string; image_url?: string | null }>()
-  // Collect spotify IDs per purchase year (for year-scoped)
-  const merchByYear = new Map<number, Map<string, { artist_name: string; image_url?: string | null }>>()
 
   for (const m of ctx.merchItems) {
     if (!m.artist_spotify_id) continue
     const info = { artist_name: m.artist_name, image_url: m.artist_image_url }
     if (!merchAllTime.has(m.artist_spotify_id)) merchAllTime.set(m.artist_spotify_id, info)
-    if (m.purchase_date) {
-      const year = new Date(m.purchase_date).getUTCFullYear()
-      if (!merchByYear.has(year)) merchByYear.set(year, new Map())
-      const yearMap = merchByYear.get(year)!
-      if (!yearMap.has(m.artist_spotify_id)) yearMap.set(m.artist_spotify_id, info)
-    }
   }
 
+  // Merch badges are always lifetime — owning merch by the artist unlocks once
   for (const secret of definitions) {
     const merchKey = `secret_merch_${secret.key.replace(/^secret_/, '')}`
 
-    const meta = (info: { artist_name: string; image_url?: string | null }) => ({
-      artist_name: info.artist_name,
-      spotify_id: secret.spotify_id,
-      image_url: secret.image_url ?? info.image_url ?? null,
-    })
+    const k = unlockKey(merchKey, null)
+    if (ctx.alreadyUnlocked.has(k)) continue
+    const info = merchAllTime.get(secret.spotify_id)
+    if (!info) continue
 
-    if (secret.scope === 'year') {
-      for (const year of targetYears) {
-        const k = unlockKey(merchKey, year)
-        if (ctx.alreadyUnlocked.has(k)) continue
-        const info = merchByYear.get(year)?.get(secret.spotify_id)
-        if (!info) continue
-        grants.push({ key: merchKey, scope_year: year, metadata: meta(info) })
-      }
-    } else {
-      const k = unlockKey(merchKey, null)
-      if (ctx.alreadyUnlocked.has(k)) continue
-      const info = merchAllTime.get(secret.spotify_id)
-      if (!info) continue
-      grants.push({ key: merchKey, scope_year: null, metadata: meta(info) })
-    }
+    grants.push({
+      key: merchKey,
+      scope_year: null,
+      metadata: {
+        artist_name: info.artist_name,
+        spotify_id: secret.spotify_id,
+        image_url: secret.image_url ?? info.image_url ?? null,
+      },
+    })
   }
 
   return grants
@@ -1271,7 +1272,7 @@ export async function evaluateAndUnlockBadges(
     const secretGrants = computeSecretArtistBadges(ctx, secretDefs, targetYears)
 
     // Compute secret merch badges (same artist definitions, merch ownership)
-    const secretMerchGrants = computeSecretMerchBadges(ctx, secretDefs, targetYears)
+    const secretMerchGrants = computeSecretMerchBadges(ctx, secretDefs)
 
     // Compute year-scoped badges for each target year
     const yearGrants: BadgeGrant[] = []
@@ -1381,22 +1382,6 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
           image_url: def.image_url ?? (meta?.image_url as string | null) ?? null,
           artist_name: (meta?.artist_name as string) ?? null,
         })
-
-        // Secret merch badge for this artist + year
-        const merchKey = `secret_merch_${def.key.replace(/^secret_/, '')}`
-        const mu = unlockedMap.get(unlockKey(merchKey, year))
-        const mMeta = mu?.metadata as Record<string, unknown> | null
-        secretArtists.push({
-          key: merchKey,
-          name: `${def.name} (Merch)`,
-          description: `Own merch from this artist`,
-          scope: 'year',
-          scope_year: year,
-          unlocked: !!mu,
-          unlocked_at: mu?.unlocked_at ?? null,
-          image_url: def.image_url ?? (mMeta?.image_url as string | null) ?? null,
-          artist_name: (mMeta?.artist_name as string) ?? null,
-        })
       }
     } else {
       const u = unlockedMap.get(unlockKey(def.key, null))
@@ -1412,23 +1397,23 @@ export async function getUserBadgesGrouped(userId: string): Promise<{
         image_url: def.image_url ?? (meta?.image_url as string | null) ?? null,
         artist_name: (meta?.artist_name as string) ?? null,
       })
-
-      // Secret merch badge for this artist (lifetime)
-      const merchKey = `secret_merch_${def.key.replace(/^secret_/, '')}`
-      const mu = unlockedMap.get(unlockKey(merchKey, null))
-      const mMeta = mu?.metadata as Record<string, unknown> | null
-      secretArtists.push({
-        key: merchKey,
-        name: `${def.name} (Merch)`,
-        description: `Own merch from this artist`,
-        scope: 'lifetime',
-        scope_year: null,
-        unlocked: !!mu,
-        unlocked_at: mu?.unlocked_at ?? null,
-        image_url: def.image_url ?? (mMeta?.image_url as string | null) ?? null,
-        artist_name: (mMeta?.artist_name as string) ?? null,
-      })
     }
+
+    // Secret merch badge — always lifetime (one per artist)
+    const merchKey = `secret_merch_${def.key.replace(/^secret_/, '')}`
+    const mu = unlockedMap.get(unlockKey(merchKey, null))
+    const mMeta = mu?.metadata as Record<string, unknown> | null
+    secretArtists.push({
+      key: merchKey,
+      name: `${def.name} (Merch)`,
+      description: `Own merch from this artist`,
+      scope: 'lifetime',
+      scope_year: null,
+      unlocked: !!mu,
+      unlocked_at: mu?.unlocked_at ?? null,
+      image_url: def.image_url ?? (mMeta?.image_url as string | null) ?? null,
+      artist_name: (mMeta?.artist_name as string) ?? null,
+    })
   }
 
   const years = sortedYears.map((year) => {
