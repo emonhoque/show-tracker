@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime, formatDaysUntilShow } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2, ShoppingBag } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2, ShoppingBag, ChevronUp } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 import { ShareShowImage } from '@/components/ShareShowImage'
@@ -43,7 +43,13 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const [inlineExpanded, setInlineExpanded] = useState(false)
   const { showToast } = useToast()
+
+  // Reset inline expansion when leaving compact mode so cards start collapsed next time
+  useEffect(() => {
+    if (!compact) setInlineExpanded(false)
+  }, [compact])
 
   // Get userName from localStorage on client side
   useEffect(() => {
@@ -273,13 +279,19 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       : null
     : null
 
-  if (compact) {
+  if (compact && !inlineExpanded) {
     return (
       <Card
         id={`show-${show.id}`}
         className={`w-full overflow-hidden transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
       >
-        <div className="flex items-center gap-3 p-3">
+        <div
+          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/30 transition-colors"
+          onClick={() => setInlineExpanded(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setInlineExpanded(true) }}
+        >
           {show.poster_url ? (
             <Image
               src={show.poster_url}
@@ -310,8 +322,8 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {userStatus && (
+          <div className="flex items-center gap-1.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
+            {!isPast && userStatus && (
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                 userStatus === 'going'
                   ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
@@ -320,6 +332,11 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
                   : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
               }`}>
                 {userStatus === 'going' ? 'Going' : userStatus === 'maybe' ? 'Maybe' : 'Not Going'}
+              </span>
+            )}
+            {isPast && userStatus === 'going' && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                Attended
               </span>
             )}
             <DropdownMenu.DropdownMenu>
@@ -374,6 +391,15 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       id={`show-${show.id}`}
       className={`w-full mb-6 overflow-hidden gap-1 transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
     >
+      {compact && inlineExpanded && (
+        <button
+          onClick={() => setInlineExpanded(false)}
+          className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-b border-border"
+        >
+          <ChevronUp className="w-3 h-3" />
+          Collapse
+        </button>
+      )}
       {/* Header Section */}
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start gap-4">
