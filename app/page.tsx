@@ -621,7 +621,7 @@ export default function Home() {
                 )
               }
               return (
-                <div className={isCompact ? 'grid grid-cols-1 sm:grid-cols-2 gap-2' : 'space-y-4'}>
+                <div className={isCompact ? 'space-y-1' : 'space-y-4'}>
                   {displayShows.map((show) => (
                     <ShowCard
                       key={show.id}
@@ -694,7 +694,7 @@ export default function Home() {
                       {`No shows found for "${pastSearchQuery}"`}
                     </p>
                   ) : (
-                    <div className={isCompact ? 'grid grid-cols-1 sm:grid-cols-2 gap-2' : 'space-y-4'}>
+                    <div className={isCompact ? 'space-y-1' : 'space-y-4'}>
                       {displayShows.map((show) => (
                         <ShowCard
                           key={show.id}

@@ -431,7 +431,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   return (
     <Card
       id={`show-${show.id}`}
-      className={`w-full overflow-hidden gap-1 transition-all duration-500 ${compact && inlineExpanded ? 'sm:col-span-2' : 'mb-6'} ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+      className={`w-full mb-6 overflow-hidden gap-1 transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
     >
       {compact && inlineExpanded && (
         <button
