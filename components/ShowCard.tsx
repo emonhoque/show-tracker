@@ -280,9 +280,6 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
     : null
 
   if (compact && !inlineExpanded) {
-    const hasTickets = !isPast && show.ticket_url
-    const hasPhotos = isPast && show.google_photos_url
-
     return (
       <Card
         id={`show-${show.id}`}
@@ -424,40 +421,6 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
                 </Button>
               )}
 
-              {/* Divider before extra actions */}
-              {(hasTickets || hasPhotos) && (
-                <div className="w-px h-4 bg-border mx-0.5" />
-              )}
-
-              {/* Tickets (upcoming only) */}
-              {hasTickets && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  asChild
-                  className="h-7 text-xs px-2.5"
-                >
-                  <a href={show.ticket_url!} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Tickets
-                  </a>
-                </Button>
-              )}
-
-              {/* Photos (past only) */}
-              {hasPhotos && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  asChild
-                  className="h-7 text-xs px-2.5"
-                >
-                  <a href={show.google_photos_url!} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Photos
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
         </div>
@@ -468,7 +431,7 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
   return (
     <Card
       id={`show-${show.id}`}
-      className={`w-full mb-6 overflow-hidden gap-1 transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+      className={`w-full overflow-hidden gap-1 transition-all duration-500 ${compact && inlineExpanded ? 'sm:col-span-2' : 'mb-6'} ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
     >
       {compact && inlineExpanded && (
         <button
