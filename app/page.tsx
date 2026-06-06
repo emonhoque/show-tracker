@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Search, X, Minimize2, Maximize2 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PasswordGate } from '@/components/PasswordGate'
 import { ShowCard } from '@/components/ShowCard'
@@ -49,6 +52,10 @@ export default function Home() {
   const [isOffline, setIsOffline] = useState(false)
   const [cacheVersion, setCacheVersion] = useState(0)
 
+  const [upcomingSearchQuery, setUpcomingSearchQuery] = useState('')
+  const [pastSearchQuery, setPastSearchQuery] = useState('')
+  const [isCompact, setIsCompact] = useState(false)
+
   // Merch modal state (Add Merch from Show)
   const [showMerchModal, setShowMerchModal] = useState(false)
   const [merchShowId, setMerchShowId] = useState<string | null>(null)
@@ -64,7 +71,8 @@ export default function Home() {
       setUserName(storedName)
       setAuthenticated(true)
     }
-
+    const compactMatch = document.cookie.match(/(?:^|;\s*)showCardCompact=([^;]+)/)
+    if (compactMatch) setIsCompact(compactMatch[1] === 'true')
   }, [])
 
   const { showToast } = useToast()
@@ -324,6 +332,23 @@ export default function Home() {
     setSelectedPeopleFilters(new Set(['all']))
   }
 
+  const handleToggleCompact = () => {
+    const next = !isCompact
+    setIsCompact(next)
+    document.cookie = `showCardCompact=${next}; path=/; max-age=${365 * 24 * 3600}`
+  }
+
+  const filterBySearch = (shows: Show[], query: string): Show[] => {
+    if (!query.trim()) return shows
+    const q = query.toLowerCase()
+    return shows.filter(show =>
+      show.title.toLowerCase().includes(q) ||
+      show.city.toLowerCase().includes(q) ||
+      show.venue.toLowerCase().includes(q) ||
+      show.show_artists?.some(a => a.artist.toLowerCase().includes(q))
+    )
+  }
+
   const handleShowAdded = async () => {
     // Show success toast
     showToast({
@@ -523,9 +548,9 @@ export default function Home() {
             <TabsTrigger value="releases">Music</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="upcoming" className="space-y-6">
+          <TabsContent value="upcoming" className="space-y-4">
             <h2 className="sr-only">Upcoming Shows</h2>
-            
+
             {/* RSVP Filter */}
             {loading ? (
               <RSVPFilterSkeleton />
@@ -540,38 +565,118 @@ export default function Home() {
                 onClearAllFilters={handleClearAllFilters}
               />
             )}
-            
+
+            {/* Search bar + compact toggle */}
+            {!loading && (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="text"
+                    placeholder="Search by artist, title, city or venue..."
+                    value={upcomingSearchQuery}
+                    onChange={e => setUpcomingSearchQuery(e.target.value)}
+                    className="pl-9 pr-9"
+                  />
+                  {upcomingSearchQuery && (
+                    <button
+                      onClick={() => setUpcomingSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleToggleCompact}
+                  title={isCompact ? 'Switch to expanded view' : 'Switch to compact view'}
+                  aria-label={isCompact ? 'Switch to expanded view' : 'Switch to compact view'}
+                >
+                  {isCompact ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                </Button>
+              </div>
+            )}
+
             {loading ? (
               <>
                 <ShowCardSkeleton />
                 <ShowCardSkeleton />
                 <ShowCardSkeleton />
               </>
-            ) : filteredUpcomingShows.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                {upcomingShows.length === 0 
-                  ? 'No upcoming shows' 
-                  : 'No shows match the selected filters'
-                }
-              </p>
-            ) : (
-              filteredUpcomingShows.map((show) => (
-                <ShowCard 
-                  key={show.id} 
-                  show={show} 
-                  isPast={false} 
-                  rsvps={rsvpsData[show.id] || { going: [], maybe: [], not_going: [] }}
-                  onEdit={handleEditShow}
-                  onDelete={handleDeleteShow}
-                  onRSVPUpdate={() => updateRSVPs(show.id)}
-                  onDuplicate={handleDuplicateShow}
-                />
-              ))
-            )}
+            ) : (() => {
+              const displayShows = filterBySearch(filteredUpcomingShows, upcomingSearchQuery)
+              if (displayShows.length === 0) {
+                return (
+                  <p className="text-center text-muted-foreground py-8">
+                    {upcomingShows.length === 0
+                      ? 'No upcoming shows'
+                      : upcomingSearchQuery.trim()
+                      ? `No shows found for "${upcomingSearchQuery}"`
+                      : 'No shows match the selected filters'
+                    }
+                  </p>
+                )
+              }
+              return (
+                <div className={isCompact ? 'space-y-1' : 'space-y-4'}>
+                  {displayShows.map((show) => (
+                    <ShowCard
+                      key={show.id}
+                      show={show}
+                      isPast={false}
+                      rsvps={rsvpsData[show.id] || { going: [], maybe: [], not_going: [] }}
+                      onEdit={handleEditShow}
+                      onDelete={handleDeleteShow}
+                      onRSVPUpdate={() => updateRSVPs(show.id)}
+                      onDuplicate={handleDuplicateShow}
+                      compact={isCompact}
+                    />
+                  ))}
+                </div>
+              )
+            })()}
           </TabsContent>
           
           <TabsContent value="past" className="space-y-4">
             <h2 className="sr-only">Past Shows</h2>
+
+            {/* Search bar + compact toggle */}
+            {!loading && (
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    type="text"
+                    placeholder="Search by artist, title, city or venue..."
+                    value={pastSearchQuery}
+                    onChange={e => setPastSearchQuery(e.target.value)}
+                    className="pl-9 pr-9"
+                  />
+                  {pastSearchQuery && (
+                    <button
+                      onClick={() => setPastSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleToggleCompact}
+                  title={isCompact ? 'Switch to expanded view' : 'Switch to compact view'}
+                  aria-label={isCompact ? 'Switch to expanded view' : 'Switch to compact view'}
+                >
+                  {isCompact ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                </Button>
+              </div>
+            )}
+
             {loading ? (
               <>
                 <ShowCardSkeleton />
@@ -580,36 +685,48 @@ export default function Home() {
               </>
             ) : pastShows.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No past shows</p>
-            ) : (
-              <>
-                {pastShows.map((show) => (
-                  <ShowCard 
-                    key={show.id} 
-                    show={show} 
-                    isPast={true} 
-                    rsvps={rsvpsData[show.id] || { going: [], maybe: [], not_going: [] }}
-                    onEdit={handleEditShow}
-                    onDelete={handleDeleteShow}
-                    onRSVPUpdate={() => updateRSVPs(show.id)}
-                    onDuplicate={handleDuplicateShow}
-                    onAddMerch={handleAddMerchFromShow}
-                  />
-                ))}
-                
-                {/* Infinite scroll loading indicator */}
-                {loadingMore && (
-                  <div className="flex justify-center py-4">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-muted-foreground"></div>
-                      <span>Loading more shows...</span>
+            ) : (() => {
+              const displayShows = filterBySearch(pastShows, pastSearchQuery)
+              return (
+                <>
+                  {displayShows.length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">
+                      {`No shows found for "${pastSearchQuery}"`}
+                    </p>
+                  ) : (
+                    <div className={isCompact ? 'space-y-1' : 'space-y-4'}>
+                      {displayShows.map((show) => (
+                        <ShowCard
+                          key={show.id}
+                          show={show}
+                          isPast={true}
+                          rsvps={rsvpsData[show.id] || { going: [], maybe: [], not_going: [] }}
+                          onEdit={handleEditShow}
+                          onDelete={handleDeleteShow}
+                          onRSVPUpdate={() => updateRSVPs(show.id)}
+                          onDuplicate={handleDuplicateShow}
+                          onAddMerch={handleAddMerchFromShow}
+                          compact={isCompact}
+                        />
+                      ))}
                     </div>
-                  </div>
-                )}
-                
-                {/* Infinite scroll sentinel */}
-                <div ref={sentinelRef} className="h-4" />
-              </>
-            )}
+                  )}
+
+                  {/* Infinite scroll loading indicator */}
+                  {loadingMore && (
+                    <div className="flex justify-center py-4">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-muted-foreground"></div>
+                        <span>Loading more shows...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Infinite scroll sentinel */}
+                  <div ref={sentinelRef} className="h-4" />
+                </>
+              )
+            })()}
           </TabsContent>
           
           <TabsContent value="releases" className="space-y-6">

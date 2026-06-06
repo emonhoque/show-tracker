@@ -34,9 +34,10 @@ interface ShowCardProps {
   onRSVPUpdate?: () => void
   onDuplicate?: (show: Show) => void
   onAddMerch?: (show: Show) => void
+  compact?: boolean
 }
 
-export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate, onAddMerch }: ShowCardProps) {
+export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate, onAddMerch, compact }: ShowCardProps) {
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -272,8 +273,104 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       : null
     : null
 
+  if (compact) {
+    return (
+      <Card
+        id={`show-${show.id}`}
+        className={`w-full overflow-hidden transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+      >
+        <div className="flex items-center gap-3 p-3">
+          {show.poster_url ? (
+            <Image
+              src={show.poster_url}
+              alt={`${show.title} poster`}
+              width={56}
+              height={56}
+              className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <Music className="w-6 h-6 text-muted-foreground" />
+            </div>
+          )}
+
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-sm truncate">{show.title}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {formatUserTime(show.date_time, show.time_local)}
+              {!isPast && (
+                <span className="ml-1 text-muted-foreground/70">({formatDaysUntilShow(show.date_time)})</span>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">{show.venue} · {show.city}</div>
+            {show.show_artists && show.show_artists.length > 0 && (
+              <div className="text-xs text-muted-foreground/70 truncate">
+                {show.show_artists.map(a => a.artist).join(' · ')}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {userStatus && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                userStatus === 'going'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : userStatus === 'maybe'
+                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                  : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+              }`}>
+                {userStatus === 'going' ? 'Going' : userStatus === 'maybe' ? 'Maybe' : 'Not Going'}
+              </span>
+            )}
+            <DropdownMenu.DropdownMenu>
+              <DropdownMenu.DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  aria-label={`More options for ${show.title}`}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenu.DropdownMenuTrigger>
+              <DropdownMenu.DropdownMenuContent align="end" className="w-48">
+                {onEdit && (
+                  <DropdownMenu.DropdownMenuItem onClick={() => onEdit(show)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenu.DropdownMenuItem>
+                )}
+                {onDuplicate && userName === 'emon hoque' && !isPast && (
+                  <DropdownMenu.DropdownMenuItem onClick={handleDuplicate} disabled={loading}>
+                    <CopyIcon className="mr-2 h-4 w-4" />
+                    Duplicate
+                  </DropdownMenu.DropdownMenuItem>
+                )}
+                {onDelete && (!isPast || userName === 'emon hoque') && (
+                  <DropdownMenu.DropdownMenuItem
+                    onClick={() => onDelete(show.id)}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenu.DropdownMenuItem>
+                )}
+                {isPast && onAddMerch && (
+                  <DropdownMenu.DropdownMenuItem onClick={() => onAddMerch(show)}>
+                    <ShoppingBag className="mr-2 h-4 w-4" />
+                    Add Merch
+                  </DropdownMenu.DropdownMenuItem>
+                )}
+              </DropdownMenu.DropdownMenuContent>
+            </DropdownMenu.DropdownMenu>
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
   return (
-    <Card 
+    <Card
       id={`show-${show.id}`}
       className={`w-full mb-6 overflow-hidden gap-1 transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
     >
