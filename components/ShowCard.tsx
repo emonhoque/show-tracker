@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Show, RSVPSummary } from '@/lib/types'
 import { formatUserTime, formatDaysUntilShow } from '@/lib/time'
 import { formatNameForDisplay } from '@/lib/validation'
-import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2, ShoppingBag } from 'lucide-react'
+import { ExternalLink, MoreVertical, Edit, Trash2, Copy, Music, CopyIcon, Link2, ShoppingBag, ChevronUp } from 'lucide-react'
 import { ImageModal } from '@/components/ImageModal'
 import { ExportToCalendar } from '@/components/ExportToCalendar'
 import { ShareShowImage } from '@/components/ShareShowImage'
@@ -34,15 +34,22 @@ interface ShowCardProps {
   onRSVPUpdate?: () => void
   onDuplicate?: (show: Show) => void
   onAddMerch?: (show: Show) => void
+  compact?: boolean
 }
 
-export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate, onAddMerch }: ShowCardProps) {
+export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, onDuplicate, onAddMerch, compact }: ShowCardProps) {
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
+  const [inlineExpanded, setInlineExpanded] = useState(false)
   const { showToast } = useToast()
+
+  // Reset inline expansion when leaving compact mode so cards start collapsed next time
+  useEffect(() => {
+    if (!compact) setInlineExpanded(false)
+  }, [compact])
 
   // Get userName from localStorage on client side
   useEffect(() => {
@@ -272,11 +279,169 @@ export function ShowCard({ show, isPast, rsvps, onEdit, onDelete, onRSVPUpdate, 
       : null
     : null
 
+  if (compact && !inlineExpanded) {
+    return (
+      <Card
+        id={`show-${show.id}`}
+        className={`w-full overflow-hidden transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+      >
+        <div className="flex items-start gap-3 p-3">
+          {/* Poster — clicking it expands the card */}
+          <div
+            className="flex-shrink-0 cursor-pointer"
+            onClick={() => setInlineExpanded(true)}
+          >
+            {show.poster_url ? (
+              <Image
+                src={show.poster_url}
+                alt={`${show.title} poster`}
+                width={56}
+                height={56}
+                className="w-14 h-14 rounded-lg object-cover hover:opacity-80 transition-opacity"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-lg bg-muted flex items-center justify-center">
+                <Music className="w-6 h-6 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+
+          {/* Right side: info + actions */}
+          <div className="flex-1 min-w-0">
+            {/* Info row */}
+            <div className="flex items-start gap-1">
+              <div
+                className="flex-1 min-w-0 cursor-pointer"
+                onClick={() => setInlineExpanded(true)}
+              >
+                <div className="font-semibold text-sm truncate">{show.title}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {formatUserTime(show.date_time, show.time_local)}
+                  {!isPast && (
+                    <span className="ml-1 text-muted-foreground/70">({formatDaysUntilShow(show.date_time)})</span>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground">{show.venue} · {show.city}</div>
+                {show.show_artists && show.show_artists.length > 0 && (
+                  <div className="text-xs text-muted-foreground/70 truncate">
+                    {show.show_artists.map(a => a.artist).join(' · ')}
+                  </div>
+                )}
+              </div>
+
+              {/* Menu */}
+              <DropdownMenu.DropdownMenu>
+                <DropdownMenu.DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 flex-shrink-0"
+                    aria-label={`More options for ${show.title}`}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenu.DropdownMenuTrigger>
+                <DropdownMenu.DropdownMenuContent align="end" className="w-48">
+                  {onEdit && (
+                    <DropdownMenu.DropdownMenuItem onClick={() => onEdit(show)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenu.DropdownMenuItem>
+                  )}
+                  {onDuplicate && userName === 'emon hoque' && !isPast && (
+                    <DropdownMenu.DropdownMenuItem onClick={handleDuplicate} disabled={loading}>
+                      <CopyIcon className="mr-2 h-4 w-4" />
+                      Duplicate
+                    </DropdownMenu.DropdownMenuItem>
+                  )}
+                  {onDelete && (!isPast || userName === 'emon hoque') && (
+                    <DropdownMenu.DropdownMenuItem
+                      onClick={() => onDelete(show.id)}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenu.DropdownMenuItem>
+                  )}
+                  {isPast && onAddMerch && (
+                    <DropdownMenu.DropdownMenuItem onClick={() => onAddMerch(show)}>
+                      <ShoppingBag className="mr-2 h-4 w-4" />
+                      Add Merch
+                    </DropdownMenu.DropdownMenuItem>
+                  )}
+                </DropdownMenu.DropdownMenuContent>
+              </DropdownMenu.DropdownMenu>
+            </div>
+
+            {/* Action buttons row */}
+            <div className="flex flex-wrap items-center gap-1 mt-2">
+              {/* Upcoming RSVP */}
+              {!isPast && userName && (
+                <>
+                  <Button
+                    size="sm"
+                    variant={userStatus === 'going' ? 'default' : 'outline'}
+                    onClick={() => handleRSVP(userStatus === 'going' ? null : 'going')}
+                    disabled={loading}
+                    className="h-7 text-xs px-2.5"
+                  >
+                    Going
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={userStatus === 'maybe' ? 'default' : 'outline'}
+                    onClick={() => handleRSVP(userStatus === 'maybe' ? null : 'maybe')}
+                    disabled={loading}
+                    className="h-7 text-xs px-2.5"
+                  >
+                    Maybe
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={userStatus === 'not_going' ? 'default' : 'outline'}
+                    onClick={() => handleRSVP(userStatus === 'not_going' ? null : 'not_going')}
+                    disabled={loading}
+                    className="h-7 text-xs px-2.5"
+                  >
+                    Not Going
+                  </Button>
+                </>
+              )}
+
+              {/* Past: attendance */}
+              {isPast && userName && (
+                <Button
+                  size="sm"
+                  variant={userStatus === 'going' ? 'default' : 'outline'}
+                  onClick={() => handleRSVP(userStatus === 'going' ? null : 'going')}
+                  disabled={loading}
+                  className="h-7 text-xs px-2.5"
+                >
+                  {userStatus === 'going' ? 'Was there ✓' : 'I was there!'}
+                </Button>
+              )}
+
+            </div>
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
   return (
-    <Card 
+    <Card
       id={`show-${show.id}`}
       className={`w-full mb-6 overflow-hidden gap-1 transition-all duration-500 ${isHighlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
     >
+      {compact && inlineExpanded && (
+        <button
+          onClick={() => setInlineExpanded(false)}
+          className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-b border-border"
+        >
+          <ChevronUp className="w-3 h-3" />
+          Collapse
+        </button>
+      )}
       {/* Header Section */}
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start gap-4">
