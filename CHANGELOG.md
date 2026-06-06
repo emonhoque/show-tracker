@@ -4,6 +4,16 @@ All notable changes to Show Tracker will be documented in this file.
 
 ---
 
+## [1.10.3] - 2026-06-05
+
+### Added
+- **Show search bar** — Instant search below the filter bar on both Upcoming and Past tabs; matches against show title, artist names, city, and venue. Typing a partial term (e.g. "boston") surfaces all shows containing that string anywhere in those fields. Includes a clear (×) button.
+- **Compact / expanded view toggle** — Button next to the search bar switches all show cards between the full expanded layout and a compact single-line layout. Preference is persisted in a cookie for future visits (expanded by default).
+- **Compact card design** — Condensed card shows a 56×56 poster thumbnail, title, date/time, venue · city, and artist names on one row. Upcoming shows display inline Going / Maybe / Not Going RSVP buttons; past shows show an "I was there!" attendance toggle — no need to open the full card to RSVP.
+- **Inline card expansion** — Clicking the poster or info text on a compact card expands it to the full card view inline; a "Collapse" bar at the top collapses it back. Switching the global toggle back to compact mode resets all inline expansions.
+
+---
+
 ## [1.10.2] - 2026-04-09
 
 ### Fixed
